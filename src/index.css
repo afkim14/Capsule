@@ -11,3 +11,125 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
 }
+
+html {
+  background-color: #3e3e3e;
+}
+
+.alignToolMenu {
+  margin-left: 100px;
+}
+
+.mainBGColor {
+  background-color: #3e3e3e;
+}
+
+.mainFGColor {
+  color: #cecece;
+}
+
+.cardTextArea {
+  width: 100%;
+  min-height: 500px;
+  outline: none;
+  border: none;
+  resize: none;
+  margin-bottom: 40px;
+
+  font-size: 18px;
+  line-height: 200%;
+}
+
+.container {
+  width: 50%;
+  margin: 0px auto;
+  text-align: left;
+}
+
+.navbar {
+  float: right;
+  margin-top: 40px;
+}
+
+.newCardButton {
+  width: 100px;
+  height: 40px;
+  border-radius: 5px;
+  border: 2px solid #39b287;
+  color: #39b287;
+  font-weight: bold;
+  cursor: pointer;
+  margin-right: 10px;
+  outline: none;
+
+  transition: background-color 0.5s ease, color 0.5s ease, border-radius 0.5s ease;
+}
+
+.newCardButton:hover {
+  border-radius: 20px;
+  border: 0px solid #39b287;
+  background-color: #39b287;
+  color: #3e3e3e;
+}
+
+.shareButton {
+  width: 100px;
+  height: 40px;
+  border-radius: 5px;
+  border: 2px solid #3a96af;
+  color: #3a96af;
+  font-weight: bold;
+  cursor: pointer;
+  outline: none;
+
+  transition: background-color 0.5s ease, color 0.5s ease, border-radius 0.5s ease;
+}
+
+.shareButton:hover {
+  border-radius: 20px;
+  border: 0px solid #3a96af;
+  background-color: #3a96af;
+  color: #3e3e3e;
+}
+
+.textToolMenu {
+  float: left;
+}
+
+.titleTextArea {
+  width: 100%;
+  min-height: 30px;
+  margin-top: 20px;
+  outline: none;
+  border: none;
+  resize: none;
+
+  font-size: 30px;
+  font-weight: bold;
+}
+
+.toolMenu {
+  margin-top: 20px;
+}
+
+.toolMenuIcon {
+  width: 20px;
+  height: 20px;
+  padding: 5px;
+  border: 2px solid #cecece;
+  cursor: pointer;
+  margin-right: 10px;
+
+  transition: border-color 0.2s ease;
+}
+
+.toolMenuIconSelected {
+  width: 20px;
+  height: 20px;
+  padding: 5px;
+  border: 2px solid #39b287;
+  cursor: pointer;
+  margin-right: 10px;
+
+  transition: border-color 0.2s ease;
+}
