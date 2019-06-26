@@ -133,3 +133,15 @@ html {
 
   transition: border-color 0.2s ease;
 }
+
+@media only screen and (max-width: 620px) {
+  .container {
+    width: 90%;
+  }
+
+  .navbar {
+    float: none;
+    margin-top: 20px;
+    text-align: center;
+  }
+}
