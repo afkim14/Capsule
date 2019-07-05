@@ -16,10 +16,6 @@ html {
   background-color: #3e3e3e;
 }
 
-.alignToolMenu {
-  margin-left: 100px;
-}
-
 .mainBGColor {
   background-color: #3e3e3e;
 }
@@ -28,27 +24,141 @@ html {
   color: #cecece;
 }
 
-.cardTextArea {
-  width: 100%;
-  min-height: 500px;
-  outline: none;
-  border: none;
-  resize: none;
-  margin-bottom: 40px;
+.alignToolMenu {
+  float: left;
+  margin-left: 10px;
+}
 
-  font-size: 18px;
-  line-height: 200%;
+.align-right div {
+  text-align: right;
+}
+
+.align-center div {
+  text-align: center;
+}
+
+.align-left div {
+  text-align: left;
+}
+
+.colorsHeader {
+  color: "#cecece";
+}
+
+#editor img {
+  max-width: 80%;
+  margin: 0px auto;
+  display: block;
+  cursor: pointer;
+}
+
+#editor img:hover {
+  border: 2px solid #cecece;
+}
+
+.fileToolMenu {
+  float: left;
+  margin-left: 10px;
+}
+
+.footer {
+  background-color: #333333;
+  border-top: "1px solid #000000";
+  position: fixed;
+  left: 0px;
+  bottom: 0px;
+  width: 100%;
 }
 
 .container {
-  width: 50%;
+  width: 60%;
   margin: 0px auto;
   text-align: left;
 }
 
+.contentTextArea {
+  width: 100%;
+  min-height: 500px;
+  outline: none;
+  border: none;
+  margin-bottom: 100px;
+  padding: 3px;
+
+  font-size: 18px;
+  line-height: 200%;
+  z-index: inherit;
+}
+
+.colorToolMenu {
+  float: left;
+}
+
+/* Dropdown Button */
+.dropbtn {
+  background-color: #3e3e3e;
+  color: #cecece;
+  font-size: 20px;
+  border: none;
+  cursor: pointer;
+  outline: none;
+  margin-top: -2px;
+}
+
+/* The container <div> - needed to position the dropdown content */
+.dropdown {
+  position: relative;
+  display: inline-block;
+  margin-top: 5px;
+  margin-right: 10px;
+}
+
+/* Dropdown Content (Hidden by Default) */
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #333333;
+  color: #cecece;
+  min-width: 320px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+}
+
+/* Links inside the dropdown */
+.dropdown-content a {
+  display: block;
+  color: #cecece;
+  padding: 12px 16px;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+/* Change color of dropdown links on hover */
+.dropdown-content a:hover {
+  background-color: #2b2b2b;
+  border: 2px solid #eb2f39;
+}
+
+.highlightColorsContainer {
+  width: 50%;
+  float: left;
+}
+
+.image-upload {
+  float: left;
+}
+
+.image-upload>input {
+  display: none;
+}
+
+.linkToolMenu {
+  float: left;
+}
+
 .navbar {
-  float: right;
+  float: left;
   margin-top: 40px;
+  margin-bottom: 40px;
 }
 
 .newCardButton {
@@ -92,13 +202,20 @@ html {
   color: #3e3e3e;
 }
 
+/* Show the dropdown menu (use JS to add this class to the .dropdown-content container when the user clicks on the dropdown button) */
+.show {display:block;}
+
 .textToolMenu {
+  float: left;
+}
+
+.textColorsContainer {
+  width: 50%;
   float: left;
 }
 
 .titleTextArea {
   width: 100%;
-  min-height: 30px;
   margin-top: 20px;
   outline: none;
   border: none;
@@ -109,39 +226,67 @@ html {
 }
 
 .toolMenu {
-  margin-top: 20px;
+  width: 100%;
+  margin: 0px auto;
 }
 
 .toolMenuIcon {
   width: 20px;
   height: 20px;
   padding: 5px;
-  border: 2px solid #cecece;
+  border: 2px solid #3e3e3e;
   cursor: pointer;
   margin-right: 10px;
 
   transition: border-color 0.2s ease;
+}
+
+.toolMenuIcon:hover {
+  border: 2px solid #3e3e3e;
 }
 
 .toolMenuIconSelected {
   width: 20px;
   height: 20px;
   padding: 5px;
-  border: 2px solid #39b287;
+  border: 2px solid #3e3e3e;
   cursor: pointer;
   margin-right: 10px;
 
   transition: border-color 0.2s ease;
 }
 
-@media only screen and (max-width: 620px) {
+.tutorialButton {
+  width: 100px;
+  height: 40px;
+  border-radius: 5px;
+  border: 2px solid #ad793b;
+  color: #ad793b;
+  font-weight: bold;
+  cursor: pointer;
+  outline: none;
+  margin-right: 10px;
+
+  transition: background-color 0.5s ease, color 0.5s ease, border-radius 0.5s ease;
+}
+
+.tutorialButton:hover {
+  border-radius: 20px;
+  border: 0px solid #ad793b;
+  background-color: #ad793b;
+  color: #3e3e3e;
+}
+
+@media only screen and (max-width: 800px) {
   .container {
     width: 90%;
   }
 
+  .toolMenu {
+    width: 90%;
+  }
+
   .navbar {
-    float: none;
     margin-top: 20px;
-    text-align: center;
   }
 }
