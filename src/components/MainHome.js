@@ -2,12 +2,16 @@ import React, { Component } from 'react';
 import ToolMenu from './ToolMenu';
 import { EditorState, RichUtils, AtomicBlockUtils, Modifier } from 'draft-js';
 import Editor, { composeDecorators } from 'draft-js-plugins-editor';
+import Utils from '../constants/utils';
 import { textColorStyleMap, highlightColorStyleMap, TEXT_COLORS, HIGHLIGHT_COLORS } from '../constants/colors';
+import createFocusPlugin from 'draft-js-focus-plugin';
 import createImagePlugin from 'draft-js-image-plugin';
+import createVideoPlugin from 'draft-js-video-plugin';
 import createResizeablePlugin from 'draft-js-resizeable-plugin';
 import createHighlightPlugin from "../plugins/highlightPlugin";
 import createUnderlinePlugin from "../plugins/underlinePlugin";
-// import createEmojiPlugin from 'draft-js-emoji-plugin';
+import createEmojiPlugin from 'draft-js-emoji-plugin';
+import linkPlugin from '../plugins/linkPlugin';
 import Sticky from 'react-sticky-el';
 import 'draft-js/dist/Draft.css';
 import 'draft-js-image-plugin/lib/plugin.css';
@@ -16,17 +20,27 @@ import $ from 'jquery';
 
 const ReactMarkdown = require('react-markdown');
 const resizeablePlugin = createResizeablePlugin();
+const focusPlugin = createFocusPlugin();
 const decorator = composeDecorators(
   resizeablePlugin.decorator,
+  focusPlugin.decorator
 );
 const imagePlugin = createImagePlugin({ decorator });
 const highlightPlugin = createHighlightPlugin();
 const underlinePlugin = createUnderlinePlugin();
+const emojiPlugin = createEmojiPlugin();
+const videoPlugin = createVideoPlugin();
+const { types } = videoPlugin;
+const { EmojiSuggestions, EmojiSelect } = emojiPlugin;
 const plugins = [
   resizeablePlugin,
+  focusPlugin,
   imagePlugin,
   underlinePlugin,
-  highlightPlugin
+  highlightPlugin,
+  emojiPlugin,
+  linkPlugin,
+  videoPlugin
 ];
 
 class MainHome extends Component {
@@ -65,7 +79,7 @@ class MainHome extends Component {
 
   }
 
-  handleKeyCommand(command, editorState) {
+  handleKeyCommand = (command, editorState) => {
     const newState = RichUtils.handleKeyCommand(editorState, command);
     if (newState) {
       this.onChange(newState);
@@ -142,12 +156,52 @@ class MainHome extends Component {
     this.handleColorChange(color, "highlight");
   }
 
+  handleLinkTool = () => {
+    const editorState = this.state.editorState;
+    const selection = editorState.getSelection();
+    const link = window.prompt('Paste the URL:')
+    if (!link) {
+      this.onChange(RichUtils.toggleLink(editorState, selection, null));
+      return 'handled';
+    }
+    const content = editorState.getCurrentContent();
+    const contentWithEntity = content.createEntity('LINK', 'MUTABLE', { url: link });
+    const newEditorState = EditorState.push(editorState, contentWithEntity, 'create-entity');
+    const entityKey = contentWithEntity.getLastCreatedEntityKey();
+    this.onChange(RichUtils.toggleLink(newEditorState, selection, entityKey))
+  }
+
+  handleVideoTool = () => {
+    const editorState = this.state.editorState;
+    const link = window.prompt('Paste the video URL:');
+    if (!link || !Utils.isVideo(link)) {
+      alert("Please input valid video URL.");
+      return;
+    }
+    const newEditorState = this.insertVideo(this.state.editorState, link);
+    this.onChange(newEditorState);
+  }
+
   insertImage = (editorState, base64) => {
     const contentState = editorState.getCurrentContent();
     const contentStateWithEntity = contentState.createEntity(
       "image",
       "IMMUTABLE",
       { src: base64 }
+    );
+    const entityKey = contentStateWithEntity.getLastCreatedEntityKey();
+    const newEditorState = EditorState.set(editorState, {
+      currentContent: contentStateWithEntity
+    });
+    return AtomicBlockUtils.insertAtomicBlock(newEditorState, entityKey, " ");
+  }
+
+  insertVideo = (editorState, link) => {
+    const contentState = editorState.getCurrentContent();
+    const contentStateWithEntity = contentState.createEntity(
+      types.VIDEOTYPE,
+      "IMMUTABLE",
+      { src: link }
     );
     const entityKey = contentStateWithEntity.getLastCreatedEntityKey();
     const newEditorState = EditorState.set(editorState, {
@@ -188,12 +242,16 @@ class MainHome extends Component {
               handleImageTool={this.handleImageTool}
               handleTextColorChange={this.handleTextColorChange}
               handleHighlightColorChange={this.handleHighlightColorChange}
+              handleLinkTool={this.handleLinkTool}
+              handleVideoTool={this.handleVideoTool}
               alignment={this.state.alignment}
               textColors={TEXT_COLORS}
               defaultTextColor={this.state.defaultTextColor}
               highlightColors={HIGHLIGHT_COLORS}
               defaultHighlightColor={this.state.defaultHighlightColor}
-            />
+            >
+              <EmojiSelect />
+            </ToolMenu>
             <div style={{clear: 'both'}}/>
           </div>
         </Sticky>
@@ -218,6 +276,7 @@ class MainHome extends Component {
             plugins={plugins}
             customStyleMap={{...textColorStyleMap, ...highlightColorStyleMap }}
           />
+          <EmojiSuggestions />
         </div>
         {/*<ReactMarkdown source={this.state.body} />*/}
       </div>

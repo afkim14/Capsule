@@ -36,26 +36,20 @@ export const textColorStyleMap = {
 export const highlightColorStyleMap = {
   highlight_none: {
     backgroundColor: '#3e3e3e',
-    padding: 2
   },
   highlight_white: {
     backgroundColor: '#cecece',
-    padding: 2
   },
   highlight_red: {
     backgroundColor: '#f95a5a',
-    padding: 2
   },
   highlight_blue: {
     backgroundColor: '#5cadf7',
-    padding: 2
   },
   highlight_yellow: {
     backgroundColor: '#e0c863',
-    padding: 2
   },
   highlight_green: {
     backgroundColor: '#40bf55',
-    padding: 2
   }
 }

@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 const TEXT_TOOLS = ["bold", "italic", "underline"];
 const ALIGN_TOOLS = ["left", "center", "right", "justify"];
 const FILE_TOOLS = ["image"];
-const LINK_TOOLS = ["youtube", "link"];
+const LINK_TOOLS = ["video", "link"];
 
 class TextTools extends Component {
   render() {
@@ -27,50 +27,74 @@ class TextTools extends Component {
 }
 
 class ColorTools extends Component {
-  render() {
-    const { props, handleTextColorChange, handleHighlightColorChange, showColorOptions } = this.props;
-    let currTextColor = props.defaultTextColor.value;
-    let currHighlightColor = props.defaultHighlightColor.value;
-    let filteredTextColor = props.textColors.filter(c => { return props.editorState.getCurrentInlineStyle().has(c.style) });
-    if (filteredTextColor.length > 0) { currTextColor = filteredTextColor[0].value; }
-    let filteredHighlightColor = props.highlightColors.filter(c => { return props.editorState.getCurrentInlineStyle().has(c.style) });
-    if (filteredHighlightColor.length > 0) { currHighlightColor = filteredHighlightColor[0].value; }
+  constructor(props) {
+    super(props);
+    this.state = {
+      currHoverTextColor: this.getCurrentTextColor(),
+      currHoverHighlightColor: this.getCurrentHighlightColor()
+    }
+  }
 
+  getCurrentTextColor = () => {
+    let currTextColor = this.props.props.defaultTextColor.value;
+    let filteredTextColor = this.props.props.textColors.filter(c => { return this.props.props.editorState.getCurrentInlineStyle().has(c.style) });
+    if (filteredTextColor.length > 0) { currTextColor = filteredTextColor[0].value; }
+    return currTextColor;
+  }
+
+  getCurrentHighlightColor = () => {
+    let currHighlightColor = this.props.props.defaultHighlightColor.value;
+    let filteredHighlightColor = this.props.props.highlightColors.filter(c => { return this.props.props.editorState.getCurrentInlineStyle().has(c.style) });
+    if (filteredHighlightColor.length > 0) { currHighlightColor = filteredHighlightColor[0].value; }
+    return currHighlightColor;
+  }
+
+  showColorOptions = (e) => {
+    this.setState({currHoverTextColor: this.getCurrentTextColor(), currHoverHighlightColor: this.getCurrentHighlightColor()})
+    this.props.showColorOptions(e);
+  }
+
+  render() {
     return (
       <div className="colorToolMenu">
         <div className="dropdown">
-          <button style={{backgroundColor: currHighlightColor, color: currTextColor}} onMouseDown={(e) => {showColorOptions(e)}} className="dropbtn">T</button>
+          <button style={{backgroundColor: this.getCurrentHighlightColor(), color: this.getCurrentTextColor()}} onMouseDown={(e) => {this.showColorOptions(e)}} className="dropbtn">T</button>
           <div id="myColorDropdown" className="dropdown-content">
             <div>
-              <div className="textColorsContainer">
-                <p className="colorsHeader">Foreground</p>
-                {
-                  props.textColors.map((c, i) => {
-                    return (
-                      c.value === currTextColor ? (
-                        <a key={i} onMouseDown={(e) => {handleTextColorChange(c, e)}} style={{color: c.value, backgroundColor: c.value, borderWidth: 2, borderStyle: "solid", borderColor: "#eb2f39"}}>{c.label}</a>
-                      ) : (
-                        <a key={i} onMouseDown={(e) => {handleTextColorChange(c, e)}} style={{color: c.value, backgroundColor: c.value}}>{c.label}</a>
-                      )
-                    )
-                  })
-                }
+              <div className="colorPreviewContainer" style={{backgroundColor: this.state.currHoverHighlightColor}}>
+                <p className="colorPreviewText" style={{color: this.state.currHoverTextColor}}>Preview</p>
               </div>
-              <div className="highlightColorsContainer">
-                <p className="colorsHeader">Background</p>
-                {
-                  props.highlightColors.map((c, i) => {
-                    return (
-                      c.value === currHighlightColor ? (
-                        <a key={i} onMouseDown={(e) => {handleHighlightColorChange(c, e)}} style={{color: c.value, backgroundColor: c.value, borderWidth: 2, borderStyle: "solid", borderColor: "#eb2f39"}}>{c.label}</a>
-                      ) : (
-                        <a key={i} onMouseDown={(e) => {handleHighlightColorChange(c, e)}} style={{color: c.value, backgroundColor: c.value}}>{c.label}</a>
+              <div className="colorsContainer">
+                <div className="textColorsContainer">
+                  <p className="colorsHeader">Foreground</p>
+                  {
+                    this.props.props.textColors.map((c, i) => {
+                      return (
+                        c.value === this.state.currTextColor ? (
+                          <div key={i} className="colorBox" style={{backgroundColor: c.value}} onMouseDown={(e) => {this.props.handleTextColorChange(c, e)}}></div>
+                        ) : (
+                          <div key={i} className="colorBox" style={{backgroundColor: c.value}} onMouseEnter={() => {this.setState({currHoverTextColor: c.value})}} onMouseLeave={() => {this.setState({currHoverTextColor: this.props.props.defaultTextColor.value})}} onMouseDown={(e) => {this.props.handleTextColorChange(c, e)}}></div>
+                        )
                       )
-                    )
-                  })
-                }
+                    })
+                  }
+                </div>
+                <div className="highlightColorsContainer">
+                  <p className="colorsHeader">Background</p>
+                  {
+                    this.props.props.highlightColors.map((c, i) => {
+                      return (
+                        c.value === this.state.currHighlightColor ? (
+                          <div key={i} className="colorBox" style={{backgroundColor: c.value}} onMouseDown={(e) => {this.props.handleHighlightColorChange(c, e)}}></div>
+                        ) : (
+                          <div key={i} className="colorBox" style={{backgroundColor: c.value}} onMouseEnter={() => {this.setState({currHoverHighlightColor: c.value})}} onMouseLeave={() => {this.setState({currHoverHighlightColor: this.props.props.defaultHighlightColor.value})}} onMouseDown={(e) => {this.props.handleHighlightColorChange(c, e)}}></div>
+                        )
+                      )
+                    })
+                  }
+                </div>
+                <div style={{clear: 'both'}}></div>
               </div>
-              <div style={{clear: 'both'}}></div>
             </div>
           </div>
         </div>
@@ -124,13 +148,17 @@ class FileTools extends Component {
 
 class LinkTools extends Component {
   render() {
-    const { handleLinkToolToggle } = this.props;
+    const { handleLinkToolToggle, handleVideoToolToggle } = this.props;
     return (
       <div className="linkToolMenu">
         {
           LINK_TOOLS.map((t, i) => {
             return (
-              <img alt={t} key={i} className="toolMenuIcon" src={"./images/" + t + "-icon-light-01.png"} onMouseDown={(e) => {handleLinkToolToggle(t, e)}} />
+              t == "link" ? (
+                <img alt={t} key={i} className="toolMenuIcon" src={"./images/" + t + "-icon-light-01.png"} onMouseDown={(e) => {handleLinkToolToggle(t, e)}} />
+              ) : (
+                <img alt={t} key={i} className="toolMenuIcon" src={"./images/" + t + "-icon-light-01.png"} onMouseDown={(e) => {handleVideoToolToggle(t, e)}} />
+              )
             )
           })
         }
@@ -157,6 +185,12 @@ class ToolMenu extends Component {
 
   handleLinkToolToggle = (tool, e) => {
     e.preventDefault();
+    this.props.handleLinkTool();
+  }
+
+  handleVideoToolToggle = (tool, e) => {
+    e.preventDefault();
+    this.props.handleVideoTool();
   }
 
   handleTextColorChange = (color, e) => {
@@ -170,16 +204,20 @@ class ToolMenu extends Component {
   }
 
   fileChangedHandler = (event) => {
-    const file = event.target.files[0];
-    let reader = new FileReader();
-    reader.readAsDataURL(file);
-    var self = this;
-    reader.onload = () => {
-      self.props.handleImageTool(reader.result);
-    };
-    reader.onerror = function (error) {
-        console.log('Error: ', error);
-    };
+    try {
+      let reader = new FileReader();
+      reader.readAsDataURL(event.target.files[0]);
+      reader.onload = () => {
+        this.props.handleImageTool(reader.result);
+      };
+      reader.onerror = function (error) {
+          console.log('Error: ', error);
+      };
+    } catch(err) {
+      // Error Handling
+      // alert(err.message);
+      return;
+    }
   }
 
   showColorOptions = (e) => {
@@ -201,6 +239,7 @@ class ToolMenu extends Component {
             handleHighlightColorChange={this.handleHighlightColorChange}
             showColorOptions={this.showColorOptions}
           />
+          {this.props.children}
           <AlignTools
             props={this.props}
             handleAlignToolToggle={this.handleAlignToolToggle}
@@ -210,6 +249,7 @@ class ToolMenu extends Component {
           />
           <LinkTools
             handleLinkToolToggle={this.handleLinkToolToggle}
+            handleVideoToolToggle={this.handleVideoToolToggle}
           />
         </div>
       )
