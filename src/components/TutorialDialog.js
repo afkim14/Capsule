@@ -13,21 +13,17 @@ class FirstStep extends Component {
   }
   render() {
     return (
-      <div>
+      <div className="dialogContent">
         <p className="tutorialTitle">{"Write and style."}</p>
-        <DialogContent>
-          <div>
-
-            <video className="tutorialVideo" autoPlay loop>
-              <source src={"./videos/text-styling.mp4"} type={"video/mp4"} />
-            </video>
-          </div>
-        </DialogContent>
-        <DialogActions>
-          <div className="acceptButton" onMouseDown={this.props.nextTutorialStep}>
-            <p>Next</p>
-          </div>
-        </DialogActions>
+        <div>
+          <video className="tutorialVideo" autoPlay loop>
+            <source src={"./videos/text-styling.mp4"} type={"video/mp4"} />
+          </video>
+        </div>
+        <div className="dialogButton" style={{float: 'right'}} onMouseDown={this.props.nextTutorialStep}>
+          <p>Next</p>
+        </div>
+        <div style={{clear: 'both'}}/>
       </div>
     )
   }
@@ -39,23 +35,20 @@ class SecondStep extends Component {
   }
   render() {
     return (
-      <div>
+      <div className="dialogContent">
         <p className="tutorialTitle">{"Show memorable photos and videos."}</p>
-        <DialogContent>
-          <div>
-            <video className="tutorialVideo" autoPlay loop>
-              <source src={"./videos/insert-image.mp4"} type={"video/mp4"} />
-            </video>
-          </div>
-        </DialogContent>
-        <DialogActions>
-          <div className="acceptButton" onMouseDown={this.props.prevTutorialStep}>
-            <p>Prev</p>
-          </div>
-          <div className="acceptButton" onMouseDown={this.props.nextTutorialStep}>
-            <p>Next</p>
-          </div>
-        </DialogActions>
+        <div>
+          <video className="tutorialVideo" autoPlay loop>
+            <source src={"./videos/insert-image.mp4"} type={"video/mp4"} />
+          </video>
+        </div>
+        <div className="dialogButton" style={{float: 'left'}} onMouseDown={this.props.prevTutorialStep}>
+          <p>Prev</p>
+        </div>
+        <div className="dialogButton" style={{float: 'right'}} onMouseDown={this.props.nextTutorialStep}>
+          <p>Next</p>
+        </div>
+        <div style={{clear: 'both'}}/>
       </div>
     )
   }
@@ -67,23 +60,20 @@ class ThirdStep extends Component {
   }
   render() {
     return (
-      <div>
+      <div className="dialogContent">
         <p className="tutorialTitle">{"Send your card."}</p>
-        <DialogContent>
-          <div>
-            <video className="tutorialVideo" autoPlay loop>
-              <source src={"./videos/insert-image.mp4"} type={"video/mp4"} />
-            </video>
-          </div>
-        </DialogContent>
-        <DialogActions>
-          <div className="acceptButton" onMouseDown={this.props.prevTutorialStep}>
-            <p>Prev</p>
-          </div>
-          <div className="acceptButton" onMouseDown={this.props.finishTutorial}>
-            <p>Finish</p>
-          </div>
-        </DialogActions>
+        <div>
+          <video className="tutorialVideo" autoPlay loop>
+            <source src={"./videos/insert-image.mp4"} type={"video/mp4"} />
+          </video>
+        </div>
+        <div className="dialogButton" style={{float: 'left'}} onMouseDown={this.props.prevTutorialStep}>
+          <p>Prev</p>
+        </div>
+        <div className="dialogButton" style={{float: 'right'}} onMouseDown={this.props.finishTutorial}>
+          <p>Finish</p>
+        </div>
+        <div style={{clear: 'both'}}/>
       </div>
     )
   }

@@ -3,14 +3,18 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import ViewerHome from './components/ViewerHome';
-import { Route, Link, BrowserRouter as Router } from 'react-router-dom'
+import NotFoundPage from './components/NotFoundPage';
+import { Route, Switch, Link, BrowserRouter as Router } from 'react-router-dom'
 import * as serviceWorker from './serviceWorker';
 
 const routing = (
   <Router>
     <div>
-      <Route exact path="/" component={App} />
-      <Route path="/cards" component={ViewerHome} />
+      <Switch>
+        <Route exact path="/" component={App} />
+        <Route path="/cards" component={ViewerHome} />
+        <Route component={NotFoundPage} />
+      </Switch>
     </div>
   </Router>
 )

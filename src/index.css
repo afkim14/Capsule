@@ -16,7 +16,7 @@ html {
   background-color: #3e3e3e;
 }
 
-.acceptButton {
+.dialogButton {
   border-radius: 5px;
   border: 2px solid #39b287;
   color: #39b287;
@@ -29,16 +29,33 @@ html {
   transition: background-color 0.5s ease, color 0.5s ease, border-radius 0.5s ease;
 }
 
-.acceptButton p {
+.dialogButton p {
   margin: 0px auto;
   line-height: 40px;
 }
 
-.acceptButton:hover {
+.dialogButton:hover {
   border-radius: 20px;
   border: 2px solid #39b287;
   background-color: #39b287;
-  color: #cecece;
+  color: #3e3e3e;
+}
+
+.dialogButtonSelected {
+  width: 100px;
+  height: 40px;
+  text-align: center;
+  outline: none;
+
+  border-radius: 20px;
+  border: 2px solid #39b287;
+  background-color: #39b287;
+  color: #3e3e3e;
+}
+
+.dialogButtonSelected p {
+  margin: 0px auto;
+  line-height: 40px;
 }
 
 .mainBGColor {
@@ -135,6 +152,12 @@ html {
   vertical-align:middle;
   margin-left: 5px;
   padding: 5px;
+}
+
+.centerIcons {
+  margin: 0px auto;
+  display: block;
+  width: 15%;
 }
 
 .declineButton {
@@ -508,6 +531,9 @@ html {
   box-shadow: 0 0 0 3px #39b287;
 }
 
+.dialogContent {
+  padding: 50px;
+}
 
 #editor img {
   max-width: 80%;
@@ -741,7 +767,6 @@ html {
   font-size: 30px;
   font-weight: bold;
   color: #cecece;
-  width: 93%;
   margin: 0px auto;
   margin-top: 15px;
   display: block;
@@ -770,6 +795,19 @@ html {
   color: #b6b7b7;
 }
 
+.warningContainer {
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.warningMessage {
+  color: #cecece;
+  font-size: 20px;
+}
+
 @media only screen and (max-width: 800px) {
   .container {
     width: 90%;
@@ -781,6 +819,10 @@ html {
 
   .navbar {
     margin-top: 20px;
+  }
+
+  .warningContainer img {
+    width: 30%;
   }
 }
 

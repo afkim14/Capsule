@@ -18,6 +18,11 @@ class Utils {
     let lineHeight = containerHeight - parseInt(currFontSize);
     return "-5px";
   }
+
+  static openInNewTab(url) {
+    var win = window.open(url, '_blank');
+    win.focus();
+  }
 }
 
 export default Utils;

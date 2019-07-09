@@ -17,6 +17,7 @@
     "draft-js-video-plugin": "^2.0.1",
     "jquery": "^3.4.1",
     "react": "^16.8.6",
+    "react-copy-to-clipboard": "^5.0.1",
     "react-dom": "^16.8.6",
     "react-dropdown": "^1.6.4",
     "react-markdown": "^4.1.0",

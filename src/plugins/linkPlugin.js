@@ -7,11 +7,7 @@ import {
 	KeyBindingUtil,
 	EditorState,
 } from "draft-js";
-
-function openInNewTab(url) {
-  var win = window.open(url, '_blank');
-  win.focus();
-}
+import Utils from '../constants/utils';
 
 export const linkStrategy = (contentBlock, callback, contentState) => {
 	contentBlock.findEntityRanges(character => {
@@ -29,7 +25,7 @@ export const Link = props => {
 	return (
 		<a
 			className="link"
-			onClick={() => {openInNewTab(url)}}
+			onClick={() => {Utils.openInNewTab(url)}}
 			rel="noopener noreferrer"
 			target="_blank"
 			aria-label={url}

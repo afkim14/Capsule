@@ -33,19 +33,21 @@ class NewCardDialog extends Component {
             },
           }}
         >
-          <p className="tutorialTitle">{"Are you sure you want to delete your card?"}</p>
-          <DialogContent>
-            <ul className="termsListContainer">
-              <li className="termsListItem">All content will be deleted.</li>
-              <li className="termsListItem">None of the information written will be stored anywhere.</li>
-              <li className="termsListItem">This action is irreversible.</li>
-            </ul>
-          </DialogContent>
+          <div className="dialogContent">
+            <p className="tutorialTitle">{"Are you sure you want to delete your card?"}</p>
+            <DialogContent>
+              <ul className="termsListContainer">
+                <li className="termsListItem">All content will be deleted.</li>
+                <li className="termsListItem">None of the information written will be stored anywhere.</li>
+                <li className="termsListItem">This action is irreversible.</li>
+              </ul>
+            </DialogContent>
+          </div>
           <DialogActions>
             <div className="declineButton" onMouseDown={this.props.handleCancelNewCard}>
               <p>No</p>
             </div>
-            <div className="acceptButton" onMouseDown={this.props.handleAcceptNewCard}>
+            <div className="dialogButton" onMouseDown={this.props.handleAcceptNewCard}>
               <p>Yes</p>
             </div>
           </DialogActions>

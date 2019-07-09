@@ -10,6 +10,7 @@ import { TEXT_SIZES, textSizeStyleMap } from '../constants/textSizes';
 import { NoLinkTextMsg, NoLinkMsg, InvalidImageMsg, InvalidVideoMsg, NoVideoMsg, SucessSharingMsg, ErrorSharingMsg } from '../constants/notifications';
 import NewCardDialog from './NewCardDialog';
 import TutorialDialog from './TutorialDialog';
+import ShareDialog from './ShareDialog';
 import createStyles from 'draft-js-custom-styles';
 import createFocusPlugin from 'draft-js-focus-plugin';
 import createImagePlugin from 'draft-js-image-plugin';
@@ -38,7 +39,7 @@ toast.configure({
   newestOnTop: true,
 });
 
-const ReactMarkdown = require('react-markdown');
+// const ReactMarkdown = require('react-markdown');
 // const { styles, customStyleFn, exporter } = createStyles(['font-size', 'color', 'text-transform'], 'CUSTOM_', fontStyleMap);
 const resizeablePlugin = createResizeablePlugin();
 const focusPlugin = createFocusPlugin();
@@ -79,6 +80,8 @@ class EditorHome extends Component {
       editorState: EditorState.createEmpty(),
       openNewCardDialog: false,
       openTutorialDialog: false,
+      openShareDialog: false,
+      shareLink: null
     }
     this.onChange = (editorState) => this.setState({editorState});
     this.focus = () => this.refs.editor.focus();
@@ -115,6 +118,10 @@ class EditorHome extends Component {
     this.setState({openTutorialDialog: true});
   }
 
+  openShareDialog = (key) => {
+    this.setState({openShareDialog: true, shareLink: 'localhost:3000/cards/' + key});
+  }
+
   newCard = () => {
     const editorState = EditorState.push(this.state.editorState, ContentState.createFromText(''));
     this.setState({ openNewCardDialog: false, title: "", editorState });
@@ -123,10 +130,8 @@ class EditorHome extends Component {
   shareCard = (e) => {
     e.preventDefault();
     // the raw state, stringified
-    const rawDraftContentState = JSON.stringify( convertToRaw(this.state.editorState.getCurrentContent()) );
-    // convert the raw state back to a useable ContentState object
-    // const contentState = convertFromRaw( JSON.parse( rawDraftContentState) );
 
+    const rawDraftContentState = JSON.stringify( convertToRaw(this.state.editorState.getCurrentContent()) );
     const newCard = {
       title: this.state.title,
       data: rawDraftContentState,
@@ -136,7 +141,7 @@ class EditorHome extends Component {
     firebase.app().database().ref('/').push({
       ...newCard
     }).then((data) => {
-      toast.info(<SucessSharingMsg />);
+      this.openShareDialog(data.getKey());
     }).catch((error) => {
       toast.error(<ErrorSharingMsg />);
     });
@@ -175,7 +180,7 @@ class EditorHome extends Component {
   }
 
   handleKeyCommand = (command, editorState) => {
-    console.log(command);
+    // console.log(command);
     // CUSTOM
     if (command.includes('highlight')) {
       this.onChange(RichUtils.toggleInlineStyle(editorState, command));
@@ -385,6 +390,11 @@ class EditorHome extends Component {
         <TutorialDialog
           open={this.state.openTutorialDialog}
           close={() => {this.setState({openTutorialDialog: false})}}
+        />
+        <ShareDialog
+          open={this.state.openShareDialog}
+          close={() => {this.setState({openShareDialog: false})}}
+          shareLink={this.state.shareLink}
         />
         <div className="navbar">
           <button className="newCardButton mainBGColor" onMouseDown={(e) => {this.openNewCardDialog(e)}}>New Card</button>
