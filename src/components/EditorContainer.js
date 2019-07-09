@@ -1,7 +1,8 @@
 import React, { Component } from 'react'
-import MainHome from './MainHome';
+import EditorHome from './EditorHome';
+import TutorialPage from './TutorialPage';
 
-class MainContainer extends Component {
+class EditorContainer extends Component {
   constructor(props) {
     super(props);
     window.scrollTo(0, 0);
@@ -20,9 +21,7 @@ class MainContainer extends Component {
   render() {
     if (this.state.currentPage === "main") {
       return (
-        <div>
-          <MainHome />
-        </div>
+        <EditorHome changePage={this.changePage} />
       )
     } else {
       return (
@@ -32,4 +31,4 @@ class MainContainer extends Component {
   }
 }
 
-export default MainContainer;
+export default EditorContainer;

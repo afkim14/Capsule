@@ -16,6 +16,31 @@ html {
   background-color: #3e3e3e;
 }
 
+.acceptButton {
+  border-radius: 5px;
+  border: 2px solid #39b287;
+  color: #39b287;
+  outline: none;
+  cursor: pointer;
+  width: 100px;
+  height: 40px;
+  text-align: center;
+
+  transition: background-color 0.5s ease, color 0.5s ease, border-radius 0.5s ease;
+}
+
+.acceptButton p {
+  margin: 0px auto;
+  line-height: 40px;
+}
+
+.acceptButton:hover {
+  border-radius: 20px;
+  border: 2px solid #39b287;
+  background-color: #39b287;
+  color: #cecece;
+}
+
 .mainBGColor {
   background-color: #3e3e3e;
 }
@@ -41,6 +66,10 @@ html {
   text-align: left;
 }
 
+.align-justify div {
+  text-align: justify;
+}
+
 .container {
   width: 60%;
   margin: 0px auto;
@@ -56,7 +85,7 @@ html {
   padding: 3px;
 
   font-size: 18px;
-  line-height: 200%;
+  line-height: 150%;
   z-index: inherit;
 }
 
@@ -74,31 +103,63 @@ html {
 }
 
 .colorBox:hover {
-  border: 1px solid #cecece;
+  border: 1px solid #39b287;
   width: 18px;
   height: 18px;
-}
-
-.colorToolMenu {
-  float: left;
-}
-
-.colorPreviewContainer {
-  width: 90%;
-  margin: 0px auto;
-  margin-bottom: -20px;
-}
-
-.colorPreviewText {
-  display: block;
-  font-size: 20px;
-  margin-left: 5px;
-  padding: 5px;
 }
 
 .colorsContainer {
   width: 90%;
   margin: 0px auto;
+}
+
+.customTextToolMenu {
+  float: left;
+  margin-top: 5px;
+  margin-right: 10px;
+}
+
+.customTextPreviewContainer {
+  width: 90%;
+  margin: 0px auto;
+  margin-top: 10px;
+  height: 50px;
+  line-height: 50px;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.customTextPreviewText {
+  vertical-align:middle;
+  margin-left: 5px;
+  padding: 5px;
+}
+
+.declineButton {
+  border-radius: 5px;
+  border: 2px solid #cc5252;
+  color: #cc5252;
+  outline: none;
+  cursor: pointer;
+  width: 100px;
+  height: 40px;
+  text-align: center;
+
+  transition: background-color 0.5s ease, color 0.5s ease, border-radius 0.5s ease;
+}
+
+.declineButton p {
+  margin: 0px auto;
+  line-height: 40px;
+}
+
+.declineButton:hover {
+  border-radius: 20px;
+  border: 2px solid #cc5252;
+  background-color: #cc5252;
+  color: #cecece;
 }
 
 /* Dropdown Button */
@@ -116,8 +177,6 @@ html {
 .dropdown {
   position: relative;
   display: inline-block;
-  margin-top: 5px;
-  margin-right: 10px;
 }
 
 /* Dropdown Content (Hidden by Default) */
@@ -478,6 +537,29 @@ html {
   width: 100%;
 }
 
+.fontsContainer {
+  width: 90%;
+  margin: 0px auto;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.fontBox {
+  height: 20px;
+  cursor: pointer;
+  margin: 0px auto;
+  padding: 15px;
+}
+
+.fontLabel {
+  margin-left: 10px;
+  margin: 0px auto;
+}
+
+.fontBox:hover {
+  background-color: #3e3e3e;
+}
+
 .highlightColorsContainer {
   width: 45%;
   float: right;
@@ -530,6 +612,11 @@ html {
   color: #3e3e3e;
 }
 
+.notificationText {
+  color: #cecece;
+  text-align: center;
+}
+
 .shareButton {
   width: 100px;
   height: 40px;
@@ -553,6 +640,24 @@ html {
 /* Show the dropdown menu (use JS to add this class to the .dropdown-content container when the user clicks on the dropdown button) */
 .show {display:block;}
 
+.sizeBox {
+  width: 31%;
+  height: 40px;
+  float: left;
+  background-color: #333333;
+  cursor: pointer;
+  text-align: center;
+}
+
+.sizeBox:hover {
+  background-color: #3e3e3e;
+}
+
+.sizeLabel {
+  padding: 10px;
+  margin: 0px auto;
+}
+
 .textToolMenu {
   float: left;
 }
@@ -562,9 +667,16 @@ html {
   float: left;
 }
 
+.textSizeContainer {
+  width: 90%;
+  margin: 0px auto;
+  margin-top: 10px;
+}
+
 .titleTextArea {
   width: 100%;
   margin-top: 20px;
+  margin-bottom: 20px;
   outline: none;
   border: none;
   resize: none;
@@ -625,6 +737,39 @@ html {
   color: #3e3e3e;
 }
 
+.tutorialTitle {
+  font-size: 30px;
+  font-weight: bold;
+  color: #cecece;
+  width: 93%;
+  margin: 0px auto;
+  margin-top: 15px;
+  display: block;
+}
+
+.tutorialVideo {
+  width: 100%;
+  margin: 0px auto;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  display: block;
+}
+
+.tutorialText {
+  color: #cecece;
+  line-height: 30px;
+}
+
+.termsListContainer {
+  margin-top: -10px;
+  margin-bottom: 0px;
+}
+
+.termsListItem {
+  margin-top: 5px;
+  color: #b6b7b7;
+}
+
 @media only screen and (max-width: 800px) {
   .container {
     width: 90%;
@@ -657,6 +802,17 @@ html {
   }
 
   .dropdown-content {
-    min-width: 120px;
+    min-width: 180px;
+  }
+
+  .sizeBox {
+    float: none;
+    display: block;
+    width: 100%;
+    text-align: left;
+  }
+
+  .colorsHeader {
+    margin-bottom: 5px;
   }
 }

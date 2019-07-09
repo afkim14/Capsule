@@ -1,10 +1,11 @@
 import React from 'react';
 import './App.css';
-import MainContainer from './components/MainContainer';
+import EditorHome from './components/EditorHome';
+import firebase from './firebaseConfig';
 
 function App() {
   return (
-    <MainContainer />
+    <EditorHome />
   );
 }
 

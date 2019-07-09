@@ -1,5 +1,8 @@
+import Utils from './utils';
+
 export const TEXT_COLORS = [
   {label: 'White', style: 'text_white', value: "#cecece"},
+  {label: 'Grey', style: 'text_grey', value: '#3e3e3e'},
   {label: 'Red', style: 'text_red', value: "#f95a5a"},
   {label: 'Blue', style: 'text_blue', value: "#5cadf7"},
   {label: 'Yellow', style: 'text_yellow', value: "#e0c863"},
@@ -15,41 +18,21 @@ export const HIGHLIGHT_COLORS = [
   {label: 'Green', style: 'highlight_green', value: "#40bf55"},
 ];
 
-export const textColorStyleMap = {
-  text_white: {
-    color: '#cecece',
-  },
-  text_red: {
-    color: '#f95a5a',
-  },
-  text_blue: {
-    color: '#5cadf7',
-  },
-  text_yellow: {
-    color: '#e0c863',
-  },
-  text_green: {
-    color: '#40bf55',
-  },
-};
-
-export const highlightColorStyleMap = {
-  highlight_none: {
-    backgroundColor: '#3e3e3e',
-  },
-  highlight_white: {
-    backgroundColor: '#cecece',
-  },
-  highlight_red: {
-    backgroundColor: '#f95a5a',
-  },
-  highlight_blue: {
-    backgroundColor: '#5cadf7',
-  },
-  highlight_yellow: {
-    backgroundColor: '#e0c863',
-  },
-  highlight_green: {
-    backgroundColor: '#40bf55',
+function textColorsToObject(arr) {
+  var obj = {};
+  for (var i = 0; i < arr.length; ++i) {
+    obj[arr[i].style] = { color: arr[i].value };
   }
+  return obj;
 }
+
+function highlightColorsToObject(arr) {
+  var obj = {};
+  for (var i = 0; i < arr.length; ++i) {
+    obj[arr[i].style] = { backgroundColor: arr[i].value };
+  }
+  return obj;
+}
+
+export const textColorStyleMap = Utils.arrToStyleMapObject(TEXT_COLORS, 'color');
+export const highlightColorStyleMap = Utils.arrToStyleMapObject(HIGHLIGHT_COLORS, 'backgroundColor');

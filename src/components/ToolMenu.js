@@ -1,22 +1,31 @@
 import React, { Component } from 'react';
+import Utils from '../constants/utils';
 
 const TEXT_TOOLS = ["bold", "italic", "underline"];
-const ALIGN_TOOLS = ["left", "center", "right", "justify"];
+const ALIGN_TOOLS = ["align-left", "align-center", "align-right", "align-justify"];
 const FILE_TOOLS = ["image"];
 const LINK_TOOLS = ["video", "link"];
 
 class TextTools extends Component {
+  constructor(props) {
+    super(props);
+  }
+
+  handleTextToolToggle = (tool, e) => {
+    e.preventDefault();
+    this.props.handleTextToolToggle(tool);
+  }
+
   render() {
-    const { props, handleTextToolToggle } = this.props;
     return (
       <div className="textToolMenu">
         {
           TEXT_TOOLS.map((t, i) => {
             return (
-              props.editorState.getCurrentInlineStyle().has(t.toUpperCase()) ? (
-                <img alt={t} key={i} className="toolMenuIconSelected" src={"./images/" + t + "-icon-dark-01.png"} onMouseDown={(e) => {handleTextToolToggle(t, e)}} />
+              this.props.props.editorState.getCurrentInlineStyle().has(t.toUpperCase()) ? (
+                <img alt={t} key={i} className="toolMenuIconSelected" src={"./images/" + t + "-icon-dark-01.png"} onMouseDown={(e) => {this.handleTextToolToggle(t, e)}} />
               ) : (
-                <img alt={t} key={i} className="toolMenuIcon" src={"./images/" + t + "-icon-light-01.png"} onMouseDown={(e) => {handleTextToolToggle(t, e)}} />
+                <img alt={t} key={i} className="toolMenuIcon" src={"./images/" + t + "-icon-light-01.png"} onMouseDown={(e) => {this.handleTextToolToggle(t, e)}} />
               )
             )
           })
@@ -26,75 +35,191 @@ class TextTools extends Component {
   }
 }
 
-class ColorTools extends Component {
+class CustomTextTools extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      currFont: this.getCurrentFont(),
+      currTextColor: this.getCurrentFont(),
+      currHighlightColor: this.getCurrentHighlightColor(),
+      currTextSize: this.getCurrentTextSize(),
+      currHoverFont: this.getCurrentFont(),
       currHoverTextColor: this.getCurrentTextColor(),
-      currHoverHighlightColor: this.getCurrentHighlightColor()
+      currHoverHighlightColor: this.getCurrentHighlightColor(),
+      currHoverTextSize: this.getCurrentTextSize(),
     }
   }
 
+  getCurrentFont = () => {
+    let currFont = this.props.props.defaultFont;
+    let filteredFont = this.props.props.fonts.filter(f => { return this.props.props.editorState.getCurrentInlineStyle().has(f.style) });
+    if (filteredFont.length > 0) { currFont = filteredFont[0]; }
+    return currFont;
+  }
+
   getCurrentTextColor = () => {
-    let currTextColor = this.props.props.defaultTextColor.value;
+    let currTextColor = this.props.props.defaultTextColor;
     let filteredTextColor = this.props.props.textColors.filter(c => { return this.props.props.editorState.getCurrentInlineStyle().has(c.style) });
-    if (filteredTextColor.length > 0) { currTextColor = filteredTextColor[0].value; }
+    if (filteredTextColor.length > 0) { currTextColor = filteredTextColor[0]; }
     return currTextColor;
   }
 
   getCurrentHighlightColor = () => {
-    let currHighlightColor = this.props.props.defaultHighlightColor.value;
+    let currHighlightColor = this.props.props.defaultHighlightColor;
     let filteredHighlightColor = this.props.props.highlightColors.filter(c => { return this.props.props.editorState.getCurrentInlineStyle().has(c.style) });
-    if (filteredHighlightColor.length > 0) { currHighlightColor = filteredHighlightColor[0].value; }
+    if (filteredHighlightColor.length > 0) { currHighlightColor = filteredHighlightColor[0]; }
     return currHighlightColor;
   }
 
-  showColorOptions = (e) => {
-    this.setState({currHoverTextColor: this.getCurrentTextColor(), currHoverHighlightColor: this.getCurrentHighlightColor()})
-    this.props.showColorOptions(e);
+  getCurrentTextSize = () => {
+    let currTextSize = this.props.props.defaultTextSize;
+    let filtertedTextSize = this.props.props.textSizes.filter(s => { return this.props.props.editorState.getCurrentInlineStyle().has(s.style) });
+    if (filtertedTextSize.length > 0) { currTextSize = filtertedTextSize[0]; }
+    return currTextSize;
+  }
+
+  getCurrentPreviewText= () => {
+    let currMaxTextSize = this.state.currHoverTextSize.maxPreviewLength;
+    let previewText = "Preview";
+    let editorState = this.props.props.editorState;
+    let selectionState = editorState.getSelection();
+    let anchorKey = selectionState.getAnchorKey();
+    let currContent = editorState.getCurrentContent();
+    let currContentBlock = currContent.getBlockForKey(anchorKey);
+    let start = selectionState.getStartOffset();
+    let end = selectionState.getEndOffset();
+    let selectedText = currContentBlock.getText().slice(start, end);
+    if (selectedText != "") {
+      previewText = selectedText;
+    }
+    if (selectedText.length > currMaxTextSize) {
+      previewText = selectedText.substr(0, currMaxTextSize) + " ...";
+    }
+    return previewText;
+  }
+
+  showCustomTextOptions = (e) => {
+    this.setState({
+      currFont: this.getCurrentFont(),
+      currTextColor: this.getCurrentTextColor(),
+      currHighlightColor: this.getCurrentHighlightColor(),
+      currTextSize: this.getCurrentTextSize(),
+      currHoverFont: this.getCurrentFont(),
+      currHoverTextColor: this.getCurrentTextColor(),
+      currHoverHighlightColor: this.getCurrentHighlightColor(),
+      currHoverTextSize: this.getCurrentTextSize()
+    });
+    this.props.showCustomTextOptions(e);
+  }
+
+  handleTextColorChange = (color, e) => {
+    e.preventDefault();
+    this.setState({currTextColor: color, currHoverTextColor: color});
+    if (this.getCurrentTextColor().label != color.label) {
+      this.props.handleTextColorChange(color);
+    }
+  }
+
+  handleHighlightColorChange = (color, e) => {
+    e.preventDefault();
+    this.setState({currHighlightColor: color, currHoverHighlightColor: color});
+    if (this.getCurrentHighlightColor().label != color.label) {
+      this.props.handleHighlightColorChange(color);
+    }
+  }
+
+  handleFontToolChange = (font, e) => {
+    e.preventDefault();
+    this.setState({currFont: font, currHoverFont: font});
+    if (this.getCurrentFont().label != font.label) {
+      this.props.handleFontToolChange(font);
+    }
+  }
+
+  handleTextSizeChange = (size, e) => {
+    e.preventDefault();
+    this.setState({currTextSize: size});
+    if (this.getCurrentTextSize().label != size.label) {
+      this.props.handleTextSizeChange(size);
+    }
   }
 
   render() {
     return (
-      <div className="colorToolMenu">
+      <div className="customTextToolMenu">
         <div className="dropdown">
-          <button style={{backgroundColor: this.getCurrentHighlightColor(), color: this.getCurrentTextColor()}} onMouseDown={(e) => {this.showColorOptions(e)}} className="dropbtn">T</button>
-          <div id="myColorDropdown" className="dropdown-content">
-            <div>
-              <div className="colorPreviewContainer" style={{backgroundColor: this.state.currHoverHighlightColor}}>
-                <p className="colorPreviewText" style={{color: this.state.currHoverTextColor}}>Preview</p>
-              </div>
-              <div className="colorsContainer">
-                <div className="textColorsContainer">
-                  <p className="colorsHeader">Foreground</p>
-                  {
-                    this.props.props.textColors.map((c, i) => {
-                      return (
-                        c.value === this.state.currTextColor ? (
-                          <div key={i} className="colorBox" style={{backgroundColor: c.value}} onMouseDown={(e) => {this.props.handleTextColorChange(c, e)}}></div>
-                        ) : (
-                          <div key={i} className="colorBox" style={{backgroundColor: c.value}} onMouseEnter={() => {this.setState({currHoverTextColor: c.value})}} onMouseLeave={() => {this.setState({currHoverTextColor: this.props.props.defaultTextColor.value})}} onMouseDown={(e) => {this.props.handleTextColorChange(c, e)}}></div>
-                        )
+          <button style={{backgroundColor: this.getCurrentHighlightColor().value, color: this.getCurrentTextColor().value}} onMouseDown={(e) => {this.showCustomTextOptions(e)}} className="dropbtn">T</button>
+          <div id="customTextDropdown" className="dropdown-content">
+            <div className="customTextPreviewContainer" style={{backgroundColor: this.state.currHoverHighlightColor.value}}>
+              <span className="customTextPreviewText" style={{color: this.state.currHoverTextColor.value, fontFamily: this.state.currHoverFont.value, fontSize: this.state.currHoverTextSize.value }}>{this.getCurrentPreviewText()}</span>
+            </div>
+            <div className="textSizeContainer">
+              <p className="colorsHeader">Size</p>
+              {
+                this.props.props.textSizes.map((s, i) => {
+                  return (
+                    s.label === this.state.currTextSize.label ? (
+                      <div key={i} className="sizeBox" style={{borderColor: "#39b287", borderStyle: 'solid', borderWidth: 2}} onMouseDown={(e) => {this.handleTextSizeChange(s, e)}}>
+                        <p className="sizeLabel">{s.label}</p>
+                      </div>
+                    ) : (
+                      <div key={i} className="sizeBox" style={{padding: 2}} onMouseEnter={() => {this.setState({currHoverTextSize: s})}} onMouseLeave={() => {this.setState({currHoverTextSize: this.state.currTextSize})}} onMouseDown={(e) => {this.handleTextSizeChange(s, e)}}>
+                        <p className="sizeLabel">{s.label}</p>
+                      </div>
+                    )
+                  )
+                })
+              }
+            </div>
+            <div style={{clear: 'both'}}></div>
+            <div className="colorsContainer">
+              <div className="textColorsContainer">
+                <p className="colorsHeader">Text</p>
+                {
+                  this.props.props.textColors.map((c, i) => {
+                    return (
+                      c.label === this.state.currTextColor.label ? (
+                        <div key={i} className="colorBox" style={{backgroundColor: c.value}} onMouseDown={(e) => {this.handleTextColorChange(c, e)}}></div>
+                      ) : (
+                        <div key={i} className="colorBox" style={{backgroundColor: c.value}} onMouseEnter={() => {this.setState({currHoverTextColor: c})}} onMouseLeave={() => {this.setState({currHoverTextColor: this.state.currTextColor})}} onMouseDown={(e) => {this.handleTextColorChange(c, e)}}></div>
                       )
-                    })
-                  }
-                </div>
-                <div className="highlightColorsContainer">
-                  <p className="colorsHeader">Background</p>
-                  {
-                    this.props.props.highlightColors.map((c, i) => {
-                      return (
-                        c.value === this.state.currHighlightColor ? (
-                          <div key={i} className="colorBox" style={{backgroundColor: c.value}} onMouseDown={(e) => {this.props.handleHighlightColorChange(c, e)}}></div>
-                        ) : (
-                          <div key={i} className="colorBox" style={{backgroundColor: c.value}} onMouseEnter={() => {this.setState({currHoverHighlightColor: c.value})}} onMouseLeave={() => {this.setState({currHoverHighlightColor: this.props.props.defaultHighlightColor.value})}} onMouseDown={(e) => {this.props.handleHighlightColorChange(c, e)}}></div>
-                        )
-                      )
-                    })
-                  }
-                </div>
-                <div style={{clear: 'both'}}></div>
+                    )
+                  })
+                }
               </div>
+              <div className="highlightColorsContainer">
+                <p className="colorsHeader">Highlight</p>
+                {
+                  this.props.props.highlightColors.map((c, i) => {
+                    return (
+                      c.label === this.state.currHighlightColor.label ? (
+                        <div key={i} className="colorBox" style={{backgroundColor: c.value}} onMouseDown={(e) => {this.handleHighlightColorChange(c, e)}}></div>
+                      ) : (
+                        <div key={i} className="colorBox" style={{backgroundColor: c.value}} onMouseEnter={() => {this.setState({currHoverHighlightColor: c})}} onMouseLeave={() => {this.setState({currHoverHighlightColor: this.state.currHighlightColor})}} onMouseDown={(e) => {this.handleHighlightColorChange(c, e)}}></div>
+                      )
+                    )
+                  })
+                }
+              </div>
+              <div style={{clear: 'both'}}></div>
+            </div>
+            <div className="fontsContainer">
+              <p className="colorsHeader">Fonts</p>
+              {
+                this.props.props.fonts.map((f, i) => {
+                  return (
+                    f.label === this.state.currFont.label ? (
+                      <div key={i} className="fontBox" style={{borderColor: "#39b287", borderStyle: 'solid', borderWidth: 2}} onMouseDown={(e) => {this.handleFontToolChange(f, e)}}>
+                        <p className="fontLabel" style={{fontFamily: f.value}}>{f.label}</p>
+                      </div>
+                    ) : (
+                      <div key={i} className="fontBox" onMouseEnter={() => {this.setState({currHoverFont: f})}} onMouseLeave={() => {this.setState({currHoverFont: this.state.currFont})}} onMouseDown={(e) => {this.handleFontToolChange(f, e)}}>
+                        <p className="fontLabel" style={{fontFamily: f.value}}>{f.label}</p>
+                      </div>
+                    )
+                  )
+                })
+              }
             </div>
           </div>
         </div>
@@ -104,17 +229,44 @@ class ColorTools extends Component {
 }
 
 class AlignTools extends Component {
+  constructor(props) {
+    super(props);
+  }
+
+  handleAlignToolToggle = (tool, e) => {
+    e.preventDefault();
+    this.props.handleAlignToolToggle(tool);
+  }
+
+  getCurrentAlignment = () => {
+    let currAlignment = this.props.props.defaultAlignment;
+
+    let editorState = this.props.props.editorState;
+    let selectionState = editorState.getSelection();
+    let anchorKey = selectionState.getAnchorKey();
+    let currContent = editorState.getCurrentContent();
+    let currContentBlock = currContent.getBlockForKey(anchorKey);
+    let currContentBlockType = currContentBlock.getType()
+    if (currContentBlockType == 'align-left' || currContentBlockType == 'align-center' || currContentBlockType == 'align-right' || currContentBlockType == 'align-justify') {
+      currAlignment = currContentBlock.getType();
+    }
+    return currAlignment;
+
+    // let start = selectionState.getStartOffset();
+    // let end = selectionState.getEndOffset();
+    // let selectedText = currContentBlock.getText().slice(start, end);
+  }
+
   render() {
-    const { props, handleAlignToolToggle } = this.props;
     return (
       <div className="alignToolMenu">
         {
           ALIGN_TOOLS.map((t, i) => {
             return (
-              props.alignment === t ? (
-                <img alt={t} key={i} className="toolMenuIconSelected" src={"./images/" + t + "-icon-dark-01.png"} onMouseDown={(e) => {handleAlignToolToggle(t, e)}} />
+              this.getCurrentAlignment() === t ? (
+                <img alt={t} key={i} className="toolMenuIconSelected" src={"./images/" + t + "-icon-dark-01.png"} onMouseDown={(e) => {this.handleAlignToolToggle(t, e)}} />
               ) : (
-                <img alt={t} key={i} className="toolMenuIcon" src={"./images/" + t + "-icon-light-01.png"} onMouseDown={(e) => {handleAlignToolToggle(t, e)}} />
+                <img alt={t} key={i} className="toolMenuIcon" src={"./images/" + t + "-icon-light-01.png"} onMouseDown={(e) => {this.handleAlignToolToggle(t, e)}} />
               )
             )
           })
@@ -125,8 +277,11 @@ class AlignTools extends Component {
 }
 
 class FileTools extends Component {
+  constructor(props) {
+    super(props);
+  }
+
   render() {
-    const { fileChangedHandler } = this.props;
     return (
       <div className="fileToolMenu">
         {
@@ -136,7 +291,7 @@ class FileTools extends Component {
                 <label htmlFor="file-input">
                   <img className="toolMenuIcon" alt={t} src={"./images/" + t + "-icon-light-01.png"} />
                 </label>
-                <input id="file-input" type="file" onChange={fileChangedHandler} />
+                <input id="file-input" type="file" accept="image/x-png,image/gif,image/jpeg" onChange={this.props.fileChangedHandler} />
               </div>
             )
           })
@@ -147,17 +302,30 @@ class FileTools extends Component {
 }
 
 class LinkTools extends Component {
+  constructor(props) {
+    super(props);
+  }
+
+  handleLinkToolToggle = (tool, e) => {
+    e.preventDefault();
+    this.props.handleLinkToolToggle(tool);
+  }
+
+  handleVideoToolToggle = (tool, e) => {
+    e.preventDefault();
+    this.props.handleVideoToolToggle(tool);
+  }
+
   render() {
-    const { handleLinkToolToggle, handleVideoToolToggle } = this.props;
     return (
       <div className="linkToolMenu">
         {
           LINK_TOOLS.map((t, i) => {
             return (
-              t == "link" ? (
-                <img alt={t} key={i} className="toolMenuIcon" src={"./images/" + t + "-icon-light-01.png"} onMouseDown={(e) => {handleLinkToolToggle(t, e)}} />
+              t === "link" ? (
+                <img alt={t} key={i} className="toolMenuIcon" src={"./images/" + t + "-icon-light-01.png"} onMouseDown={(e) => {this.handleLinkToolToggle(t, e)}} />
               ) : (
-                <img alt={t} key={i} className="toolMenuIcon" src={"./images/" + t + "-icon-light-01.png"} onMouseDown={(e) => {handleVideoToolToggle(t, e)}} />
+                <img alt={t} key={i} className="toolMenuIcon" src={"./images/" + t + "-icon-light-01.png"} onMouseDown={(e) => {this.handleVideoToolToggle(t, e)}} />
               )
             )
           })
@@ -170,59 +338,25 @@ class LinkTools extends Component {
 class ToolMenu extends Component {
   constructor(props) {
     super(props);
-    this.state = {}
-  }
-
-  handleTextToolToggle = (tool, e) => {
-    e.preventDefault();
-    this.props.handleTextToggleChange(tool);
-  }
-
-  handleAlignToolToggle = (tool, e) => {
-    e.preventDefault();
-    this.props.handleAlignToggleChange(tool);
-  }
-
-  handleLinkToolToggle = (tool, e) => {
-    e.preventDefault();
-    this.props.handleLinkTool();
-  }
-
-  handleVideoToolToggle = (tool, e) => {
-    e.preventDefault();
-    this.props.handleVideoTool();
-  }
-
-  handleTextColorChange = (color, e) => {
-    e.preventDefault();
-    this.props.handleTextColorChange(color);
-  }
-
-  handleHighlightColorChange = (color, e) => {
-    e.preventDefault();
-    this.props.handleHighlightColorChange(color);
-  }
-
-  fileChangedHandler = (event) => {
-    try {
-      let reader = new FileReader();
-      reader.readAsDataURL(event.target.files[0]);
-      reader.onload = () => {
-        this.props.handleImageTool(reader.result);
-      };
-      reader.onerror = function (error) {
-          console.log('Error: ', error);
-      };
-    } catch(err) {
-      // Error Handling
-      // alert(err.message);
-      return;
+    this.state = {
+      activeDropdown: null
     }
   }
 
-  showColorOptions = (e) => {
+  fileChangedHandler = (event) => {
+    this.props.handleImageTool(event.target.files[0]);
+  }
+
+  showCustomTextOptions = (e) => {
     e.preventDefault();
-    document.getElementById("myColorDropdown").classList.toggle("show");
+    if (this.state.activeDropdown) {
+      if (this.state.activeDropdown.classList.contains("show") && this.state.activeDropdown.getAttribute('id') !== "customTextDropdown") {
+        this.state.activeDropdown.classList.toggle("show");
+      }
+    }
+
+    this.setState({activeDropdown: document.getElementById("customTextDropdown")});
+    document.getElementById("customTextDropdown").classList.toggle("show");
   }
 
   render() {
@@ -231,25 +365,27 @@ class ToolMenu extends Component {
         <div className="toolMenu">
           <TextTools
             props={this.props}
-            handleTextToolToggle={this.handleTextToolToggle}
+            handleTextToolToggle={this.props.handleTextToggleChange}
           />
-          <ColorTools
+          <CustomTextTools
             props={this.props}
-            handleTextColorChange={this.handleTextColorChange}
-            handleHighlightColorChange={this.handleHighlightColorChange}
-            showColorOptions={this.showColorOptions}
+            handleFontToolChange={this.props.handleFontTool}
+            handleTextColorChange={this.props.handleTextColorChange}
+            handleHighlightColorChange={this.props.handleHighlightColorChange}
+            handleTextSizeChange={this.props.handleTextSizeChange}
+            showCustomTextOptions={this.showCustomTextOptions}
           />
           {this.props.children}
           <AlignTools
             props={this.props}
-            handleAlignToolToggle={this.handleAlignToolToggle}
+            handleAlignToolToggle={this.props.handleAlignToggleChange}
           />
           <FileTools
             fileChangedHandler={this.fileChangedHandler}
           />
           <LinkTools
-            handleLinkToolToggle={this.handleLinkToolToggle}
-            handleVideoToolToggle={this.handleVideoToolToggle}
+            handleLinkToolToggle={this.props.handleLinkTool}
+            handleVideoToolToggle={this.props.handleVideoTool}
           />
         </div>
       )
@@ -263,7 +399,22 @@ class ToolMenu extends Component {
 
 // Close the dropdown menu if the user clicks outside of it
 window.onclick = function(event) {
-  if (!event.target.matches('.dropbtn')) {
+  if (!event.target.matches('.dropbtn') &&
+      !event.target.matches('.dropdown-content') &&
+      !event.target.matches('.colorPreviewContainer') &&
+      !event.target.matches('.colorPreviewText') &&
+      !event.target.matches('.colorsContainer') &&
+      !event.target.matches('.textColorsContainer') &&
+      !event.target.matches('.highlightColorsContainer') &&
+      !event.target.matches('.fontsContainer') &&
+      !event.target.matches('.colorsHeader') &&
+      !event.target.matches('.colorBox') &&
+      !event.target.matches('.fontBox') &&
+      !event.target.matches('.fontLabel') &&
+      !event.target.matches('.textSizeContainer') &&
+      !event.target.matches('.sizeBox') &&
+      !event.target.matches('.sizeLabel')
+    ) {
     var dropdowns = document.getElementsByClassName("dropdown-content");
     var i;
     for (i = 0; i < dropdowns.length; i++) {
