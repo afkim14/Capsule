@@ -40,3 +40,9 @@ export const ErrorSharingMsg = () => (
     <p className="notificationText">There was a problem sending your card. Please retry.</p>
   </div>
 )
+
+export const NoContentToShareMsg = () => (
+  <div>
+    <p className="notificationText">There is no letter to send!</p>
+  </div>
+)

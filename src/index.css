@@ -26,7 +26,7 @@ html {
   height: 40px;
   text-align: center;
 
-  transition: background-color 0.5s ease, color 0.5s ease, border-radius 0.5s ease;
+  transition: background-color 0.3s ease, color 0.3s ease, border-radius 0.3s ease;
 }
 
 .dialogButton p {
@@ -56,6 +56,13 @@ html {
 .dialogButtonSelected p {
   margin: 0px auto;
   line-height: 40px;
+}
+
+.dialogHeader {
+  color: #cecece;
+  font-size: 20px;
+  margin-top: 5px;
+  margin-bottom: 5px;
 }
 
 .mainBGColor {
@@ -170,7 +177,7 @@ html {
   height: 40px;
   text-align: center;
 
-  transition: background-color 0.5s ease, color 0.5s ease, border-radius 0.5s ease;
+  transition: background-color 0.3s ease, color 0.3s ease, border-radius 0.3s ease;
 }
 
 .declineButton p {
@@ -605,10 +612,24 @@ html {
 
 .link {
   cursor: pointer;
-  color: #74bced;
+  color: #4aa7bc;
   text-decoration: none;
   padding-bottom: 2px;
-  border-bottom: 2px solid #74bced;
+  border-bottom: 2px solid #4aa7bc;
+}
+
+.linkContainer {
+  height: 30px;
+  padding: 10px;
+  background-color: #4aa7bc;
+  line-height: 30px;
+  display: inline-block;
+
+  transition: border-radius 0.3s ease;
+}
+
+.linkContainer:hover {
+  border-radius: 10px;
 }
 
 .navbar {
@@ -628,7 +649,7 @@ html {
   margin-right: 10px;
   outline: none;
 
-  transition: background-color 0.5s ease, color 0.5s ease, border-radius 0.5s ease;
+  transition: background-color 0.3s ease, color 0.3s ease, border-radius 0.3s ease;
 }
 
 .newCardButton:hover {
@@ -643,23 +664,73 @@ html {
   text-align: center;
 }
 
+.password {
+  color: #3e3e3e;
+}
+
+.passwordIncorrectMsg {
+  color: #cc5252;
+  font-size: 12px;
+}
+
+.passwordContainer {
+  height: 30px;
+  padding: 10px;
+  background-color: #39b287;
+  line-height: 0px;
+  display: inline-block;
+}
+
+.passwordInput {
+  padding: 10px;
+  outline: none;
+  border: 2px solid #39b287;
+  color: #39b287;
+  background-color: #3e3e3e;
+  font-size: 18px;
+}
+
+.passwordSubmitButton {
+  margin: 0px auto;
+  margin-top: 10px;
+  height: 40px;
+  width: 100px;
+  outline: none;
+  border-radius: 5px;
+  background-color: #3e3e3e;
+  border: 2px solid #39b287;
+  font-size: 12px;
+  color: #39b287;
+  cursor: pointer;
+  display: block;
+
+  transition: background-color 0.3s ease, color 0.3s ease, border-radius 0.3s ease;
+}
+
+.passwordSubmitButton:hover {
+  border-radius: 20px;
+  border: 0px solid #39b287;
+  background-color: #39b287;
+  color: #3e3e3e;
+}
+
 .shareButton {
   width: 100px;
   height: 40px;
   border-radius: 5px;
-  border: 2px solid #3a96af;
-  color: #3a96af;
+  border: 2px solid #4aa7bc;
+  color: #4aa7bc;
   font-weight: bold;
   cursor: pointer;
   outline: none;
 
-  transition: background-color 0.5s ease, color 0.5s ease, border-radius 0.5s ease;
+  transition: background-color 0.3s ease, color 0.3s ease, border-radius 0.3s ease;
 }
 
 .shareButton:hover {
   border-radius: 20px;
-  border: 0px solid #3a96af;
-  background-color: #3a96af;
+  border: 0px solid #4aa7bc;
+  background-color: #4aa7bc;
   color: #3e3e3e;
 }
 
@@ -753,7 +824,7 @@ html {
   outline: none;
   margin-right: 10px;
 
-  transition: background-color 0.5s ease, color 0.5s ease, border-radius 0.5s ease;
+  transition: background-color 0.3s ease, color 0.3s ease, border-radius 0.3s ease;
 }
 
 .tutorialButton:hover {
@@ -769,7 +840,6 @@ html {
   color: #cecece;
   margin: 0px auto;
   margin-top: 15px;
-  display: block;
 }
 
 .tutorialVideo {
@@ -786,8 +856,8 @@ html {
 }
 
 .termsListContainer {
-  margin-top: -10px;
-  margin-bottom: 0px;
+  margin-top: 10px;
+  margin-bottom: 00px;
 }
 
 .termsListItem {

@@ -8,6 +8,7 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Slide from '@material-ui/core/Slide';
 import Utils from '../constants/utils'
+import { Link } from 'react-router-dom'
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -18,6 +19,7 @@ class ShareDialog extends Component {
     super(props);
     this.state = {
       urlCopied: false,
+      pwCopied: false
     }
   }
 
@@ -32,7 +34,6 @@ class ShareDialog extends Component {
         <Dialog
           open={this.props.open}
           TransitionComponent={Transition}
-          keepMounted
           onClose={this.closeShare}
           aria-labelledby="alert-dialog-slide-title"
           aria-describedby="alert-dialog-slide-description"
@@ -42,18 +43,41 @@ class ShareDialog extends Component {
             },
           }}
         >
-          <div className="dialogContent" style={{textAlign: 'center'}}>
-            <p className="tutorialTitle" style={{marginBottom: 20}}>{"Share your card."}</p>
-            <a className="link" onClick={() => {Utils.openInNewTab(this.props.shareLink)}}>{this.props.shareLink}</a>
+          <div className="dialogContent">
+            <p className="tutorialTitle" style={{marginBottom: 10}}>{"Share your card."}</p>
+            <p className="dialogHeader">Link</p>
+            <Link className="link" style={{color: "#3e3e3e"}} to={"/cards/" + this.props.cardKey} target="_blank">
+              <div className="linkContainer">
+                <a className="link" style={{color: "#3e3e3e"}} to={"/cards/" + this.props.cardKey} target="_blank">{this.props.shareLink}</a>
+              </div>
+            </Link>
+            <p className="dialogHeader">Password</p>
+            <div className="passwordContainer">
+              <p className="password">{this.props.password}</p>
+            </div>
+            <div style={{clear: 'both'}}/>
             {
               this.state.urlCopied ? (
-                <div className="dialogButtonSelected" style={{margin: '0px auto', marginTop: 30}}>
+                <div className="dialogButtonSelected" style={{marginTop: 15, marginRight: 10, float: 'left'}}>
                   <p>Copied</p>
                 </div>
               ) : (
-                <CopyToClipboard text={this.props.shareLink} onCopy={() => this.setState({urlCopied: true})}>
-                  <div className="dialogButton" style={{margin: '0px auto', marginTop: 30}}>
-                    <p>Copy</p>
+                <CopyToClipboard text={this.props.shareLink} onCopy={() => this.setState({urlCopied: true, pwCopied: false})}>
+                  <div className="dialogButton" style={{marginTop: 15, marginRight: 10, float: 'left'}}>
+                    <p>Copy URL</p>
+                  </div>
+                </CopyToClipboard>
+              )
+            }
+            {
+              this.state.pwCopied ? (
+                <div className="dialogButtonSelected" style={{width: 150, marginTop: 15, marginRight: 10, float: 'left'}}>
+                  <p>Copied</p>
+                </div>
+              ) : (
+                <CopyToClipboard text={this.props.password} onCopy={() => this.setState({pwCopied: true, urlCopied: false})}>
+                  <div className="dialogButton" style={{width: 150, marginTop: 15, marginRight: 10, float: 'left'}}>
+                    <p>Copy Password</p>
                   </div>
                 </CopyToClipboard>
               )

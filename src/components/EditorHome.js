@@ -7,7 +7,7 @@ import placeholders from '../constants/placeholders';
 import { textColorStyleMap, highlightColorStyleMap, TEXT_COLORS, HIGHLIGHT_COLORS } from '../constants/colors';
 import { FONTS, fontStyleMap } from '../constants/fonts';
 import { TEXT_SIZES, textSizeStyleMap } from '../constants/textSizes';
-import { NoLinkTextMsg, NoLinkMsg, InvalidImageMsg, InvalidVideoMsg, NoVideoMsg, SucessSharingMsg, ErrorSharingMsg } from '../constants/notifications';
+import { NoLinkTextMsg, NoLinkMsg, InvalidImageMsg, InvalidVideoMsg, NoVideoMsg, SucessSharingMsg, ErrorSharingMsg, NoContentToShareMsg } from '../constants/notifications';
 import NewCardDialog from './NewCardDialog';
 import TutorialDialog from './TutorialDialog';
 import ShareDialog from './ShareDialog';
@@ -39,6 +39,7 @@ toast.configure({
   newestOnTop: true,
 });
 
+const password = require('secure-random-password');
 // const ReactMarkdown = require('react-markdown');
 // const { styles, customStyleFn, exporter } = createStyles(['font-size', 'color', 'text-transform'], 'CUSTOM_', fontStyleMap);
 const resizeablePlugin = createResizeablePlugin();
@@ -81,7 +82,9 @@ class EditorHome extends Component {
       openNewCardDialog: false,
       openTutorialDialog: false,
       openShareDialog: false,
-      shareLink: null
+      shareLink: null,
+      cardKey: null,
+      password: null
     }
     this.onChange = (editorState) => this.setState({editorState});
     this.focus = () => this.refs.editor.focus();
@@ -108,7 +111,7 @@ class EditorHome extends Component {
     e.preventDefault();
     const content = this.state.editorState.getCurrentContent();
     const isEditorEmpty = !content.hasText();
-    if (!isEditorEmpty) {
+    if (!isEditorEmpty || this.state.title !== "") {
       this.setState({openNewCardDialog: true});
     }
   }
@@ -118,8 +121,14 @@ class EditorHome extends Component {
     this.setState({openTutorialDialog: true});
   }
 
-  openShareDialog = (key) => {
-    this.setState({openShareDialog: true, shareLink: 'localhost:3000/cards/' + key});
+  openShareDialog = (key, password) => {
+    const content = this.state.editorState.getCurrentContent();
+    const isEditorEmpty = !content.hasText();
+    if (!isEditorEmpty || this.state.title !== "") {
+      this.setState({openShareDialog: true, shareLink: 'localhost:3000/cards/' + key, cardKey: key, password: password});
+    } else {
+      toast.error(<NoContentToShareMsg />);
+    }
   }
 
   newCard = () => {
@@ -129,22 +138,30 @@ class EditorHome extends Component {
 
   shareCard = (e) => {
     e.preventDefault();
-    // the raw state, stringified
+    const content = this.state.editorState.getCurrentContent();
+    const isEditorEmpty = !content.hasText();
+    if (!isEditorEmpty || this.state.title !== "") {
+      // the raw state, stringified
+      const maxPasswordLength = 20;
+      const minPasswordLength = 10;
+      const pw = password.randomPassword({length: Math.floor(Math.random() * (maxPasswordLength - minPasswordLength) + minPasswordLength)});
+      const rawDraftContentState = JSON.stringify( convertToRaw(this.state.editorState.getCurrentContent()) );
+      const newCard = {
+        title: this.state.title,
+        data: rawDraftContentState,
+        password: pw
+      }
 
-    const rawDraftContentState = JSON.stringify( convertToRaw(this.state.editorState.getCurrentContent()) );
-    const newCard = {
-      title: this.state.title,
-      data: rawDraftContentState,
-      password: 'password'
+      firebase.app().database().ref('/').push({
+        ...newCard
+      }).then((data) => {
+        this.setState({openShareDialog: true, shareLink: 'localhost:3000/cards/' + data.getKey(), cardKey: data.getKey(), password: pw});
+      }).catch((error) => {
+        toast.error(<ErrorSharingMsg />);
+      });
+    } else {
+      toast.error(<NoContentToShareMsg />);
     }
-
-    firebase.app().database().ref('/').push({
-      ...newCard
-    }).then((data) => {
-      this.openShareDialog(data.getKey());
-    }).catch((error) => {
-      toast.error(<ErrorSharingMsg />);
-    });
   }
 
   handleKeyDown = (event) => {
@@ -395,6 +412,8 @@ class EditorHome extends Component {
           open={this.state.openShareDialog}
           close={() => {this.setState({openShareDialog: false})}}
           shareLink={this.state.shareLink}
+          cardKey={this.state.cardKey}
+          password={this.state.password}
         />
         <div className="navbar">
           <button className="newCardButton mainBGColor" onMouseDown={(e) => {this.openNewCardDialog(e)}}>New Card</button>

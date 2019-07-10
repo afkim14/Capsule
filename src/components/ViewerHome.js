@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { EditorState, ContentState, convertFromRaw } from 'draft-js';
 import Editor, { composeDecorators } from 'draft-js-plugins-editor';
+import PasswordDialog from './PasswordDialog';
 import { textColorStyleMap, highlightColorStyleMap } from '../constants/colors';
 import { fontStyleMap } from '../constants/fonts';
 import { textSizeStyleMap } from '../constants/textSizes';
@@ -36,6 +37,7 @@ const plugins = [
 ];
 
 const STATE_LOADING = 'loading';
+const STATE_AUTH = 'authentication';
 const STATE_FAILED = 'failed';
 const STATE_LOADED = 'loaded';
 const INCORRECT_CARDID = 'incorrectID';
@@ -48,6 +50,8 @@ class ViewerHome extends Component {
       status: STATE_LOADING,
       title: '',
       editorState: null,
+      openPasswordDialog: true,
+      cardData: {}
     }
 
     this.onChange = (editorState) => this.setState({editorState});
@@ -61,16 +65,7 @@ class ViewerHome extends Component {
       firebase.database().ref(cardId).once('value', (snapshot) => {
         const pulledData = snapshot.val();
         if (pulledData) {
-          let link = window.prompt('Password:');
-          while (!link || link != pulledData['password']) {
-            if (link == null) {
-              this.setState({status: STATE_FAILED});
-              return;
-            }
-            alert('Wrong Password. Please try again.');
-            link = window.prompt('Password:')
-          }
-          this.showCardData(pulledData['title'], pulledData['data']);
+          this.setState({cardData: pulledData, status: STATE_AUTH});
         } else {
           this.setState({status: INCORRECT_CARDID});
         }
@@ -81,10 +76,14 @@ class ViewerHome extends Component {
     }
   }
 
-  showCardData = (title, cardData) => {
-    // convert the raw state back to a useable ContentState object
-    const contentState = convertFromRaw( JSON.parse( cardData ) );
-    this.setState({editorState: EditorState.createWithContent(contentState), status: STATE_LOADED, title: title});
+  handleCorrectPassword = () => {
+    const contentState = convertFromRaw( JSON.parse( this.state.cardData['data'] ) );
+    this.setState({
+      editorState: EditorState.createWithContent(contentState),
+      title: this.state.cardData['title'],
+      openPasswordDialog: false,
+      status: STATE_LOADED
+    });
   }
 
   printCard = () => {
@@ -136,13 +135,27 @@ class ViewerHome extends Component {
           </div>
         </div>
       )
+    } else if (this.state.status == STATE_AUTH) {
+      return (
+        <PasswordDialog
+          open={this.state.openPasswordDialog}
+          close={() => {this.setState({status: STATE_FAILED})}}
+          password={this.state.cardData['password']}
+          handleCorrectPassword={this.handleCorrectPassword}
+        />
+      )
     } else if (this.state.status == STATE_FAILED) {
       return (
         <div className="container" style={{textAlign: 'center'}}>
           <div className="warningContainer">
             <img className="centerIcons" src={"../images/password-icon-01.png"} />
-            <p className="warningMessage mainFGColor mainBGColor" style={{fontWeight: 'bold'}}>Forgot the password?</p>
-            <p className="warningMessage">Too bad.</p>
+            <p className="warningMessage mainFGColor mainBGColor" style={{color: "#39b287", fontWeight: 'bold'}}>Forgot the password?</p>
+            <p className="warningMessage">Please check with the person who sent you the letter.</p>
+            <Link style={{textDecoration: 'none'}} to={"/"}>
+              <div className="dialogButton" style={{margin: '0px auto', marginTop: 30}}>
+                <p>Go Home</p>
+              </div>
+            </Link>
           </div>
         </div>
       )
@@ -150,10 +163,15 @@ class ViewerHome extends Component {
       return (
         <div className="container" style={{textAlign: 'center'}}>
           <div className="warningContainer">
-            <img className="centerIcons" src={"../images/warning-icon-01.png"} />
-            <p className="warningMessage mainFGColor mainBGColor" style={{fontWeight: 'bold'}}>Card could not be found.</p>
+            <img className="centerIcons" src={"../images/sad-icon-01.png"} />
+            <p className="warningMessage mainFGColor mainBGColor" style={{color: "#39b287", fontWeight: 'bold'}}>Card could not be found.</p>
             <p className="warningMessage mainFGColor mainBGColor">Please check the card link. It should look something like this:</p>
             <a className="link" style={{cursor: 'text'}}>https://appname.com/cards/-LjKneE4dVD</a>
+            <Link style={{textDecoration: 'none'}} to={"/"}>
+              <div className="dialogButton" style={{margin: '0px auto', marginTop: 30}}>
+                <p>Go Home</p>
+              </div>
+            </Link>
           </div>
         </div>
       )
@@ -162,7 +180,7 @@ class ViewerHome extends Component {
         <div className="container" style={{textAlign: 'center'}}>
           <div className="warningContainer">
             <img className="centerIcons" src={"../images/letter-icon-01.png"} />
-            <p className="warningMessage mainFGColor mainBGColor" style={{fontWeight: 'bold'}}>Loading a beautiful card!</p>
+            <p className="warningMessage mainFGColor mainBGColor" style={{color: "#39b287", fontWeight: 'bold'}}>Loading a beautiful card!</p>
           </div>
         </div>
       )

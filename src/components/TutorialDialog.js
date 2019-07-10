@@ -110,7 +110,6 @@ class TutorialDialog extends Component {
         <Dialog
           open={this.props.open}
           TransitionComponent={Transition}
-          keepMounted
           onClose={this.closeTutorial}
           aria-labelledby="alert-dialog-slide-title"
           aria-describedby="alert-dialog-slide-description"
