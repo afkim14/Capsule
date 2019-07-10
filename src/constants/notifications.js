@@ -1,13 +1,13 @@
 import React, { Component } from 'react';
 export const NoLinkTextMsg = () => (
   <div>
-    <p className="notificationText">Please <p style={{backgroundColor: "#cecece", padding: 5, display: 'inline-block', color: '#218693'}}>highlight</p> a word for the link.</p>
+    <p className="notificationText">Please <span style={{backgroundColor: "#cecece", padding: 5, display: 'inline-block', color: '#218693'}}>highlight</span> a word for the link.</p>
   </div>
 )
 
 export const NoLinkMsg = () => (
   <div>
-    <p className="notificationText">No <p style={{borderBottomStyle: 'solid', borderBottomWidth: 2, borderRadius: 1, borderBottomColor: "#cecece", paddingBottom: 1, display: 'inline-block'}}>link</p> was inputted.</p>
+    <p className="notificationText">No <span style={{borderBottomStyle: 'solid', borderBottomWidth: 2, borderRadius: 1, borderBottomColor: "#cecece", paddingBottom: 1, display: 'inline-block'}}>link</span> was inputted.</p>
   </div>
 )
 
@@ -43,6 +43,6 @@ export const ErrorSharingMsg = () => (
 
 export const NoContentToShareMsg = () => (
   <div>
-    <p className="notificationText">There is no letter to send!</p>
+    <p className="notificationText">Please fill out recipient and body of letter.</p>
   </div>
 )

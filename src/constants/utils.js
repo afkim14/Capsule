@@ -23,6 +23,21 @@ class Utils {
     var win = window.open(url, '_blank');
     win.focus();
   }
+
+  static getBlockStyle(block) {
+    switch (block.getType()) {
+      case 'align-left':
+        return 'align-left';
+      case 'align-center':
+        return 'align-center';
+      case 'align-right':
+        return 'align-right';
+      case 'align-justify':
+        return 'align-justify';
+      default:
+        return null;
+    }
+  }
 }
 
 export default Utils;

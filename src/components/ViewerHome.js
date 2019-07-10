@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { EditorState, ContentState, convertFromRaw } from 'draft-js';
 import Editor, { composeDecorators } from 'draft-js-plugins-editor';
+import Utils from '../constants/utils';
 import PasswordDialog from './PasswordDialog';
 import { textColorStyleMap, highlightColorStyleMap } from '../constants/colors';
 import { fontStyleMap } from '../constants/fonts';
@@ -128,7 +129,7 @@ class ViewerHome extends Component {
               onChange={this.onChange}
               ref="editor"
               readOnly={true}
-              blockStyleFn={this.getBlockStyle}
+              blockStyleFn={Utils.getBlockStyle}
               customStyleMap={{...textColorStyleMap, ...highlightColorStyleMap, ...fontStyleMap, ...textSizeStyleMap }}
               plugins={plugins}
             />

@@ -9,6 +9,9 @@ const LINK_TOOLS = ["video", "link"];
 class TextTools extends Component {
   constructor(props) {
     super(props);
+    this.state = {
+
+    }
   }
 
   handleTextToolToggle = (tool, e) => {
@@ -25,7 +28,11 @@ class TextTools extends Component {
               this.props.props.editorState.getCurrentInlineStyle().has(t.toUpperCase()) ? (
                 <img alt={t} key={i} className="toolMenuIconSelected" src={"./images/" + t + "-icon-dark-01.png"} onMouseDown={(e) => {this.handleTextToolToggle(t, e)}} />
               ) : (
-                <img alt={t} key={i} className="toolMenuIcon" src={"./images/" + t + "-icon-light-01.png"} onMouseDown={(e) => {this.handleTextToolToggle(t, e)}} />
+                this.state.currHoverTool === t ? (
+                  <img alt={t} key={i} className="toolMenuIcon" src={"./images/" + t + "-icon-dark-01.png"} onMouseEnter={() => {this.setState({currHoverTool: t})}} onMouseLeave={() => {this.setState({currHoverTool: null})}} onMouseDown={(e) => {this.handleTextToolToggle(t, e)}} />
+                ) : (
+                  <img alt={t} key={i} className="toolMenuIcon" src={"./images/" + t + "-icon-light-01.png"} onMouseEnter={() => {this.setState({currHoverTool: t})}} onMouseLeave={() => {this.setState({currHoverTool: null})}} onMouseDown={(e) => {this.handleTextToolToggle(t, e)}} />
+                )
               )
             )
           })
@@ -231,6 +238,7 @@ class CustomTextTools extends Component {
 class AlignTools extends Component {
   constructor(props) {
     super(props);
+    this.state={};
   }
 
   handleAlignToolToggle = (tool, e) => {
@@ -259,19 +267,49 @@ class AlignTools extends Component {
 
   render() {
     return (
-      <div className="alignToolMenu">
-        {
-          ALIGN_TOOLS.map((t, i) => {
-            return (
-              this.getCurrentAlignment() === t ? (
-                <img alt={t} key={i} className="toolMenuIconSelected" src={"./images/" + t + "-icon-dark-01.png"} onMouseDown={(e) => {this.handleAlignToolToggle(t, e)}} />
-              ) : (
-                <img alt={t} key={i} className="toolMenuIcon" src={"./images/" + t + "-icon-light-01.png"} onMouseDown={(e) => {this.handleAlignToolToggle(t, e)}} />
-              )
-            )
-          })
-        }
-      </div>
+        <div className="alignToolMenu">
+          <div className="alignToolMenuWeb">
+            {
+              ALIGN_TOOLS.map((t, i) => {
+                return (
+                  this.getCurrentAlignment() === t ? (
+                    <img alt={t} key={i} className="toolMenuIconSelected" src={"./images/" + t + "-icon-dark-01.png"} onMouseDown={(e) => {this.handleAlignToolToggle(t, e)}} />
+                  ) : (
+                    this.state.currHoverTool === t ? (
+                      <img alt={t} key={i} className="toolMenuIcon" src={"./images/" + t + "-icon-dark-01.png"} onMouseEnter={() => {this.setState({currHoverTool: t})}} onMouseLeave={() => {this.setState({currHoverTool: null})}} onMouseDown={(e) => {this.handleAlignToolToggle(t, e)}} />
+                    ) : (
+                      <img alt={t} key={i} className="toolMenuIcon" src={"./images/" + t + "-icon-light-01.png"} onMouseEnter={() => {this.setState({currHoverTool: t})}} onMouseLeave={() => {this.setState({currHoverTool: null})}} onMouseDown={(e) => {this.handleAlignToolToggle(t, e)}} />
+                    )
+                  )
+                )
+              })
+            }
+          </div>
+          {/* MOBILE AND SMALLER WEB WIDTH */}
+          <div className="alignToolMenuMobile">
+            {
+              ALIGN_TOOLS.map((t, i) => {
+                return (
+                  this.getCurrentAlignment() === t &&
+                  <img alt={t} key={i} className="toolMenuIconSelected alignDropBtn" src={"./images/" + t + "-icon-dark-01.png"} onMouseDown={(e) => {this.props.showAlignOptions(e)}} />
+                )
+              })
+            }
+            <div id="alignToolsDropdown" className="alignToolMenuMobileDropdown">
+              {
+                ALIGN_TOOLS.map((t, i) => {
+                  return (
+                    this.state.currHoverTool === t ? (
+                      <img alt={t} key={i} className="alignToolMenuMobileIcon" src={"./images/" + t + "-icon-dark-01.png"} onMouseEnter={() => {this.setState({currHoverTool: t})}} onMouseLeave={() => {this.setState({currHoverTool: null})}} onMouseDown={(e) => {this.handleAlignToolToggle(t, e)}} />
+                    ) : (
+                      <img alt={t} key={i} className="alignToolMenuMobileIcon" src={"./images/" + t + "-icon-light-01.png"} onMouseEnter={() => {this.setState({currHoverTool: t})}} onMouseLeave={() => {this.setState({currHoverTool: null})}} onMouseDown={(e) => {this.handleAlignToolToggle(t, e)}} />
+                    )
+                  )
+                })
+              }
+            </div>
+          </div>
+        </div>
     )
   }
 }
@@ -279,6 +317,7 @@ class AlignTools extends Component {
 class FileTools extends Component {
   constructor(props) {
     super(props);
+    this.state={};
   }
 
   render() {
@@ -289,7 +328,13 @@ class FileTools extends Component {
             return (
               <div key={i} className="image-upload">
                 <label htmlFor="file-input">
-                  <img className="toolMenuIcon" alt={t} src={"./images/" + t + "-icon-light-01.png"} />
+                  {
+                    this.state.currHoverTool === t ? (
+                      <img className="toolMenuIcon" alt={t} onMouseEnter={() => {this.setState({currHoverTool: t})}} onMouseLeave={() => {this.setState({currHoverTool: null})}} src={"./images/" + t + "-icon-dark-01.png"} />
+                    ) : (
+                      <img className="toolMenuIcon" alt={t} onMouseEnter={() => {this.setState({currHoverTool: t})}} onMouseLeave={() => {this.setState({currHoverTool: null})}} src={"./images/" + t + "-icon-light-01.png"} />
+                    )
+                  }
                 </label>
                 <input id="file-input" type="file" accept="image/x-png,image/gif,image/jpeg" onChange={this.props.fileChangedHandler} />
               </div>
@@ -304,16 +349,12 @@ class FileTools extends Component {
 class LinkTools extends Component {
   constructor(props) {
     super(props);
+    this.state={};
   }
 
   handleLinkToolToggle = (tool, e) => {
     e.preventDefault();
     this.props.handleLinkToolToggle(tool);
-  }
-
-  handleVideoToolToggle = (tool, e) => {
-    e.preventDefault();
-    this.props.handleVideoToolToggle(tool);
   }
 
   render() {
@@ -322,10 +363,10 @@ class LinkTools extends Component {
         {
           LINK_TOOLS.map((t, i) => {
             return (
-              t === "link" ? (
-                <img alt={t} key={i} className="toolMenuIcon" src={"./images/" + t + "-icon-light-01.png"} onMouseDown={(e) => {this.handleLinkToolToggle(t, e)}} />
+              this.state.currHoverTool === t ? (
+                <img alt={t} key={i} className="toolMenuIcon" src={"./images/" + t + "-icon-dark-01.png"} onMouseEnter={() => {this.setState({currHoverTool: t})}} onMouseLeave={() => {this.setState({currHoverTool: null})}} onMouseDown={(e) => {this.handleLinkToolToggle(t, e)}} />
               ) : (
-                <img alt={t} key={i} className="toolMenuIcon" src={"./images/" + t + "-icon-light-01.png"} onMouseDown={(e) => {this.handleVideoToolToggle(t, e)}} />
+                <img alt={t} key={i} className="toolMenuIcon" src={"./images/" + t + "-icon-light-01.png"} onMouseEnter={() => {this.setState({currHoverTool: t})}} onMouseLeave={() => {this.setState({currHoverTool: null})}} onMouseDown={(e) => {this.handleLinkToolToggle(t, e)}} />
               )
             )
           })
@@ -359,6 +400,18 @@ class ToolMenu extends Component {
     document.getElementById("customTextDropdown").classList.toggle("show");
   }
 
+  showAlignOptions = (e) => {
+    e.preventDefault();
+    if (this.state.activeDropdown) {
+      if (this.state.activeDropdown.classList.contains("show") && this.state.activeDropdown.getAttribute('id') !== "alignToolsDropdown") {
+        this.state.activeDropdown.classList.toggle("show");
+      }
+    }
+
+    this.setState({activeDropdown: document.getElementById("alignToolsDropdown")});
+    document.getElementById("alignToolsDropdown").classList.toggle("show");
+  }
+
   render() {
     if (this.props.show) {
       return (
@@ -378,14 +431,14 @@ class ToolMenu extends Component {
           {this.props.children}
           <AlignTools
             props={this.props}
+            showAlignOptions={this.showAlignOptions}
             handleAlignToolToggle={this.props.handleAlignToggleChange}
           />
           <FileTools
             fileChangedHandler={this.fileChangedHandler}
           />
           <LinkTools
-            handleLinkToolToggle={this.props.handleLinkTool}
-            handleVideoToolToggle={this.props.handleVideoTool}
+            handleLinkToolToggle={this.props.openLinkInputDialog}
           />
         </div>
       )
@@ -400,6 +453,7 @@ class ToolMenu extends Component {
 // Close the dropdown menu if the user clicks outside of it
 window.onclick = function(event) {
   if (!event.target.matches('.dropbtn') &&
+      !event.target.matches('.alignDropBtn') &&
       !event.target.matches('.dropdown-content') &&
       !event.target.matches('.colorPreviewContainer') &&
       !event.target.matches('.colorPreviewText') &&
@@ -417,6 +471,14 @@ window.onclick = function(event) {
     ) {
     var dropdowns = document.getElementsByClassName("dropdown-content");
     var i;
+    for (i = 0; i < dropdowns.length; i++) {
+      var openDropdown = dropdowns[i];
+      if (openDropdown.classList.contains('show')) {
+        openDropdown.classList.remove('show');
+      }
+    }
+
+    var dropdowns = document.getElementsByClassName("alignToolMenuMobileDropdown");
     for (i = 0; i < dropdowns.length; i++) {
       var openDropdown = dropdowns[i];
       if (openDropdown.classList.contains('show')) {

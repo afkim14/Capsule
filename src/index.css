@@ -78,6 +78,38 @@ html {
   margin-left: 10px;
 }
 
+.alignToolMenuMobile {
+  visibility: hidden;
+  display: none;
+  position: relative;
+}
+
+.alignToolMenuMobileDropdown {
+  display: none;
+  position: absolute;
+  background-color: #333333;
+  color: #cecece;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+}
+
+.alignToolMenuMobileIcon {
+  width: 20px;
+  height: 20px;
+  padding: 5px;
+  border: 2px solid #3e3e3e;
+  cursor: pointer;
+  margin-right: 10px;
+  display: block;
+  margin: 0px auto;
+
+  transition: border-color 0.2s ease;
+}
+
+.alignToolMenuMobileIcon:hover {
+  border: 2px solid #3e3e3e;
+}
+
 .align-right div {
   text-align: right;
 }
@@ -681,7 +713,7 @@ html {
   display: inline-block;
 }
 
-.passwordInput {
+.formInput {
   padding: 10px;
   outline: none;
   border: 2px solid #39b287;
@@ -690,7 +722,7 @@ html {
   font-size: 18px;
 }
 
-.passwordSubmitButton {
+.inputSubmitButton {
   margin: 0px auto;
   margin-top: 10px;
   height: 40px;
@@ -707,7 +739,7 @@ html {
   transition: background-color 0.3s ease, color 0.3s ease, border-radius 0.3s ease;
 }
 
-.passwordSubmitButton:hover {
+.inputSubmitButton:hover {
   border-radius: 20px;
   border: 0px solid #39b287;
   background-color: #39b287;
@@ -790,7 +822,10 @@ html {
 .toolMenuIcon {
   width: 20px;
   height: 20px;
-  padding: 5px;
+  padding-bottom: 5px;
+  padding-top: 5px;
+  padding-right: 5px;
+  margin-left: -2px;
   border: 2px solid #3e3e3e;
   cursor: pointer;
   margin-right: 10px;
@@ -883,16 +918,22 @@ html {
     width: 90%;
   }
 
-  .toolMenu {
-    width: 90%;
-  }
-
   .navbar {
     margin-top: 20px;
   }
 
   .warningContainer img {
     width: 30%;
+  }
+
+  .alignToolMenuWeb {
+    visibility: hidden;
+    display: none;
+  }
+
+  .alignToolMenuMobile {
+    visibility: visible;
+    display: inline-block;
   }
 }
 
@@ -926,5 +967,10 @@ html {
 
   .colorsHeader {
     margin-bottom: 5px;
+  }
+
+  .fileToolMenu {
+    visibility: hidden;
+    display: none;
   }
 }

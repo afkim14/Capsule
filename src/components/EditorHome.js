@@ -11,6 +11,7 @@ import { NoLinkTextMsg, NoLinkMsg, InvalidImageMsg, InvalidVideoMsg, NoVideoMsg,
 import NewCardDialog from './NewCardDialog';
 import TutorialDialog from './TutorialDialog';
 import ShareDialog from './ShareDialog';
+import LinkInputDialog from './LinkInputDialog';
 import createStyles from 'draft-js-custom-styles';
 import createFocusPlugin from 'draft-js-focus-plugin';
 import createImagePlugin from 'draft-js-image-plugin';
@@ -82,9 +83,12 @@ class EditorHome extends Component {
       openNewCardDialog: false,
       openTutorialDialog: false,
       openShareDialog: false,
+      openLinkInputDialog: false,
+
       shareLink: null,
       cardKey: null,
-      password: null
+      password: null,
+      currLinkTool: null,
     }
     this.onChange = (editorState) => this.setState({editorState});
     this.focus = () => this.refs.editor.focus();
@@ -93,42 +97,6 @@ class EditorHome extends Component {
   componentDidMount() {
     document.addEventListener("keydown", this.handleKeyDown);
     autosize(document.querySelectorAll('textarea'));
-    var self = this;
-    $("body").mousedown(function(e) {
-      if (e.target.id === "editor" || $(e.target).parents("#editor").length || e.target.id === "footer" || $(e.target).parents("#footer").length) {
-        self.toggleToolbar(true);
-      } else {
-        self.toggleToolbar(false);
-      }
-    });
-  }
-
-  toggleToolbar = (state) => {
-    // this.setState({showToolbar: state});
-  }
-
-  openNewCardDialog = (e) => {
-    e.preventDefault();
-    const content = this.state.editorState.getCurrentContent();
-    const isEditorEmpty = !content.hasText();
-    if (!isEditorEmpty || this.state.title !== "") {
-      this.setState({openNewCardDialog: true});
-    }
-  }
-
-  openTutorialDialog = (e) => {
-    e.preventDefault();
-    this.setState({openTutorialDialog: true});
-  }
-
-  openShareDialog = (key, password) => {
-    const content = this.state.editorState.getCurrentContent();
-    const isEditorEmpty = !content.hasText();
-    if (!isEditorEmpty || this.state.title !== "") {
-      this.setState({openShareDialog: true, shareLink: 'localhost:3000/cards/' + key, cardKey: key, password: password});
-    } else {
-      toast.error(<NoContentToShareMsg />);
-    }
   }
 
   newCard = () => {
@@ -140,7 +108,7 @@ class EditorHome extends Component {
     e.preventDefault();
     const content = this.state.editorState.getCurrentContent();
     const isEditorEmpty = !content.hasText();
-    if (!isEditorEmpty || this.state.title !== "") {
+    if (!isEditorEmpty && this.state.title !== "") {
       // the raw state, stringified
       const maxPasswordLength = 20;
       const minPasswordLength = 10;
@@ -162,6 +130,24 @@ class EditorHome extends Component {
     } else {
       toast.error(<NoContentToShareMsg />);
     }
+  }
+
+  openNewCardDialog = (e) => {
+    e.preventDefault();
+    const content = this.state.editorState.getCurrentContent();
+    const isEditorEmpty = !content.hasText();
+    if (!isEditorEmpty || this.state.title !== "") {
+      this.setState({openNewCardDialog: true});
+    }
+  }
+
+  openTutorialDialog = (e) => {
+    e.preventDefault();
+    this.setState({openTutorialDialog: true});
+  }
+
+  openLinkInputDialog = (tool) => {
+    this.setState({openLinkInputDialog: true, currLinkTool: tool});
   }
 
   handleKeyDown = (event) => {
@@ -203,7 +189,7 @@ class EditorHome extends Component {
       this.onChange(RichUtils.toggleInlineStyle(editorState, command));
       return 'handled';
     } else if (command.includes('link')) {
-      this.handleLinkTool();
+      this.openLinkInputDialog('link');
       return 'handled';
     } else if (command.includes('align')) {
       this.handleAlignToggleChange(command);
@@ -324,9 +310,9 @@ class EditorHome extends Component {
     return AtomicBlockUtils.insertAtomicBlock(newEditorState, entityKey, " ");
   }
 
-  handleVideoTool = () => {
+  handleVideoTool = (link) => {
+    this.setState({openLinkInputDialog: false});
     const editorState = this.state.editorState;
-    const link = window.prompt('Paste the video URL:');
     if (link === null) {
       return;
     }
@@ -356,7 +342,8 @@ class EditorHome extends Component {
     return AtomicBlockUtils.insertAtomicBlock(newEditorState, entityKey, " ");
   }
 
-  handleLinkTool = () => {
+  handleLinkTool = (link) => {
+    this.setState({openLinkInputDialog: false});
     const editorState = this.state.editorState;
     const selection = editorState.getSelection();
     const content = editorState.getCurrentContent();
@@ -365,7 +352,7 @@ class EditorHome extends Component {
       toast.info(<NoLinkTextMsg />);
       return;
     }
-    const link = window.prompt('Paste the URL:')
+
     if (link === null) {
       return;
     }
@@ -378,21 +365,6 @@ class EditorHome extends Component {
     const newEditorState = EditorState.push(editorState, contentWithEntity, 'create-entity');
     const entityKey = contentWithEntity.getLastCreatedEntityKey();
     this.onChange(RichUtils.toggleLink(newEditorState, selection, entityKey))
-  }
-
-  getBlockStyle = (block) => {
-    switch (block.getType()) {
-      case 'align-left':
-        return 'align-left';
-      case 'align-center':
-        return 'align-center';
-      case 'align-right':
-        return 'align-right';
-      case 'align-justify':
-        return 'align-justify';
-      default:
-        return null;
-    }
   }
 
   render() {
@@ -415,6 +387,13 @@ class EditorHome extends Component {
           cardKey={this.state.cardKey}
           password={this.state.password}
         />
+        <LinkInputDialog
+          open={this.state.openLinkInputDialog}
+          close={() => {this.setState({openLinkInputDialog: false})}}
+          handleLinkTool={this.handleLinkTool}
+          handleVideoTool={this.handleVideoTool}
+          currLinkTool={this.state.currLinkTool}
+        />
         <div className="navbar">
           <button className="newCardButton mainBGColor" onMouseDown={(e) => {this.openNewCardDialog(e)}}>New Card</button>
           <button className="tutorialButton mainBGColor" onMouseDown={(e) => {this.openTutorialDialog(e)}}>Tutorial</button>
@@ -433,8 +412,7 @@ class EditorHome extends Component {
               handleFontTool={this.handleFontTool}
               handleHighlightColorChange={this.handleHighlightColorChange}
               handleTextSizeChange={this.handleTextSizeChange}
-              handleLinkTool={this.handleLinkTool}
-              handleVideoTool={this.handleVideoTool}
+              openLinkInputDialog={this.openLinkInputDialog}
               defaultAlignment={this.state.defaultAlignment}
               fonts={FONTS}
               defaultFont={this.state.defaultFont}
@@ -459,14 +437,14 @@ class EditorHome extends Component {
           className="titleTextArea mainFGColor mainBGColor"
           // style={{textAlign: this.state.defaultAlignment, fontFamily: this.state.currFont.value}}
         />
-        <div id="editor" className="contentTextArea mainFGColor" style={{fontFamily: this.state.defaultFont.value, fontSize: this.state.defaultTextSize.value}} onClick={() => {this.toggleToolbar(true)}}>
+        <div id="editor" className="contentTextArea mainFGColor" style={{fontFamily: this.state.defaultFont.value, fontSize: this.state.defaultTextSize.value}}>
           <Editor
             placeholder={this.state.bodyPlaceholder}
             editorState={this.state.editorState}
             handleKeyCommand={this.handleKeyCommand}
             keyBindingFn={this.myKeyBindingFn}
             onChange={this.onChange}
-            blockStyleFn={this.getBlockStyle}
+            blockStyleFn={Utils.getBlockStyle}
             ref="editor"
             plugins={plugins}
             customStyleMap={{...textColorStyleMap, ...highlightColorStyleMap, ...fontStyleMap, ...textSizeStyleMap }}

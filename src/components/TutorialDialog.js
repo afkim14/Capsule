@@ -16,7 +16,7 @@ class FirstStep extends Component {
       <div className="dialogContent">
         <p className="tutorialTitle">{"Write and style."}</p>
         <div>
-          <video className="tutorialVideo" autoPlay loop>
+          <video className="tutorialVideo" autoPlay loop playsInline>
             <source src={"./videos/text-styling.mp4"} type={"video/mp4"} />
           </video>
         </div>
@@ -38,7 +38,7 @@ class SecondStep extends Component {
       <div className="dialogContent">
         <p className="tutorialTitle">{"Show memorable photos and videos."}</p>
         <div>
-          <video className="tutorialVideo" autoPlay loop>
+          <video className="tutorialVideo" autoPlay loop playsInline>
             <source src={"./videos/insert-image.mp4"} type={"video/mp4"} />
           </video>
         </div>
@@ -63,8 +63,8 @@ class ThirdStep extends Component {
       <div className="dialogContent">
         <p className="tutorialTitle">{"Send your card."}</p>
         <div>
-          <video className="tutorialVideo" autoPlay loop>
-            <source src={"./videos/insert-image.mp4"} type={"video/mp4"} />
+          <video className="tutorialVideo" autoPlay loop playsInline>
+            <source src={"./videos/share.mp4"} type={"video/mp4"} />
           </video>
         </div>
         <div className="dialogButton" style={{float: 'left'}} onMouseDown={this.props.prevTutorialStep}>

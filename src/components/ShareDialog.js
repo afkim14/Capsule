@@ -24,7 +24,7 @@ class ShareDialog extends Component {
   }
 
   closeShare = () => {
-    this.setState({urlCopied: false});
+    this.setState({urlCopied: false, pwCopied: false});
     this.props.close();
   }
 

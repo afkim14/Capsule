@@ -12,18 +12,24 @@ const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
 
-class PasswordDialog extends Component {
+class LinkInputDialog extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      currPassword: '',
-      incorrectPassword: false
+      currLink: ''
     }
   }
 
-  handleSubmitPassword = (e) => {
+  handleSubmitVideo = (e) => {
     e.preventDefault();
-    this.state.currPassword === this.props.password ? this.props.handleCorrectPassword() : this.setState({incorrectPassword: true, currPassword: ''});
+    this.setState({currLink: ''});
+    this.props.handleVideoTool(this.state.currLink);
+  }
+
+  handleSubmitLink = (e) => {
+    e.preventDefault();
+    this.setState({currLink: ''});
+    this.props.handleLinkTool(this.state.currLink);
   }
 
   render() {
@@ -42,18 +48,15 @@ class PasswordDialog extends Component {
           }}
         >
           <div className="dialogContent" style={{textAlign: 'center'}}>
-            {
-              this.state.incorrectPassword && <p className="passwordIncorrectMsg">Incorrect password. Please try again.</p>
-            }
-            <form onSubmit={(e) => {this.handleSubmitPassword(e)}}>
+            <form onSubmit={(e) => {this.props.currLinkTool === "link" ? this.handleSubmitLink(e) : this.handleSubmitVideo(e)}}>
               <input
                 className="formInput"
-                type="password"
-                placeholder="Password"
+                type="text"
+                placeholder={this.props.currLinkTool === "link" ? "URL" : "Youtube or Video URL"}
                 autoFocus
                 spellCheck="false"
-                value={this.state.currPassword}
-                onChange={(e) => {this.setState({currPassword: e.target.value})}}
+                value={this.state.currLink}
+                onChange={(e) => {this.setState({currLink: e.target.value})}}
               />
               <input className="inputSubmitButton" type="submit" value="Submit"/>
             </form>
@@ -64,4 +67,4 @@ class PasswordDialog extends Component {
   }
 }
 
-export default PasswordDialog;
+export default LinkInputDialog;
