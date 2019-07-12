@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import ToolMenu from './ToolMenu';
-import { EditorState, RichUtils, AtomicBlockUtils, Modifier, ContentState, getDefaultKeyBinding, KeyBindingUtil, convertFromRaw, convertToRaw } from 'draft-js';
+import { EditorState, RichUtils, AtomicBlockUtils, Modifier, ContentState, SelectionState, getDefaultKeyBinding, KeyBindingUtil, convertFromRaw, convertToRaw } from 'draft-js';
 import Editor, { composeDecorators } from 'draft-js-plugins-editor';
 import Utils from '../constants/utils';
 import placeholders from '../constants/placeholders';
-import { textColorStyleMap, highlightColorStyleMap, TEXT_COLORS, HIGHLIGHT_COLORS } from '../constants/colors';
+import { textColorStyleMap, highlightColorStyleMap, TEXT_COLORS, HIGHLIGHT_COLORS, BACKGROUND_COLORS } from '../constants/colors';
 import { FONTS, fontStyleMap } from '../constants/fonts';
 import { TEXT_SIZES, textSizeStyleMap } from '../constants/textSizes';
 import { NoLinkTextMsg, NoLinkMsg, InvalidImageMsg, InvalidVideoMsg, NoVideoMsg, SucessSharingMsg, ErrorSharingMsg, NoContentToShareMsg } from '../constants/notifications';
@@ -19,6 +19,7 @@ import createVideoPlugin from 'draft-js-video-plugin';
 import createResizeablePlugin from 'draft-js-resizeable-plugin';
 import createUnderlinePlugin from "../plugins/underlinePlugin";
 import createEmojiPlugin from 'draft-js-emoji-plugin';
+import createSingleLinePlugin from 'draft-js-single-line-plugin'
 import linkPlugin from '../plugins/linkPlugin';
 import Sticky from 'react-sticky-el';
 import 'draft-js/dist/Draft.css';
@@ -55,6 +56,10 @@ const emojiPlugin = createEmojiPlugin();
 const videoPlugin = createVideoPlugin();
 const { types } = videoPlugin;
 const { EmojiSuggestions, EmojiSelect } = emojiPlugin;
+const singleLinePlugin = createSingleLinePlugin();
+const titlePlugins = [
+  singleLinePlugin
+];
 const plugins = [
   resizeablePlugin,
   focusPlugin,
@@ -69,16 +74,20 @@ class EditorHome extends Component {
   constructor(props) {
     super(props);
     window.scrollTo(0, 0);
+    let currBGColor = HIGHLIGHT_COLORS[2];
     this.state = {
-      title: "",
+      titleOnFocus: false,
       bodyPlaceholder: placeholders[Math.floor(Math.random() * placeholders.length)],
       defaultAlignment: "align-left",
       defaultFont: FONTS[0],
+      currFont: FONTS[0],
+      currBGColor: currBGColor.value,
       defaultTextColor: TEXT_COLORS[0],
-      defaultHighlightColor: HIGHLIGHT_COLORS[0],
+      defaultHighlightColor: currBGColor,
       secondaryHighlightColor: HIGHLIGHT_COLORS[2],
-      defaultTextSize: TEXT_SIZES[1],
+      defaultTextSize: TEXT_SIZES[0],
       showToolbar: true,
+      titleEditorState: EditorState.createEmpty(),
       editorState: EditorState.createEmpty(),
       openNewCardDialog: false,
       openTutorialDialog: false,
@@ -90,34 +99,43 @@ class EditorHome extends Component {
       password: null,
       currLinkTool: null,
     }
+
+    this.onTitleChange = (titleEditorState) => this.setState({titleEditorState});
     this.onChange = (editorState) => this.setState({editorState});
     this.focus = () => this.refs.editor.focus();
   }
 
   componentDidMount() {
     document.addEventListener("keydown", this.handleKeyDown);
+    document.getElementsByTagName("html")[0].setAttribute("style", "background-color: " + this.state.currBGColor + ";");
     autosize(document.querySelectorAll('textarea'));
   }
 
   newCard = () => {
+    const titleEditorState = EditorState.push(this.state.titleEditorState, ContentState.createFromText(''));
     const editorState = EditorState.push(this.state.editorState, ContentState.createFromText(''));
-    this.setState({ openNewCardDialog: false, title: "", editorState });
+    this.setState({ openNewCardDialog: false, titleEditorState, editorState });
   }
 
   shareCard = (e) => {
     e.preventDefault();
+    const titleContent = this.state.editorState.getCurrentContent();
+    const isTitleEmpty = !titleContent.hasText();
     const content = this.state.editorState.getCurrentContent();
     const isEditorEmpty = !content.hasText();
-    if (!isEditorEmpty && this.state.title !== "") {
+    if (!isEditorEmpty && !isTitleEmpty) {
       // the raw state, stringified
       const maxPasswordLength = 20;
       const minPasswordLength = 10;
       const pw = password.randomPassword({length: Math.floor(Math.random() * (maxPasswordLength - minPasswordLength) + minPasswordLength)});
+      const rawTitleContentState = JSON.stringify( convertToRaw(this.state.titleEditorState.getCurrentContent()) );
       const rawDraftContentState = JSON.stringify( convertToRaw(this.state.editorState.getCurrentContent()) );
       const newCard = {
-        title: this.state.title,
+        title: rawTitleContentState,
         data: rawDraftContentState,
-        password: pw
+        password: pw,
+        bgColor: this.state.currBGColor,
+        font: this.state.currFont.value
       }
 
       firebase.app().database().ref('/').push({
@@ -134,9 +152,11 @@ class EditorHome extends Component {
 
   openNewCardDialog = (e) => {
     e.preventDefault();
+    const titleContent = this.state.titleEditorState.getCurrentContent();
+    const isTitleEmpty = !titleContent.hasText();
     const content = this.state.editorState.getCurrentContent();
     const isEditorEmpty = !content.hasText();
-    if (!isEditorEmpty || this.state.title !== "") {
+    if (!isEditorEmpty || !isTitleEmpty) {
       this.setState({openNewCardDialog: true});
     }
   }
@@ -216,10 +236,6 @@ class EditorHome extends Component {
     }
   }
 
-  handleTitleChange = (event) => {
-    this.setState({title: event.target.value});
-  }
-
   handleTextToggleChange = (textTool) => {
     this.onChange(RichUtils.toggleInlineStyle(
       this.state.editorState,
@@ -228,23 +244,26 @@ class EditorHome extends Component {
   }
 
   handleCustomTextChange = (styleMap, style) => {
-    const selection = this.state.editorState.getSelection();
+    let editorState = this.state.titleOnFocus ? this.state.titleEditorState : this.state.editorState;
+    const selection = editorState.getSelection();
     let nextContentState = Object.keys(styleMap).reduce((contentState, style) => {
       return Modifier.removeInlineStyle(contentState, selection, style)
-    }, this.state.editorState.getCurrentContent());
+    }, editorState.getCurrentContent());
 
     let nextEditorState = EditorState.push(
-      this.state.editorState,
+      editorState,
       nextContentState,
       'change-inline-style'
     );
 
-    const currentStyle = this.state.editorState.getCurrentInlineStyle();
+    const currentStyle = editorState.getCurrentInlineStyle();
     // Unset style override for current font.
     if (selection.isCollapsed()) {
-      nextEditorState = currentStyle.reduce((state, style) => {
-        return RichUtils.toggleInlineStyle(state, style);
-      }, nextEditorState);
+      Object.keys(styleMap).forEach(style => {
+        if (currentStyle.has(style)) {
+          nextEditorState = RichUtils.toggleInlineStyle(nextEditorState, style);
+        }
+      });
     }
     // If the font is being toggled on, apply it.
     if (!currentStyle.has(style.style)) {
@@ -253,7 +272,53 @@ class EditorHome extends Component {
         style.style
       );
     }
-    this.onChange(nextEditorState);
+    this.state.titleOnFocus ? this.onTitleChange(nextEditorState) : this.onChange(nextEditorState);
+  }
+
+  handleGlobalTextChange = (styleMap, style) => {
+    let editorState = this.state.titleOnFocus ? this.state.titleEditorState : this.state.editorState;
+    let currentContent = editorState.getCurrentContent();
+    const firstBlock = currentContent.getBlockMap().first();
+    const lastBlock = currentContent.getBlockMap().last();
+    const firstBlockKey = firstBlock.getKey();
+    const lastBlockKey = lastBlock.getKey();
+    const lengthOfLastBlock = lastBlock.getLength();
+
+    let newSelection = new SelectionState({
+      anchorKey: firstBlockKey,
+      anchorOffset: 0,
+      focusKey: lastBlockKey,
+      focusOffset: lengthOfLastBlock
+    });
+
+    let nextContentState = Object.keys(styleMap).reduce((newContentState, style) => (
+      Modifier.removeInlineStyle(newContentState, newSelection, style)
+    ), currentContent);
+
+    let nextEditorState = EditorState.push(
+      editorState,
+      nextContentState,
+      'change-inline-style'
+    );
+
+    nextEditorState = RichUtils.toggleInlineStyle(
+      nextEditorState,
+      style.style
+    );
+
+    // highlights entire text after changing font
+    nextEditorState = EditorState.forceSelection(nextEditorState, newSelection);
+    this.state.titleOnFocus ? this.onTitleChange(nextEditorState) : this.onChange(nextEditorState);
+  }
+
+  handleStickerTool = (sticker) => {
+    var request = new XMLHttpRequest();
+    request.open('GET', sticker.url, true);
+    request.responseType = 'blob';
+    request.onload = () => {
+        this.handleImageTool(request.response);
+    };
+    request.send();
   }
 
   handleTextColorChange = (color) => {
@@ -264,8 +329,19 @@ class EditorHome extends Component {
     this.handleCustomTextChange(highlightColorStyleMap, color);
   }
 
+  handleBGChange = (color, e) => {
+    e.preventDefault();
+    document.getElementsByTagName("html")[0].setAttribute("style", "background-color: " + color.value + ";");
+    this.setState({currBGColor: color.value, defaultHighlightColor: color});
+  }
+
   handleFontTool = (font) => {
-    this.handleCustomTextChange(fontStyleMap, font);
+    // Apply only to some text (selection)
+    //this.handleCustomTextChange(fontStyleMap, font);
+
+    // Apply globally
+    this.setState({currFont: font});
+    //this.handleGlobalTextChange(fontStyleMap, font);
   }
 
   handleTextSizeChange = (size) => {
@@ -395,15 +471,17 @@ class EditorHome extends Component {
           currLinkTool={this.state.currLinkTool}
         />
         <div className="navbar">
-          <button className="newCardButton mainBGColor" onMouseDown={(e) => {this.openNewCardDialog(e)}}>New Card</button>
-          <button className="tutorialButton mainBGColor" onMouseDown={(e) => {this.openTutorialDialog(e)}}>Tutorial</button>
-          <button className="shareButton mainBGColor" onMouseDown={(e) => {this.shareCard(e)}}>Share</button>
+          <button className="newCardButton" style={{backgroundColor: this.state.currBGColor}} onMouseDown={(e) => {this.openNewCardDialog(e)}}>New Card</button>
+          <button className="tutorialButton" style={{backgroundColor: this.state.currBGColor}} onMouseDown={(e) => {this.openTutorialDialog(e)}}>Tutorial</button>
+          <button className="shareButton" style={{backgroundColor: this.state.currBGColor}} onMouseDown={(e) => {this.shareCard(e)}}>Share</button>
         </div>
         <div style={{clear: 'both'}}/>
         <Sticky style={{position: 'absolute', zIndex: 10}}>
-          <div style={{backgroundColor: "#3e3e3e", paddingTop:20, paddingBottom: 20}}>
+          <div style={{paddingTop:20, paddingBottom: 20, backgroundColor: this.state.currBGColor}}>
             <ToolMenu
               show={this.state.showToolbar}
+              titleOnFocus={this.state.titleOnFocus}
+              titleEditorState={this.state.titleEditorState}
               editorState={this.state.editorState}
               handleTextToggleChange={this.handleTextToggleChange}
               handleAlignToggleChange={this.handleAlignToggleChange}
@@ -412,9 +490,14 @@ class EditorHome extends Component {
               handleFontTool={this.handleFontTool}
               handleHighlightColorChange={this.handleHighlightColorChange}
               handleTextSizeChange={this.handleTextSizeChange}
+              handleStickerTool={this.handleStickerTool}
               openLinkInputDialog={this.openLinkInputDialog}
               defaultAlignment={this.state.defaultAlignment}
               fonts={FONTS}
+              currFont={this.state.currFont}
+              currBGColor={this.state.currBGColor}
+              backgroundColors={BACKGROUND_COLORS}
+              handleBGChange={this.handleBGChange}
               defaultFont={this.state.defaultFont}
               textColors={TEXT_COLORS}
               defaultTextColor={this.state.defaultTextColor}
@@ -428,16 +511,19 @@ class EditorHome extends Component {
             <div style={{clear: 'both'}}/>
           </div>
         </Sticky>
-        <textarea
-          rows="1"
-          spellCheck="false"
-          placeholder="Hey Jude,"
-          value={this.state.title}
-          onChange={this.handleTitleChange}
-          className="titleTextArea mainFGColor mainBGColor"
-          // style={{textAlign: this.state.defaultAlignment, fontFamily: this.state.currFont.value}}
-        />
-        <div id="editor" className="contentTextArea mainFGColor" style={{fontFamily: this.state.defaultFont.value, fontSize: this.state.defaultTextSize.value}}>
+        <div className="titleTextArea mainFGColor" style={{fontFamily: this.state.currFont.value}}>
+          <Editor
+            placeholder={"Hey Jude,"}
+            editorState={this.state.titleEditorState}
+            onChange={this.onTitleChange}
+            onBlur={() => {this.setState({titleOnFocus: false})}}
+            onFocus={() => {this.setState({titleOnFocus: true})}}
+            blockStyleFn={Utils.getBlockStyle}
+            customStyleMap={{...textColorStyleMap }}
+            plugins={titlePlugins}
+          />
+        </div>
+        <div id="editor" className="contentTextArea mainFGColor" style={{fontFamily: this.state.currFont.value, fontSize: this.state.defaultTextSize.value}}>
           <Editor
             placeholder={this.state.bodyPlaceholder}
             editorState={this.state.editorState}

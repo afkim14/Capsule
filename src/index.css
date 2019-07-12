@@ -112,18 +112,66 @@ html {
 
 .align-right div {
   text-align: right;
+  margin-bottom: 20px;
 }
 
 .align-center div {
   text-align: center;
+  margin-bottom: 20px;
 }
 
 .align-left div {
   text-align: left;
+  margin-bottom: 20px;
 }
 
 .align-justify div {
   text-align: justify;
+  margin-bottom: 20px;
+}
+
+.bgToolMenu {
+  float: left;
+}
+
+.bg-dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #333333;
+  color: #cecece;
+  min-width: 200px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+}
+
+.bgColorContainer {
+  height: 40px;
+  width: 90%;
+  margin: 0px auto;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+
+.bgColorContainerSelected {
+  height: 36px;
+  width: 90%;
+  margin: 0px auto;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  border: 2px solid #39b287;
+  cursor: pointer;
+}
+
+.bgColorContainer:hover {
+  height: 36px;
+  border: 2px solid #39b287;
+}
+
+.bgHeader {
+  color: #cecece;
+  margin-left: 10px;
+  margin-bottom: 0px;
 }
 
 .container {
@@ -134,7 +182,7 @@ html {
 
 .contentTextArea {
   width: 100%;
-  min-height: 500px;
+  min-height: 200px;
   outline: none;
   border: none;
   margin-bottom: 100px;
@@ -170,9 +218,10 @@ html {
 }
 
 .customTextToolMenu {
-  float: left;
-  margin-top: 5px;
+  margin-top: 4px;
+  margin-left: -5px;
   margin-right: 10px;
+  float: left;
 }
 
 .customTextPreviewContainer {
@@ -280,7 +329,7 @@ html {
   line-height: 1.2em;
   font-size: 1.2em;
   color: #888;
-  background: #3e3e3e;
+  background: transparent;
   cursor: pointer;
   border: none;
 }
@@ -455,7 +504,7 @@ html {
 }
 
 .draftJsEmojiPlugin__emojiSelectPopoverScrollbarThumb__jGYdG {
-  background-color: #eb2f39;
+  background-color: #39b287;
   border-radius: .125em;
   cursor: pointer;
 }
@@ -578,7 +627,6 @@ html {
   max-width: 80%;
   margin: 0px auto;
   display: block;
-  cursor: pointer;
 }
 
 #editor iframe {
@@ -586,6 +634,11 @@ html {
   min-height: 300px;
   margin: 0px auto;
   display: block;
+}
+
+.emojiContainer {
+  float: left;
+  margin-left: -2px;
 }
 
 .fileToolMenu {
@@ -766,11 +819,8 @@ html {
   color: #3e3e3e;
 }
 
-/* Show the dropdown menu (use JS to add this class to the .dropdown-content container when the user clicks on the dropdown button) */
-.show {display:block;}
-
 .sizeBox {
-  width: 31%;
+  width: 48%;
   height: 40px;
   float: left;
   background-color: #333333;
@@ -785,6 +835,44 @@ html {
 .sizeLabel {
   padding: 10px;
   margin: 0px auto;
+}
+
+.stickerToolMenu {
+  float: left;
+  position: relative;
+}
+
+.stickerToolsDropdown {
+  display: none;
+  position: absolute;
+  background-color: #333333;
+  color: #cecece;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  min-width: 400px;
+  z-index: 1;
+}
+
+.stickersContainer {
+  width: 90%;
+  margin: 0px auto;
+}
+
+.stickersHeader {
+  color: #cecece;
+  margin-left: 10px;
+  margin-bottom: 0px;
+  font-weight: bold;
+}
+
+.stickerImage {
+  max-width: 100px;
+  float: left;
+  cursor: pointer;
+  margin: 10px;
+}
+
+.stickerImage:hover {
+  background-color: #3e3e3e;
 }
 
 .textToolMenu {
@@ -804,11 +892,10 @@ html {
 
 .titleTextArea {
   width: 100%;
-  margin-top: 20px;
-  margin-bottom: 20px;
   outline: none;
   border: none;
-  resize: none;
+  margin-bottom: 20px;
+  padding: 3px;
 
   font-size: 30px;
   font-weight: bold;
@@ -826,26 +913,8 @@ html {
   padding-top: 5px;
   padding-right: 5px;
   margin-left: -2px;
-  border: 2px solid #3e3e3e;
   cursor: pointer;
   margin-right: 10px;
-
-  transition: border-color 0.2s ease;
-}
-
-.toolMenuIcon:hover {
-  border: 2px solid #3e3e3e;
-}
-
-.toolMenuIconSelected {
-  width: 20px;
-  height: 20px;
-  padding: 5px;
-  border: 2px solid #3e3e3e;
-  cursor: pointer;
-  margin-right: 10px;
-
-  transition: border-color 0.2s ease;
 }
 
 .tutorialButton {
@@ -913,6 +982,9 @@ html {
   font-size: 20px;
 }
 
+/* Show the dropdown menu (use JS to add this class to the .dropdown-content container when the user clicks on the dropdown button) */
+.show {display:block;}
+
 @media only screen and (max-width: 800px) {
   .container {
     width: 90%;
@@ -937,7 +1009,7 @@ html {
   }
 }
 
-@media only screen and (max-width: 400px) {
+@media only screen and (max-width: 500px) {
   .textColorsContainer {
     width: 90%;
     float: none;
@@ -972,5 +1044,14 @@ html {
   .fileToolMenu {
     visibility: hidden;
     display: none;
+  }
+
+  .emojiContainer {
+    display: none;
+    visibility: hidden;
+  }
+
+  .draftJsEmojiPlugin__emojiSelectPopover__1J1s0 {
+    max-width: 100px;
   }
 }

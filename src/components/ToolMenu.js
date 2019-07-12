@@ -2,6 +2,17 @@ import React, { Component } from 'react';
 import Utils from '../constants/utils';
 
 const TEXT_TOOLS = ["bold", "italic", "underline"];
+const STICKER_TOOLS = ["sticker"];
+const STICKERS = [
+  {
+    setName: 'Penguin',
+    stickers: [
+      {name: "Boo", url: "./stickers/penguin_set/boo-01.png"},
+      {name: "Dafuq", url: "./stickers/penguin_set/dafuq-01.png"},
+      {name: "ToTheRescue", url: "./stickers/penguin_set/to-the-rescue-01.png"},
+    ]
+  },
+]
 const ALIGN_TOOLS = ["align-left", "align-center", "align-right", "align-justify"];
 const FILE_TOOLS = ["image"];
 const LINK_TOOLS = ["video", "link"];
@@ -26,7 +37,7 @@ class TextTools extends Component {
           TEXT_TOOLS.map((t, i) => {
             return (
               this.props.props.editorState.getCurrentInlineStyle().has(t.toUpperCase()) ? (
-                <img alt={t} key={i} className="toolMenuIconSelected" src={"./images/" + t + "-icon-dark-01.png"} onMouseDown={(e) => {this.handleTextToolToggle(t, e)}} />
+                <img alt={t} key={i} className="toolMenuIcon" src={"./images/" + t + "-icon-dark-01.png"} onMouseDown={(e) => {this.handleTextToolToggle(t, e)}} />
               ) : (
                 this.state.currHoverTool === t ? (
                   <img alt={t} key={i} className="toolMenuIcon" src={"./images/" + t + "-icon-dark-01.png"} onMouseEnter={() => {this.setState({currHoverTool: t})}} onMouseLeave={() => {this.setState({currHoverTool: null})}} onMouseDown={(e) => {this.handleTextToolToggle(t, e)}} />
@@ -58,16 +69,25 @@ class CustomTextTools extends Component {
   }
 
   getCurrentFont = () => {
-    let currFont = this.props.props.defaultFont;
-    let filteredFont = this.props.props.fonts.filter(f => { return this.props.props.editorState.getCurrentInlineStyle().has(f.style) });
-    if (filteredFont.length > 0) { currFont = filteredFont[0]; }
-    return currFont;
+    // Apply only to some text (selection)
+    // let currFont = this.props.props.defaultFont;
+    // let filteredFont = this.props.props.fonts.filter(f => { return this.props.props.editorState.getCurrentInlineStyle().has(f.style) });
+    // if (filteredFont.length > 0) { currFont = filteredFont[0]; }
+    // return currFont;
+
+    // Apply globally
+    return this.props.props.currFont;
   }
 
   getCurrentTextColor = () => {
     let currTextColor = this.props.props.defaultTextColor;
-    let filteredTextColor = this.props.props.textColors.filter(c => { return this.props.props.editorState.getCurrentInlineStyle().has(c.style) });
-    if (filteredTextColor.length > 0) { currTextColor = filteredTextColor[0]; }
+    if (this.props.props.titleOnFocus) {
+      let filteredTextColor = this.props.props.textColors.filter(c => { return this.props.props.titleEditorState.getCurrentInlineStyle().has(c.style) });
+      if (filteredTextColor.length > 0) { currTextColor = filteredTextColor[0]; }
+    } else {
+      let filteredTextColor = this.props.props.textColors.filter(c => { return this.props.props.editorState.getCurrentInlineStyle().has(c.style) });
+      if (filteredTextColor.length > 0) { currTextColor = filteredTextColor[0]; }
+    }
     return currTextColor;
   }
 
@@ -235,6 +255,87 @@ class CustomTextTools extends Component {
   }
 }
 
+class CardBackgroundTools extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      currBGColor: this.props.props.currBGColor,
+    };
+  }
+
+  render() {
+    return (
+      <div className="bgToolMenu">
+        <img alt={'background color'} className="toolMenuIcon bgDropBtn" src={"./images/bg-icon-dark-01.png"} onMouseDown={(e) => {this.props.showBGOptions(e)}} />
+        <div id="bgDropdown" className="bg-dropdown-content">
+          <p className="bgHeader">{"Card Background"}</p>
+          {
+            this.props.props.backgroundColors.map((c, i) => {
+              return (
+                this.props.props.currBGColor.label === c.label ? (
+                  <div key={i} className="bgColorContainerSelected" style={{backgroundColor: c.value}}></div>
+                ) : (
+                  <div key={i} className="bgColorContainer" style={{backgroundColor: c.value}} onMouseDown={(e) => {this.props.handleBGChange(c, e)}}></div>
+                )
+              )
+            })
+          }
+        </div>
+      </div>
+    )
+  }
+}
+
+class StickerTools extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {};
+  }
+
+  handleStickerTool = (sticker, e) => {
+    e.preventDefault();
+    this.props.handleStickerTool(sticker);
+  }
+
+  render() {
+    return (
+      <div className="stickerToolMenu">
+        {
+          STICKER_TOOLS.map((t, i) => {
+            return (
+              this.state.currHoverTool === t ? (
+                <img alt={t} key={i} className="toolMenuIcon stickerDropBtn" src={"./images/" + t + "-icon-dark-01.png"} onMouseEnter={() => {this.setState({currHoverTool: t})}} onMouseLeave={() => {this.setState({currHoverTool: null})}} onMouseDown={(e) => {this.props.showStickerOptions(e)}} />
+              ) : (
+                <img alt={t} key={i} className="toolMenuIcon stickerDropBtn" src={"./images/" + t + "-icon-light-01.png"} onMouseEnter={() => {this.setState({currHoverTool: t})}} onMouseLeave={() => {this.setState({currHoverTool: null})}} onMouseDown={(e) => {this.props.showStickerOptions(e)}} />
+              )
+            )
+          })
+        }
+
+        <div id="stickerToolsDropdown" className="stickerToolsDropdown">
+          {
+            STICKERS.map((s, i) => {
+              return (
+                <div className="stickersContainer" key={i} >
+                  <p className="stickersHeader">{s.setName}</p>
+                  {
+                    s.stickers.map((st, i) => {
+                      return (
+                          <img alt={st.name} key={i} className="stickerImage" src={st.url} onMouseDown={(e) => {this.handleStickerTool(st, e)}} />
+                      )
+                    })
+                  }
+                  <div style={{clear: 'both'}}/>
+                </div>
+              )
+            })
+          }
+        </div>
+      </div>
+    )
+  }
+}
+
 class AlignTools extends Component {
   constructor(props) {
     super(props);
@@ -273,7 +374,7 @@ class AlignTools extends Component {
               ALIGN_TOOLS.map((t, i) => {
                 return (
                   this.getCurrentAlignment() === t ? (
-                    <img alt={t} key={i} className="toolMenuIconSelected" src={"./images/" + t + "-icon-dark-01.png"} onMouseDown={(e) => {this.handleAlignToolToggle(t, e)}} />
+                    <img alt={t} key={i} className="toolMenuIcon" src={"./images/" + t + "-icon-dark-01.png"} onMouseDown={(e) => {this.handleAlignToolToggle(t, e)}} />
                   ) : (
                     this.state.currHoverTool === t ? (
                       <img alt={t} key={i} className="toolMenuIcon" src={"./images/" + t + "-icon-dark-01.png"} onMouseEnter={() => {this.setState({currHoverTool: t})}} onMouseLeave={() => {this.setState({currHoverTool: null})}} onMouseDown={(e) => {this.handleAlignToolToggle(t, e)}} />
@@ -291,7 +392,7 @@ class AlignTools extends Component {
               ALIGN_TOOLS.map((t, i) => {
                 return (
                   this.getCurrentAlignment() === t &&
-                  <img alt={t} key={i} className="toolMenuIconSelected alignDropBtn" src={"./images/" + t + "-icon-dark-01.png"} onMouseDown={(e) => {this.props.showAlignOptions(e)}} />
+                  <img alt={t} key={i} className="toolMenuIcon alignDropBtn" src={"./images/" + t + "-icon-dark-01.png"} onMouseDown={(e) => {this.props.showAlignOptions(e)}} />
                 )
               })
             }
@@ -400,16 +501,30 @@ class ToolMenu extends Component {
     document.getElementById("customTextDropdown").classList.toggle("show");
   }
 
-  showAlignOptions = (e) => {
-    e.preventDefault();
+  showDropdownOptions = (id) => {
     if (this.state.activeDropdown) {
-      if (this.state.activeDropdown.classList.contains("show") && this.state.activeDropdown.getAttribute('id') !== "alignToolsDropdown") {
+      if (this.state.activeDropdown.classList.contains("show") && this.state.activeDropdown.getAttribute('id') !== id) {
         this.state.activeDropdown.classList.toggle("show");
       }
     }
 
-    this.setState({activeDropdown: document.getElementById("alignToolsDropdown")});
-    document.getElementById("alignToolsDropdown").classList.toggle("show");
+    this.setState({activeDropdown: document.getElementById(id)});
+    document.getElementById(id).classList.toggle("show");
+  }
+
+  showAlignOptions = (e) => {
+    e.preventDefault();
+    this.showDropdownOptions("alignToolsDropdown");
+  }
+
+  showStickerOptions = (e) => {
+    e.preventDefault();
+    this.showDropdownOptions("stickerToolsDropdown");
+  }
+
+  showBGOptions = (e) => {
+    e.preventDefault();
+    this.showDropdownOptions("bgDropdown");
   }
 
   render() {
@@ -428,7 +543,19 @@ class ToolMenu extends Component {
             handleTextSizeChange={this.props.handleTextSizeChange}
             showCustomTextOptions={this.showCustomTextOptions}
           />
-          {this.props.children}
+          <CardBackgroundTools
+            props={this.props}
+            showBGOptions={this.showBGOptions}
+            handleBGChange={this.props.handleBGChange}
+          />
+          <StickerTools
+            props={this.props}
+            handleStickerTool={this.props.handleStickerTool}
+            showStickerOptions={this.showStickerOptions}
+          />
+          <div className="emojiContainer">
+            {this.props.children}
+          </div>
           <AlignTools
             props={this.props}
             showAlignOptions={this.showAlignOptions}
@@ -454,20 +581,17 @@ class ToolMenu extends Component {
 window.onclick = function(event) {
   if (!event.target.matches('.dropbtn') &&
       !event.target.matches('.alignDropBtn') &&
+      !event.target.matches('.stickerDropBtn') &&
+      !event.target.matches('.bgDropBtn') &&
       !event.target.matches('.dropdown-content') &&
-      !event.target.matches('.colorPreviewContainer') &&
-      !event.target.matches('.colorPreviewText') &&
+      !event.target.matches('.bg-dropdown-content') &&
+      !event.target.matches('.bgHeader') &&
+      !event.target.matches('.customTextPreviewContainer') &&
+      !event.target.matches('.customTextPreviewText') &&
       !event.target.matches('.colorsContainer') &&
       !event.target.matches('.textColorsContainer') &&
       !event.target.matches('.highlightColorsContainer') &&
-      !event.target.matches('.fontsContainer') &&
-      !event.target.matches('.colorsHeader') &&
-      !event.target.matches('.colorBox') &&
-      !event.target.matches('.fontBox') &&
-      !event.target.matches('.fontLabel') &&
-      !event.target.matches('.textSizeContainer') &&
-      !event.target.matches('.sizeBox') &&
-      !event.target.matches('.sizeLabel')
+      !event.target.matches('.colorsHeader')
     ) {
     var dropdowns = document.getElementsByClassName("dropdown-content");
     var i;
@@ -479,6 +603,22 @@ window.onclick = function(event) {
     }
 
     var dropdowns = document.getElementsByClassName("alignToolMenuMobileDropdown");
+    for (i = 0; i < dropdowns.length; i++) {
+      var openDropdown = dropdowns[i];
+      if (openDropdown.classList.contains('show')) {
+        openDropdown.classList.remove('show');
+      }
+    }
+
+    var dropdowns = document.getElementsByClassName("stickerToolsDropdown");
+    for (i = 0; i < dropdowns.length; i++) {
+      var openDropdown = dropdowns[i];
+      if (openDropdown.classList.contains('show')) {
+        openDropdown.classList.remove('show');
+      }
+    }
+
+    var dropdowns = document.getElementsByClassName("bg-dropdown-content");
     for (i = 0; i < dropdowns.length; i++) {
       var openDropdown = dropdowns[i];
       if (openDropdown.classList.contains('show')) {

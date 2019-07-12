@@ -49,12 +49,15 @@ class ViewerHome extends Component {
     window.scrollTo(0, 0);
     this.state = {
       status: STATE_LOADING,
-      title: '',
+      titleEditorState: null,
       editorState: null,
       openPasswordDialog: true,
-      cardData: {}
+      cardData: {},
+      currBGColor: null,
+      currFont: null
     }
 
+    this.onTitleChange = (titleEditorState) => this.setState({titleEditorState});
     this.onChange = (editorState) => this.setState({editorState});
   }
 
@@ -78,12 +81,16 @@ class ViewerHome extends Component {
   }
 
   handleCorrectPassword = () => {
+    const titleContentState = convertFromRaw( JSON.parse( this.state.cardData['title'] ) )
     const contentState = convertFromRaw( JSON.parse( this.state.cardData['data'] ) );
+    document.getElementsByTagName("html")[0].setAttribute("style", "background-color: " + this.state.cardData['bgColor'] + ";");
     this.setState({
       editorState: EditorState.createWithContent(contentState),
-      title: this.state.cardData['title'],
+      titleEditorState: EditorState.createWithContent(titleContentState),
       openPasswordDialog: false,
-      status: STATE_LOADED
+      status: STATE_LOADED,
+      currBGColor: this.state.cardData['bgColor'],
+      currFont: this.state.cardData['font']
     });
   }
 
@@ -116,14 +123,21 @@ class ViewerHome extends Component {
         <div className="container">
           <div className="navbar">
             <Link to="/">
-              <button className="newCardButton mainBGColor">New Card</button>
+              <button style={{backgroundColor: this.state.currBGColor}} className="newCardButton mainBGColor">New Card</button>
             </Link>
-            <button className="tutorialButton mainBGColor" onMouseDown={() => {this.printCard()}}>Print</button>
-            <button className="shareButton mainBGColor" onMouseDown={() => {this.shareCard()}}>Share</button>
+            <button className="tutorialButton mainBGColor" style={{backgroundColor: this.state.currBGColor}}  onMouseDown={() => {this.printCard()}}>Print</button>
+            <button className="shareButton mainBGColor" style={{backgroundColor: this.state.currBGColor}}  onMouseDown={() => {this.shareCard()}}>Share</button>
           </div>
           <div style={{clear: 'both'}}/>
-          <p className="titleTextArea mainFGColor mainBGColor">{this.state.title}</p>
-          <div id="editor" className="contentTextArea mainFGColor">
+          <div className="titleTextArea" style={{fontFamily: this.state.currFont}}>
+            <Editor
+              editorState={this.state.titleEditorState}
+              onChange={this.onTitleChange}
+              readOnly={true}
+              customStyleMap={{...textColorStyleMap }}
+            />
+          </div>
+          <div id="editor" className="contentTextArea mainFGColor" style={{fontFamily: this.state.currFont}}>
             <Editor
               editorState={this.state.editorState}
               onChange={this.onChange}
