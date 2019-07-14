@@ -15,9 +15,9 @@ class FirstStep extends Component {
     return (
       <div className="dialogContent">
         <p className="tutorialTitle">{"Write and style."}</p>
-        <div class="tutorialVideoContainer">
+        <div className="tutorialVideoContainer">
           <video className="tutorialVideo" autoPlay loop playsInline>
-            <source src={"./videos/text-styling.mp4"} type={"video/mp4"} />
+            <source src={"/videos/text-styling.mp4"} type={"video/mp4"} />
           </video>
         </div>
         <div className="dialogButton" style={{float: 'right', marginTop: 10}} onMouseDown={this.props.nextTutorialStep}>
@@ -37,9 +37,9 @@ class SecondStep extends Component {
     return (
       <div className="dialogContent">
         <p className="tutorialTitle">{"Show memorable photos and videos."}</p>
-        <div class="tutorialVideoContainer">
+        <div className="tutorialVideoContainer">
           <video className="tutorialVideo" autoPlay loop playsInline>
-            <source src={"./videos/insert-image.mp4"} type={"video/mp4"} />
+            <source src={"/videos/insert-image.mp4"} type={"video/mp4"} />
           </video>
         </div>
         <div className="dialogButton" style={{float: 'left', marginTop: 10}} onMouseDown={this.props.prevTutorialStep}>
@@ -62,9 +62,9 @@ class ThirdStep extends Component {
     return (
       <div className="dialogContent">
         <p className="tutorialTitle">{"Send your card."}</p>
-        <div class="tutorialVideoContainer">
+        <div className="tutorialVideoContainer">
           <video className="tutorialVideo" autoPlay loop playsInline>
-            <source src={"./videos/share.mp4"} type={"video/mp4"} />
+            <source src={"/videos/share.mp4"} type={"video/mp4"} />
           </video>
         </div>
         <div className="dialogButton" style={{float: 'left', marginTop: 10}} onMouseDown={this.props.prevTutorialStep}>

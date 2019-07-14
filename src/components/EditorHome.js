@@ -7,9 +7,11 @@ import placeholders from '../constants/placeholders';
 import { textColorStyleMap, highlightColorStyleMap, TEXT_COLORS, HIGHLIGHT_COLORS, BACKGROUND_COLORS } from '../constants/colors';
 import { FONTS, fontStyleMap } from '../constants/fonts';
 import { TEXT_SIZES, textSizeStyleMap } from '../constants/textSizes';
+import { TemplateIDs } from '../constants/templates';
 import { NoLinkTextMsg, NoLinkMsg, InvalidImageMsg, InvalidVideoMsg, NoVideoMsg, SucessSharingMsg, ErrorSharingMsg, NoContentToShareMsg } from '../constants/notifications';
 import NewCardDialog from './NewCardDialog';
 import TutorialDialog from './TutorialDialog';
+import AddPasswordDialog from './AddPasswordDialog';
 import ShareDialog from './ShareDialog';
 import LinkInputDialog from './LinkInputDialog';
 import createStyles from 'draft-js-custom-styles';
@@ -20,7 +22,6 @@ import createResizeablePlugin from 'draft-js-resizeable-plugin';
 import createUnderlinePlugin from "../plugins/underlinePlugin";
 import createEmojiPlugin from 'draft-js-emoji-plugin';
 import createSingleLinePlugin from 'draft-js-single-line-plugin';
-import createAutoListPlugin from 'draft-js-autolist-plugin';
 import linkPlugin from '../plugins/linkPlugin';
 import Sticky from 'react-sticky-el';
 import 'draft-js/dist/Draft.css';
@@ -30,6 +31,7 @@ import $ from 'jquery';
 import { ToastContainer, toast, Slide, Zoom, Flip, Bounce } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import '../styles/customToastifyStyle.css';
+import { Link} from 'react-router-dom'
 import firebase from 'firebase';
 toast.configure({
   position: "bottom-right",
@@ -55,7 +57,6 @@ const imagePlugin = createImagePlugin({ decorator });
 const underlinePlugin = createUnderlinePlugin();
 const emojiPlugin = createEmojiPlugin();
 const videoPlugin = createVideoPlugin();
-const autoListPlugin = createAutoListPlugin()
 const { types } = videoPlugin;
 const { EmojiSuggestions, EmojiSelect } = emojiPlugin;
 const singleLinePlugin = createSingleLinePlugin();
@@ -70,9 +71,10 @@ const plugins = [
   emojiPlugin,
   linkPlugin,
   videoPlugin,
-  autoListPlugin
 ];
 
+const STATE_LOADING = 'loading';
+const STATE_LOADED = 'loaded';
 let keyHistory = [{shift: false, value: " "}, {shift: false, value: " "}];
 
 class EditorHome extends Component {
@@ -81,6 +83,7 @@ class EditorHome extends Component {
     window.scrollTo(0, 0);
     let mainBGColor = BACKGROUND_COLORS[0];
     this.state = {
+      status: STATE_LOADING,
       titleOnFocus: false,
       bodyPlaceholder: placeholders[Math.floor(Math.random() * placeholders.length)],
       defaultAlignment: "align-left",
@@ -98,8 +101,8 @@ class EditorHome extends Component {
       openTutorialDialog: false,
       openShareDialog: false,
       openLinkInputDialog: false,
+      openAddPasswordDialog: false,
 
-      shareLink: null,
       cardKey: null,
       password: null,
       currLinkTool: null,
@@ -112,8 +115,37 @@ class EditorHome extends Component {
 
   componentDidMount() {
     document.addEventListener("keydown", this.handleKeyDown);
-    document.getElementsByTagName("html")[0].setAttribute("style", "background-color: " + this.state.currBGColor.value + ";");
     autosize(document.querySelectorAll('textarea'));
+    let cardKey = window.location.pathname.split("/").slice(-1)[0];
+    if (cardKey != "editor") {
+      if (TemplateIDs.filter(t => {return t.id === cardKey}).length === 0) { this.setState({status: STATE_LOADED}); }
+      try {
+        firebase.database().ref(cardKey).once('value', (snapshot) => {
+          const pulledData = snapshot.val();
+          if (pulledData) {
+            const titleContentState = convertFromRaw( JSON.parse( pulledData['title'] ) )
+            const contentState = convertFromRaw( JSON.parse( pulledData['data'] ) );
+            document.getElementsByTagName("html")[0].setAttribute("style", "background-color: " + pulledData['bgColor'].value + ";");
+            this.setState({
+              editorState: EditorState.createWithContent(contentState),
+              titleEditorState: EditorState.createWithContent(titleContentState),
+              currBGColor: pulledData['bgColor'],
+              defaultHighlightColor: pulledData['bgColor'],
+              currFont: pulledData['font'],
+              status: STATE_LOADED
+            });
+          } else {
+            this.setState({status: STATE_LOADED});
+          }
+        });
+      } catch (err) {
+        this.setState({status: STATE_LOADED});
+      }
+    } else {
+      this.setState({status: STATE_LOADED});
+    }
+
+    document.getElementsByTagName("html")[0].setAttribute("style", "background-color: " + this.state.currBGColor.value + ";");
   }
 
   newCard = () => {
@@ -129,30 +161,30 @@ class EditorHome extends Component {
     const content = this.state.editorState.getCurrentContent();
     const isEditorEmpty = !content.hasText();
     if (!isEditorEmpty && !isTitleEmpty) {
-      // the raw state, stringified
-      const maxPasswordLength = 20;
-      const minPasswordLength = 10;
-      const pw = password.randomPassword({length: Math.floor(Math.random() * (maxPasswordLength - minPasswordLength) + minPasswordLength)});
-      const rawTitleContentState = JSON.stringify( convertToRaw(this.state.titleEditorState.getCurrentContent()) );
-      const rawDraftContentState = JSON.stringify( convertToRaw(this.state.editorState.getCurrentContent()) );
-      const newCard = {
-        title: rawTitleContentState,
-        data: rawDraftContentState,
-        password: pw,
-        bgColor: this.state.currBGColor.value,
-        font: this.state.currFont.value
-      }
-
-      firebase.app().database().ref('/').push({
-        ...newCard
-      }).then((data) => {
-        this.setState({openShareDialog: true, shareLink: 'localhost:3000/cards/' + data.getKey(), cardKey: data.getKey(), password: pw});
-      }).catch((error) => {
-        toast.error(<ErrorSharingMsg />);
-      });
+      this.setState({openAddPasswordDialog: true});
     } else {
       toast.error(<NoContentToShareMsg />);
     }
+  }
+
+  openShareDialog = (password) => {
+    const rawTitleContentState = JSON.stringify( convertToRaw(this.state.titleEditorState.getCurrentContent()) );
+    const rawDraftContentState = JSON.stringify( convertToRaw(this.state.editorState.getCurrentContent()) );
+    const newCard = {
+      title: rawTitleContentState,
+      data: rawDraftContentState,
+      password: password,
+      bgColor: this.state.currBGColor,
+      font: this.state.currFont
+    }
+
+    firebase.app().database().ref('/').push({
+      ...newCard
+    }).then((data) => {
+      this.setState({openShareDialog: true, cardKey: data.getKey(), password: password});
+    }).catch((error) => {
+      toast.error(<ErrorSharingMsg />);
+    });
   }
 
   openNewCardDialog = (e) => {
@@ -505,103 +537,121 @@ class EditorHome extends Component {
   }
 
   render() {
-    return (
-      <div className="container">
-        <NewCardDialog
-          open={this.state.openNewCardDialog}
-          close={() => {this.setState({openNewCardDialog: false})}}
-          handleCancelNewCard={() => {this.setState({openNewCardDialog: false})}}
-          handleAcceptNewCard={() => {this.newCard()}}
-        />
-        <TutorialDialog
-          open={this.state.openTutorialDialog}
-          close={() => {this.setState({openTutorialDialog: false})}}
-        />
-        <ShareDialog
-          open={this.state.openShareDialog}
-          close={() => {this.setState({openShareDialog: false})}}
-          shareLink={this.state.shareLink}
-          cardKey={this.state.cardKey}
-          password={this.state.password}
-        />
-        <LinkInputDialog
-          open={this.state.openLinkInputDialog}
-          close={() => {this.setState({openLinkInputDialog: false})}}
-          handleLinkTool={this.handleLinkTool}
-          handleVideoTool={this.handleVideoTool}
-          currLinkTool={this.state.currLinkTool}
-        />
-        <div className="navbar">
-          <button className="newCardButton" style={{backgroundColor: this.state.currBGColor.value}} onMouseDown={(e) => {this.openNewCardDialog(e)}}>New Card</button>
-          <button className="tutorialButton" style={{backgroundColor: this.state.currBGColor.value}} onMouseDown={(e) => {this.openTutorialDialog(e)}}>Tutorial</button>
-          <button className="shareButton" style={{backgroundColor: this.state.currBGColor.value}} onMouseDown={(e) => {this.shareCard(e)}}>Share</button>
-        </div>
-        <div style={{clear: 'both'}}/>
-        <Sticky style={{position: 'absolute', zIndex: 10}}>
-          <div style={{paddingTop:20, paddingBottom: 20, backgroundColor: this.state.currBGColor.value}}>
-            <ToolMenu
-              show={this.state.showToolbar}
-              titleOnFocus={this.state.titleOnFocus}
-              titleEditorState={this.state.titleEditorState}
-              editorState={this.state.editorState}
-              handleTextToggleChange={this.handleTextToggleChange}
-              handleAlignToggleChange={this.handleAlignToggleChange}
-              handleImageTool={this.handleImageTool}
-              handleTextColorChange={this.handleTextColorChange}
-              handleFontTool={this.handleFontTool}
-              handleHighlightColorChange={this.handleHighlightColorChange}
-              handleTextSizeChange={this.handleTextSizeChange}
-              handleStickerTool={this.handleStickerTool}
-              handleBulletToolToggle={this.handleBulletToolToggle}
-              openLinkInputDialog={this.openLinkInputDialog}
-              defaultAlignment={this.state.defaultAlignment}
-              fonts={FONTS}
-              currFont={this.state.currFont}
-              currBGColor={this.state.currBGColor}
-              backgroundColors={BACKGROUND_COLORS}
-              handleBGChange={this.handleBGChange}
-              defaultFont={this.state.defaultFont}
-              textColors={TEXT_COLORS}
-              defaultTextColor={this.state.defaultTextColor}
-              highlightColors={HIGHLIGHT_COLORS}
-              defaultHighlightColor={this.state.defaultHighlightColor}
-              textSizes={TEXT_SIZES}
-              defaultTextSize={this.state.defaultTextSize}
-            >
-              <EmojiSelect />
-            </ToolMenu>
-            <div style={{clear: 'both'}}/>
+    if (this.state.status === STATE_LOADED) {
+      return (
+        <div className="container">
+          <NewCardDialog
+            open={this.state.openNewCardDialog}
+            close={() => {this.setState({openNewCardDialog: false})}}
+            handleCancelNewCard={() => {this.setState({openNewCardDialog: false})}}
+            handleAcceptNewCard={() => {this.newCard()}}
+          />
+          <TutorialDialog
+            open={this.state.openTutorialDialog}
+            close={() => {this.setState({openTutorialDialog: false})}}
+          />
+          <AddPasswordDialog
+            open={this.state.openAddPasswordDialog}
+            close={() => {this.setState({openAddPasswordDialog: false})}}
+            openShareDialog={this.openShareDialog}
+          />
+          <ShareDialog
+            open={this.state.openShareDialog}
+            close={() => {this.setState({openShareDialog: false})}}
+            cardKey={this.state.cardKey}
+            password={this.state.password}
+          />
+          <LinkInputDialog
+            open={this.state.openLinkInputDialog}
+            close={() => {this.setState({openLinkInputDialog: false})}}
+            handleLinkTool={this.handleLinkTool}
+            handleVideoTool={this.handleVideoTool}
+            currLinkTool={this.state.currLinkTool}
+          />
+          <div className="navbar">
+            <Link to="/">
+              <button className="newCardButton" style={{backgroundColor: this.state.currBGColor.value}}>Home</button>
+            </Link>
+            <button className="newCardButton" style={{backgroundColor: this.state.currBGColor.value}} onMouseDown={(e) => {this.openNewCardDialog(e)}}>New Card</button>
+            <button className="tutorialButton" style={{backgroundColor: this.state.currBGColor.value}} onMouseDown={(e) => {this.openTutorialDialog(e)}}>Tutorial</button>
+            <button className="shareButton" style={{backgroundColor: this.state.currBGColor.value}} onMouseDown={(e) => {this.shareCard(e)}}>Share</button>
           </div>
-        </Sticky>
-        <div className="titleTextArea mainFGColor" style={{fontFamily: this.state.currFont.value}}>
-          <Editor
-            placeholder={"Hey Jude,"}
-            editorState={this.state.titleEditorState}
-            onChange={this.onTitleChange}
-            onBlur={() => {this.setState({titleOnFocus: false})}}
-            onFocus={() => {this.setState({titleOnFocus: true})}}
-            blockStyleFn={Utils.getBlockStyle}
-            customStyleMap={{...textColorStyleMap }}
-            plugins={titlePlugins}
-          />
+          <div style={{clear: 'both'}}/>
+          <Sticky style={{position: 'absolute', zIndex: 10}}>
+            <div style={{paddingTop:20, paddingBottom: 20, backgroundColor: this.state.currBGColor.value}}>
+              <ToolMenu
+                show={this.state.showToolbar}
+                titleOnFocus={this.state.titleOnFocus}
+                titleEditorState={this.state.titleEditorState}
+                editorState={this.state.editorState}
+                handleTextToggleChange={this.handleTextToggleChange}
+                handleAlignToggleChange={this.handleAlignToggleChange}
+                handleImageTool={this.handleImageTool}
+                handleTextColorChange={this.handleTextColorChange}
+                handleFontTool={this.handleFontTool}
+                handleHighlightColorChange={this.handleHighlightColorChange}
+                handleTextSizeChange={this.handleTextSizeChange}
+                handleStickerTool={this.handleStickerTool}
+                handleBulletToolToggle={this.handleBulletToolToggle}
+                openLinkInputDialog={this.openLinkInputDialog}
+                defaultAlignment={this.state.defaultAlignment}
+                fonts={FONTS}
+                currFont={this.state.currFont}
+                currBGColor={this.state.currBGColor}
+                backgroundColors={BACKGROUND_COLORS}
+                handleBGChange={this.handleBGChange}
+                defaultFont={this.state.defaultFont}
+                textColors={TEXT_COLORS}
+                defaultTextColor={this.state.defaultTextColor}
+                highlightColors={HIGHLIGHT_COLORS}
+                defaultHighlightColor={this.state.defaultHighlightColor}
+                textSizes={TEXT_SIZES}
+                defaultTextSize={this.state.defaultTextSize}
+              >
+                <EmojiSelect />
+              </ToolMenu>
+              <div style={{clear: 'both'}}/>
+            </div>
+          </Sticky>
+          <div className="titleTextArea mainFGColor" style={{fontFamily: this.state.currFont.value}}>
+            <Editor
+              placeholder={"Hey Jude,"}
+              editorState={this.state.titleEditorState}
+              onChange={this.onTitleChange}
+              onBlur={() => {this.setState({titleOnFocus: false})}}
+              onFocus={() => {this.setState({titleOnFocus: true})}}
+              blockStyleFn={Utils.getBlockStyle}
+              customStyleMap={{...textColorStyleMap }}
+              plugins={titlePlugins}
+            />
+          </div>
+          <div id="editor" className="contentTextArea mainFGColor" style={{fontFamily: this.state.currFont.value, fontSize: this.state.defaultTextSize.value}}>
+            <Editor
+              placeholder={this.state.bodyPlaceholder}
+              editorState={this.state.editorState}
+              handleKeyCommand={this.handleKeyCommand}
+              keyBindingFn={this.myKeyBindingFn}
+              onChange={this.onChange}
+              blockStyleFn={Utils.getBlockStyle}
+              ref="editor"
+              plugins={plugins}
+              customStyleMap={{...textColorStyleMap, ...highlightColorStyleMap, ...fontStyleMap, ...textSizeStyleMap }}
+            />
+            <EmojiSuggestions />
+          </div>
+          {/*<ReactMarkdown source={this.state.body} />*/}
         </div>
-        <div id="editor" className="contentTextArea mainFGColor" style={{fontFamily: this.state.currFont.value, fontSize: this.state.defaultTextSize.value}}>
-          <Editor
-            placeholder={this.state.bodyPlaceholder}
-            editorState={this.state.editorState}
-            handleKeyCommand={this.handleKeyCommand}
-            keyBindingFn={this.myKeyBindingFn}
-            onChange={this.onChange}
-            blockStyleFn={Utils.getBlockStyle}
-            ref="editor"
-            plugins={plugins}
-            customStyleMap={{...textColorStyleMap, ...highlightColorStyleMap, ...fontStyleMap, ...textSizeStyleMap }}
-          />
-          <EmojiSuggestions />
+      )
+    } else {
+      return (
+        <div className="container" style={{textAlign: 'center'}}>
+          <div className="warningContainer">
+            <img className="centerIcons" src={"../images/letter-icon-01.png"} />
+            <p className="warningMessage mainFGColor mainBGColor" style={{color: "#39b287", fontWeight: 'bold'}}>Prepare to write a beautiful letter!</p>
+          </div>
         </div>
-        {/*<ReactMarkdown source={this.state.body} />*/}
-      </div>
-    )
+      )
+    }
   }
 }
 

@@ -26,6 +26,9 @@ html {
   height: 40px;
   text-align: center;
 
+  -webkit-transition: background-color 0.3s ease, color 0.1s ease, border-radius 0.3s ease;
+  -moz-transition: background-color 0.3s ease, color 0.1s ease, border-radius 0.3s ease;
+  -o-transition: background-color 0.3s ease, color 0.1s ease, border-radius 0.3s ease;
   transition: background-color 0.3s ease, color 0.1s ease, border-radius 0.3s ease;
 }
 
@@ -101,6 +104,9 @@ html {
   display: block;
   margin: 0px auto;
 
+  -webkit-transition: border-color 0.2s ease;
+  -moz-transition: border-color 0.2s ease;
+  -o-transition: border-color 0.2s ease;
   transition: border-color 0.2s ease;
 }
 
@@ -261,6 +267,9 @@ html {
   height: 40px;
   text-align: center;
 
+  -webkit-transition: background-color 0.3s ease, color 0.1s ease, border-radius 0.3s ease;
+  -moz-transition: background-color 0.3s ease, color 0.1s ease, border-radius 0.3s ease;
+  -o-transition: background-color 0.3s ease, color 0.1s ease, border-radius 0.3s ease;
   transition: background-color 0.3s ease, color 0.1s ease, border-radius 0.3s ease;
 }
 
@@ -449,6 +458,10 @@ html {
   background: none;
   border: none;
   outline: none;
+
+  -webkit-transition: background-color 0.4s cubic-bezier(0.27, 1.27, 0.48, 0.56);
+  -moz-transition: background-color 0.4s cubic-bezier(0.27, 1.27, 0.48, 0.56);
+  -o-transition: background-color 0.4s cubic-bezier(0.27, 1.27, 0.48, 0.56);
   transition: background-color 0.4s cubic-bezier(0.27, 1.27, 0.48, 0.56);
 }
 
@@ -559,6 +572,10 @@ html {
 }
 .draftJsEmojiPlugin__emojiSuggestionsEntry__2-2p_ {
   padding: 5px 10px 1px 10px;
+
+  -webkit-transition: background-color 0.4s cubic-bezier(.27,1.27,.48,.56);
+  -moz-transition: background-color 0.4s cubic-bezier(.27,1.27,.48,.56);
+  -o-transition: background-color 0.4s cubic-bezier(.27,1.27,.48,.56);
   transition: background-color 0.4s cubic-bezier(.27,1.27,.48,.56);
 }
 
@@ -709,14 +726,17 @@ html {
   height: 30px;
   padding: 10px;
   background-color: #4aa7bc;
-  line-height: 30px;
+  line-height: 0px;
   display: inline-block;
 
+  -webkit-transition: border-radius 0.3s ease;
+  -moz-transition: border-radius 0.3s ease;
+  -o-transition: border-radius 0.3s ease;
   transition: border-radius 0.3s ease;
 }
 
 .linkContainer:hover {
-  border-radius: 10px;
+  /* border-radius: 10px; */
 }
 
 .logo {
@@ -747,7 +767,10 @@ html {
   margin-right: 10px;
   outline: none;
 
-  transition: background-color 0.3s ease, color 0.3s ease, border-radius 0.3s ease;
+  -webkit-transition: background-color 0.3s ease, color 0.1s ease, border-radius 0.3s ease;
+  -moz-transition: background-color 0.3s ease, color 0.1s ease, border-radius 0.3s ease;
+  -o-transition: background-color 0.3s ease, color 0.1s ease, border-radius 0.3s ease;
+  transition: background-color 0.3s ease, color 0.1s ease, border-radius 0.3s ease;
 }
 
 .newCardButton:hover {
@@ -794,27 +817,38 @@ html {
 }
 
 .inputSubmitButton {
-  margin: 0px auto;
-  margin-top: 10px;
-  height: 40px;
+  height: 45px;
   width: 100px;
   outline: none;
   border-radius: 5px;
   background-color: #3e3e3e;
-  border: 2px solid #39b287;
-  font-size: 12px;
-  color: #39b287;
+  border: 2px solid #cecece;
+  color: #cecece;
   cursor: pointer;
-  display: block;
+  font-size: 15px;
 
-  transition: background-color 0.3s ease, color 0.3s ease, border-radius 0.3s ease;
+  -webkit-transition: background-color 0.3s ease, color 0.1s ease, border-radius 0.3s ease;
+  -moz-transition: background-color 0.3s ease, color 0.1s ease, border-radius 0.3s ease;
+  -o-transition: background-color 0.3s ease, color 0.1s ease, border-radius 0.3s ease;
+  transition: background-color 0.3s ease, color 0.1s ease, border-radius 0.3s ease;
 }
 
 .inputSubmitButton:hover {
   border-radius: 20px;
-  border: 0px solid #39b287;
-  background-color: #39b287;
-  color: #3e3e3e;
+  border: 2px solid #39b287;
+  color: #39b287;
+}
+
+.inputSubmitButtonInactive {
+  height: 45px;
+  width: 100px;
+  outline: none;
+  border-radius: 5px;
+  background-color: #3e3e3e;
+  border: 2px solid #777777;
+  color: #777777;
+  cursor: default;
+  font-size: 15px;
 }
 
 .shareButton {
@@ -827,7 +861,10 @@ html {
   cursor: pointer;
   outline: none;
 
-  transition: background-color 0.3s ease, color 0.3s ease, border-radius 0.3s ease;
+  -webkit-transition: background-color 0.3s ease, color 0.1s ease, border-radius 0.3s ease;
+  -moz-transition: background-color 0.3s ease, color 0.1s ease, border-radius 0.3s ease;
+  -o-transition: background-color 0.3s ease, color 0.1s ease, border-radius 0.3s ease;
+  transition: background-color 0.3s ease, color 0.1s ease, border-radius 0.3s ease;
 }
 
 .shareButton:hover {
@@ -894,7 +931,6 @@ html {
 }
 
 .templatesContainer {
-
 }
 
 .templateBox {
@@ -920,6 +956,20 @@ html {
   height: 200px;
   border: 6px solid #333333;
   box-shadow: 10px 10px #333333;
+  cursor: pointer;
+
+  -webkit-transition: 0.1s ease-in-out;
+ -moz-transition: 0.1s ease-in-out;
+ -o-transition: 0.1s ease-in-out;
+ transition: 0.1s ease-in-out;
+}
+
+.templateImageBox:hover {
+  -webkit-transform: translate(-0.5em,-0.5em);
+  -moz-transform: translate(-0.5em,-0.5em);
+  -o-transform: translate(-0.5em,-0.5em);
+  -ms-transform: translate(-0.5em,-0.5em);
+  transform: translate(-0.5em,-0.5em);
 }
 
 .textToolMenu {
@@ -975,7 +1025,11 @@ html {
   outline: none;
   margin-right: 10px;
 
-  transition: background-color 0.3s ease, color 0.3s ease, border-radius 0.3s ease;
+
+  -webkit-transition: background-color 0.3s ease, color 0.1s ease, border-radius 0.3s ease;
+  -moz-transition: background-color 0.3s ease, color 0.1s ease, border-radius 0.3s ease;
+  -o-transition: background-color 0.3s ease, color 0.1s ease, border-radius 0.3s ease;
+  transition: background-color 0.3s ease, color 0.1s ease, border-radius 0.3s ease;
 }
 
 .tutorialButton:hover {
@@ -1057,6 +1111,11 @@ html {
   .alignToolMenuMobile {
     visibility: visible;
     display: inline-block;
+  }
+
+  .templateBox {
+    width: 100%;
+    float: none;
   }
 }
 

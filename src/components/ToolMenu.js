@@ -7,9 +7,9 @@ const STICKERS = [
   {
     setName: 'Penguin',
     stickers: [
-      {name: "Boo", url: "./stickers/penguin_set/boo-01.png"},
-      {name: "Dafuq", url: "./stickers/penguin_set/dafuq-01.png"},
-      {name: "ToTheRescue", url: "./stickers/penguin_set/to-the-rescue-01.png"},
+      {name: "Boo", url: "/stickers/penguin_set/boo-01.png"},
+      {name: "Dafuq", url: "/stickers/penguin_set/dafuq-01.png"},
+      {name: "ToTheRescue", url: "/stickers/penguin_set/to-the-rescue-01.png"},
     ]
   },
 ];
@@ -38,12 +38,12 @@ class TextTools extends Component {
           TEXT_TOOLS.map((t, i) => {
             return (
               this.props.props.editorState.getCurrentInlineStyle().has(t.toUpperCase()) ? (
-                <img alt={t} key={i} className="toolMenuIcon" src={"./images/" + t + "-icon-dark-01.png"} onMouseDown={(e) => {this.handleTextToolToggle(t, e)}} />
+                <img alt={t} key={i} className="toolMenuIcon" src={"/images/" + t + "-icon-dark-01.png"} onMouseDown={(e) => {this.handleTextToolToggle(t, e)}} />
               ) : (
                 this.state.currHoverTool === t ? (
-                  <img alt={t} key={i} className="toolMenuIcon" src={"./images/" + t + "-icon-dark-01.png"} onMouseEnter={() => {this.setState({currHoverTool: t})}} onMouseLeave={() => {this.setState({currHoverTool: null})}} onMouseDown={(e) => {this.handleTextToolToggle(t, e)}} />
+                  <img alt={t} key={i} className="toolMenuIcon" src={"/images/" + t + "-icon-dark-01.png"} onMouseEnter={() => {this.setState({currHoverTool: t})}} onMouseLeave={() => {this.setState({currHoverTool: null})}} onMouseDown={(e) => {this.handleTextToolToggle(t, e)}} />
                 ) : (
-                  <img alt={t} key={i} className="toolMenuIcon" src={"./images/" + t + "-icon-light-01.png"} onMouseEnter={() => {this.setState({currHoverTool: t})}} onMouseLeave={() => {this.setState({currHoverTool: null})}} onMouseDown={(e) => {this.handleTextToolToggle(t, e)}} />
+                  <img alt={t} key={i} className="toolMenuIcon" src={"/images/" + t + "-icon-light-01.png"} onMouseEnter={() => {this.setState({currHoverTool: t})}} onMouseLeave={() => {this.setState({currHoverTool: null})}} onMouseDown={(e) => {this.handleTextToolToggle(t, e)}} />
                 )
               )
             )
@@ -290,9 +290,9 @@ class CardBackgroundTools extends Component {
       <div className="bgToolMenu">
         {
           this.state.currHover ? (
-            <img alt={'background color'} className="toolMenuIcon bgDropBtn" src={"./images/bg-icon-dark-01.png"} onMouseEnter={() => {this.setState({currHover: true})}} onMouseLeave={() => {this.setState({currHover: false})}} onMouseDown={(e) => {this.showBGOptions(e)}} />
+            <img alt={'background color'} className="toolMenuIcon bgDropBtn" src={"/images/bg-icon-dark-01.png"} onMouseEnter={() => {this.setState({currHover: true})}} onMouseLeave={() => {this.setState({currHover: false})}} onMouseDown={(e) => {this.showBGOptions(e)}} />
           ) : (
-            <img alt={'background color'} className="toolMenuIcon bgDropBtn" src={"./images/bg-icon-light-01.png"} onMouseEnter={() => {this.setState({currHover: true})}} onMouseLeave={() => {this.setState({currHover: false})}} onMouseDown={(e) => {this.showBGOptions(e)}} />
+            <img alt={'background color'} className="toolMenuIcon bgDropBtn" src={"/images/bg-icon-light-01.png"} onMouseEnter={() => {this.setState({currHover: true})}} onMouseLeave={() => {this.setState({currHover: false})}} onMouseDown={(e) => {this.showBGOptions(e)}} />
           )
         }
         <div id="bgDropdown" className="bg-dropdown-content">
@@ -332,9 +332,9 @@ class StickerTools extends Component {
           STICKER_TOOLS.map((t, i) => {
             return (
               this.state.currHoverTool === t ? (
-                <img alt={t} key={i} className="toolMenuIcon stickerDropBtn" src={"./images/" + t + "-icon-dark-01.png"} onMouseEnter={() => {this.setState({currHoverTool: t})}} onMouseLeave={() => {this.setState({currHoverTool: null})}} onMouseDown={(e) => {this.props.showStickerOptions(e)}} />
+                <img alt={t} key={i} className="toolMenuIcon stickerDropBtn" src={"/images/" + t + "-icon-dark-01.png"} onMouseEnter={() => {this.setState({currHoverTool: t})}} onMouseLeave={() => {this.setState({currHoverTool: null})}} onMouseDown={(e) => {this.props.showStickerOptions(e)}} />
               ) : (
-                <img alt={t} key={i} className="toolMenuIcon stickerDropBtn" src={"./images/" + t + "-icon-light-01.png"} onMouseEnter={() => {this.setState({currHoverTool: t})}} onMouseLeave={() => {this.setState({currHoverTool: null})}} onMouseDown={(e) => {this.props.showStickerOptions(e)}} />
+                <img alt={t} key={i} className="toolMenuIcon stickerDropBtn" src={"/images/" + t + "-icon-light-01.png"} onMouseEnter={() => {this.setState({currHoverTool: t})}} onMouseLeave={() => {this.setState({currHoverTool: null})}} onMouseDown={(e) => {this.props.showStickerOptions(e)}} />
               )
             )
           })
@@ -382,9 +382,9 @@ class BullletTools extends Component {
           BULLET_TOOLS.map((b, i) => {
             return (
               this.state.currHover ? (
-                <img alt={b} key={i} className="toolMenuIcon" src={"./images/" + b + "-icon-dark-01.png"} onMouseEnter={() => {this.setState({currHover: true})}} onMouseLeave={() => {this.setState({currHover: false})}} onMouseDown={(e) => {this.handleBulletToolToggle(b, e)}} />
+                <img alt={b} key={i} className="toolMenuIcon" src={"/images/" + b + "-icon-dark-01.png"} onMouseEnter={() => {this.setState({currHover: true})}} onMouseLeave={() => {this.setState({currHover: false})}} onMouseDown={(e) => {this.handleBulletToolToggle(b, e)}} />
               ) : (
-                <img alt={b} key={i} className="toolMenuIcon" src={"./images/" + b + "-icon-light-01.png"} onMouseEnter={() => {this.setState({currHover: true})}} onMouseLeave={() => {this.setState({currHover: false})}} onMouseDown={(e) => {this.handleBulletToolToggle(b, e)}} />
+                <img alt={b} key={i} className="toolMenuIcon" src={"/images/" + b + "-icon-light-01.png"} onMouseEnter={() => {this.setState({currHover: true})}} onMouseLeave={() => {this.setState({currHover: false})}} onMouseDown={(e) => {this.handleBulletToolToggle(b, e)}} />
               )
             )
           })
@@ -429,12 +429,12 @@ class AlignTools extends Component {
               ALIGN_TOOLS.map((t, i) => {
                 return (
                   currAlignment === t ? (
-                    <img alt={t} key={i} className="toolMenuIcon" src={"./images/" + t + "-icon-dark-01.png"} onMouseDown={(e) => {this.handleAlignToolToggle(t, e)}} />
+                    <img alt={t} key={i} className="toolMenuIcon" src={"/images/" + t + "-icon-dark-01.png"} onMouseDown={(e) => {this.handleAlignToolToggle(t, e)}} />
                   ) : (
                     this.state.currHoverTool === t ? (
-                      <img alt={t} key={i} className="toolMenuIcon" src={"./images/" + t + "-icon-dark-01.png"} onMouseEnter={() => {this.setState({currHoverTool: t})}} onMouseLeave={() => {this.setState({currHoverTool: null})}} onMouseDown={(e) => {this.handleAlignToolToggle(t, e)}} />
+                      <img alt={t} key={i} className="toolMenuIcon" src={"/images/" + t + "-icon-dark-01.png"} onMouseEnter={() => {this.setState({currHoverTool: t})}} onMouseLeave={() => {this.setState({currHoverTool: null})}} onMouseDown={(e) => {this.handleAlignToolToggle(t, e)}} />
                     ) : (
-                      <img alt={t} key={i} className="toolMenuIcon" src={"./images/" + t + "-icon-light-01.png"} onMouseEnter={() => {this.setState({currHoverTool: t})}} onMouseLeave={() => {this.setState({currHoverTool: null})}} onMouseDown={(e) => {this.handleAlignToolToggle(t, e)}} />
+                      <img alt={t} key={i} className="toolMenuIcon" src={"/images/" + t + "-icon-light-01.png"} onMouseEnter={() => {this.setState({currHoverTool: t})}} onMouseLeave={() => {this.setState({currHoverTool: null})}} onMouseDown={(e) => {this.handleAlignToolToggle(t, e)}} />
                     )
                   )
                 )
@@ -447,7 +447,7 @@ class AlignTools extends Component {
               ALIGN_TOOLS.map((t, i) => {
                 return (
                   currAlignment === t &&
-                  <img alt={t} key={i} className="toolMenuIcon alignDropBtn" src={"./images/" + t + "-icon-dark-01.png"} onMouseDown={(e) => {this.props.showAlignOptions(e)}} />
+                  <img alt={t} key={i} className="toolMenuIcon alignDropBtn" src={"/images/" + t + "-icon-dark-01.png"} onMouseDown={(e) => {this.props.showAlignOptions(e)}} />
                 )
               })
             }
@@ -456,9 +456,9 @@ class AlignTools extends Component {
                 ALIGN_TOOLS.map((t, i) => {
                   return (
                     this.state.currHoverTool === t ? (
-                      <img alt={t} key={i} className="alignToolMenuMobileIcon" src={"./images/" + t + "-icon-dark-01.png"} onMouseEnter={() => {this.setState({currHoverTool: t})}} onMouseLeave={() => {this.setState({currHoverTool: null})}} onMouseDown={(e) => {this.handleAlignToolToggle(t, e)}} />
+                      <img alt={t} key={i} className="alignToolMenuMobileIcon" src={"/images/" + t + "-icon-dark-01.png"} onMouseEnter={() => {this.setState({currHoverTool: t})}} onMouseLeave={() => {this.setState({currHoverTool: null})}} onMouseDown={(e) => {this.handleAlignToolToggle(t, e)}} />
                     ) : (
-                      <img alt={t} key={i} className="alignToolMenuMobileIcon" src={"./images/" + t + "-icon-light-01.png"} onMouseEnter={() => {this.setState({currHoverTool: t})}} onMouseLeave={() => {this.setState({currHoverTool: null})}} onMouseDown={(e) => {this.handleAlignToolToggle(t, e)}} />
+                      <img alt={t} key={i} className="alignToolMenuMobileIcon" src={"/images/" + t + "-icon-light-01.png"} onMouseEnter={() => {this.setState({currHoverTool: t})}} onMouseLeave={() => {this.setState({currHoverTool: null})}} onMouseDown={(e) => {this.handleAlignToolToggle(t, e)}} />
                     )
                   )
                 })
@@ -486,9 +486,9 @@ class FileTools extends Component {
                 <label htmlFor="file-input">
                   {
                     this.state.currHoverTool === t ? (
-                      <img className="toolMenuIcon" alt={t} onMouseEnter={() => {this.setState({currHoverTool: t})}} onMouseLeave={() => {this.setState({currHoverTool: null})}} src={"./images/" + t + "-icon-dark-01.png"} />
+                      <img className="toolMenuIcon" alt={t} onMouseEnter={() => {this.setState({currHoverTool: t})}} onMouseLeave={() => {this.setState({currHoverTool: null})}} src={"/images/" + t + "-icon-dark-01.png"} />
                     ) : (
-                      <img className="toolMenuIcon" alt={t} onMouseEnter={() => {this.setState({currHoverTool: t})}} onMouseLeave={() => {this.setState({currHoverTool: null})}} src={"./images/" + t + "-icon-light-01.png"} />
+                      <img className="toolMenuIcon" alt={t} onMouseEnter={() => {this.setState({currHoverTool: t})}} onMouseLeave={() => {this.setState({currHoverTool: null})}} src={"/images/" + t + "-icon-light-01.png"} />
                     )
                   }
                 </label>
@@ -520,9 +520,9 @@ class LinkTools extends Component {
           LINK_TOOLS.map((t, i) => {
             return (
               this.state.currHoverTool === t ? (
-                <img alt={t} key={i} className="toolMenuIcon" src={"./images/" + t + "-icon-dark-01.png"} onMouseEnter={() => {this.setState({currHoverTool: t})}} onMouseLeave={() => {this.setState({currHoverTool: null})}} onMouseDown={(e) => {this.handleLinkToolToggle(t, e)}} />
+                <img alt={t} key={i} className="toolMenuIcon" src={"/images/" + t + "-icon-dark-01.png"} onMouseEnter={() => {this.setState({currHoverTool: t})}} onMouseLeave={() => {this.setState({currHoverTool: null})}} onMouseDown={(e) => {this.handleLinkToolToggle(t, e)}} />
               ) : (
-                <img alt={t} key={i} className="toolMenuIcon" src={"./images/" + t + "-icon-light-01.png"} onMouseEnter={() => {this.setState({currHoverTool: t})}} onMouseLeave={() => {this.setState({currHoverTool: null})}} onMouseDown={(e) => {this.handleLinkToolToggle(t, e)}} />
+                <img alt={t} key={i} className="toolMenuIcon" src={"/images/" + t + "-icon-light-01.png"} onMouseEnter={() => {this.setState({currHoverTool: t})}} onMouseLeave={() => {this.setState({currHoverTool: null})}} onMouseDown={(e) => {this.handleLinkToolToggle(t, e)}} />
               )
             )
           })

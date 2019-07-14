@@ -10,6 +10,7 @@ import Slide from '@material-ui/core/Slide';
 import Utils from '../constants/utils'
 import { Link } from 'react-router-dom'
 
+const BASE_URL = Utils.getBaseURL() + "/cards/";
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
@@ -46,9 +47,9 @@ class ShareDialog extends Component {
           <div className="dialogContent">
             <p className="tutorialTitle" style={{marginBottom: 10}}>{"Share your card."}</p>
             <p className="dialogHeader">Link</p>
-            <Link className="link" style={{color: "#3e3e3e"}} to={"/cards/" + this.props.cardKey} target="_blank">
+            <Link to={"/cards/" + this.props.cardKey} target="_blank">
               <div className="linkContainer">
-                <a className="link" style={{color: "#3e3e3e"}} to={"/cards/" + this.props.cardKey} target="_blank">{this.props.shareLink}</a>
+                <p className="link" style={{color: "#3e3e3e"}}>{BASE_URL + this.props.cardKey}</p>
               </div>
             </Link>
             <p className="dialogHeader">Password</p>
@@ -62,7 +63,7 @@ class ShareDialog extends Component {
                   <p>Copied</p>
                 </div>
               ) : (
-                <CopyToClipboard text={this.props.shareLink} onCopy={() => this.setState({urlCopied: true, pwCopied: false})}>
+                <CopyToClipboard text={BASE_URL + this.props.cardKey} onCopy={() => this.setState({urlCopied: true, pwCopied: false})}>
                   <div className="dialogButton" style={{marginTop: 15, marginRight: 10, float: 'left'}}>
                     <p>Copy URL</p>
                   </div>

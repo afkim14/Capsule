@@ -55,7 +55,7 @@ class PasswordDialog extends Component {
                 value={this.state.currPassword}
                 onChange={(e) => {this.setState({currPassword: e.target.value})}}
               />
-              <input className="inputSubmitButton" type="submit" value="Submit"/>
+              <input className="inputSubmitButton" style={{marginTop: 10}} type="submit" value="Submit"/>
             </form>
           </div>
         </Dialog>

@@ -3,6 +3,7 @@ import { EditorState, ContentState, convertFromRaw } from 'draft-js';
 import Editor, { composeDecorators } from 'draft-js-plugins-editor';
 import Utils from '../constants/utils';
 import PasswordDialog from './PasswordDialog';
+import ShareDialog from './ShareDialog';
 import { textColorStyleMap, highlightColorStyleMap } from '../constants/colors';
 import { fontStyleMap } from '../constants/fonts';
 import { textSizeStyleMap } from '../constants/textSizes';
@@ -14,6 +15,8 @@ import createVideoPlugin from 'draft-js-video-plugin';
 import createUnderlinePlugin from "../plugins/underlinePlugin";
 import createEmojiPlugin from 'draft-js-emoji-plugin';
 import linkPlugin from '../plugins/linkPlugin';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 import 'draft-js/dist/Draft.css';
 import 'draft-js-image-plugin/lib/plugin.css';
 import { Link} from 'react-router-dom'
@@ -54,7 +57,10 @@ class ViewerHome extends Component {
       openPasswordDialog: true,
       cardData: {},
       currBGColor: null,
-      currFont: null
+      currFont: null,
+      openShareDialog: false,
+      cardKey: window.location.pathname.split("/").slice(-1)[0],
+      password: null,
     }
 
     this.onTitleChange = (titleEditorState) => this.setState({titleEditorState});
@@ -63,10 +69,8 @@ class ViewerHome extends Component {
 
   componentDidMount() {
     // read data from database
-    let url = window.location.pathname;
-    let cardId = url.split("/")[2];
     try {
-      firebase.database().ref(cardId).once('value', (snapshot) => {
+      firebase.database().ref(this.state.cardKey).once('value', (snapshot) => {
         const pulledData = snapshot.val();
         if (pulledData) {
           this.setState({cardData: pulledData, status: STATE_AUTH});
@@ -83,23 +87,24 @@ class ViewerHome extends Component {
   handleCorrectPassword = () => {
     const titleContentState = convertFromRaw( JSON.parse( this.state.cardData['title'] ) )
     const contentState = convertFromRaw( JSON.parse( this.state.cardData['data'] ) );
-    document.getElementsByTagName("html")[0].setAttribute("style", "background-color: " + this.state.cardData['bgColor'] + ";");
+    document.getElementsByTagName("html")[0].setAttribute("style", "background-color: " + this.state.cardData['bgColor'].value + " !important;");
     this.setState({
       editorState: EditorState.createWithContent(contentState),
       titleEditorState: EditorState.createWithContent(titleContentState),
       openPasswordDialog: false,
       status: STATE_LOADED,
       currBGColor: this.state.cardData['bgColor'],
-      currFont: this.state.cardData['font']
+      currFont: this.state.cardData['font'],
+      password: this.state.cardData['password'],
     });
   }
 
-  printCard = () => {
+  saveCard = () => {
 
   }
 
   shareCard = () => {
-
+    this.setState({openShareDialog: true});
   }
 
   getBlockStyle = (block) => {
@@ -121,15 +126,24 @@ class ViewerHome extends Component {
     if (this.state.status == STATE_LOADED) {
       return (
         <div className="container">
+          <ShareDialog
+            open={this.state.openShareDialog}
+            close={() => {this.setState({openShareDialog: false})}}
+            cardKey={this.state.cardKey}
+            password={this.state.password}
+          />
           <div className="navbar">
-            <Link to="/editor">
-              <button style={{backgroundColor: this.state.currBGColor}} className="newCardButton mainBGColor">New Card</button>
+            <Link to="/">
+              <button className="newCardButton" style={{backgroundColor: this.state.currBGColor.value}}>Home</button>
             </Link>
-            <button className="tutorialButton mainBGColor" style={{backgroundColor: this.state.currBGColor}}  onMouseDown={() => {this.printCard()}}>Print</button>
-            <button className="shareButton mainBGColor" style={{backgroundColor: this.state.currBGColor}}  onMouseDown={() => {this.shareCard()}}>Share</button>
+            <Link to="/editor">
+              <button style={{backgroundColor: this.state.currBGColor.value}} className="newCardButton mainBGColor">New Card</button>
+            </Link>
+            {/*<button className="tutorialButton mainBGColor" style={{backgroundColor: this.state.currBGColor.value}}  onMouseDown={() => {this.saveCard()}}>Save</button>*/}
+            <button className="shareButton mainBGColor" style={{backgroundColor: this.state.currBGColor.value}}  onMouseDown={() => {this.shareCard()}}>Share</button>
           </div>
           <div style={{clear: 'both'}}/>
-          <div className="titleTextArea mainFGColor" style={{fontFamily: this.state.currFont}}>
+          <div className="titleTextArea mainFGColor" style={{fontFamily: this.state.currFont.value}}>
             <Editor
               editorState={this.state.titleEditorState}
               onChange={this.onTitleChange}
@@ -138,7 +152,7 @@ class ViewerHome extends Component {
               customStyleMap={{...textColorStyleMap }}
             />
           </div>
-          <div id="editor" className="contentTextArea mainFGColor" style={{fontFamily: this.state.currFont}}>
+          <div id="editor" className="contentTextArea mainFGColor" style={{fontFamily: this.state.currFont.value}}>
             <Editor
               editorState={this.state.editorState}
               onChange={this.onChange}

@@ -38,6 +38,10 @@ class Utils {
         return null;
     }
   }
+
+  static getBaseURL() {
+    return "localhost:3000";
+  }
 }
 
 export default Utils;
