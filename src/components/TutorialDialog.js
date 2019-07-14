@@ -15,12 +15,12 @@ class FirstStep extends Component {
     return (
       <div className="dialogContent">
         <p className="tutorialTitle">{"Write and style."}</p>
-        <div>
+        <div class="tutorialVideoContainer">
           <video className="tutorialVideo" autoPlay loop playsInline>
             <source src={"./videos/text-styling.mp4"} type={"video/mp4"} />
           </video>
         </div>
-        <div className="dialogButton" style={{float: 'right'}} onMouseDown={this.props.nextTutorialStep}>
+        <div className="dialogButton" style={{float: 'right', marginTop: 10}} onMouseDown={this.props.nextTutorialStep}>
           <p>Next</p>
         </div>
         <div style={{clear: 'both'}}/>
@@ -37,15 +37,15 @@ class SecondStep extends Component {
     return (
       <div className="dialogContent">
         <p className="tutorialTitle">{"Show memorable photos and videos."}</p>
-        <div>
+        <div class="tutorialVideoContainer">
           <video className="tutorialVideo" autoPlay loop playsInline>
             <source src={"./videos/insert-image.mp4"} type={"video/mp4"} />
           </video>
         </div>
-        <div className="dialogButton" style={{float: 'left'}} onMouseDown={this.props.prevTutorialStep}>
+        <div className="dialogButton" style={{float: 'left', marginTop: 10}} onMouseDown={this.props.prevTutorialStep}>
           <p>Prev</p>
         </div>
-        <div className="dialogButton" style={{float: 'right'}} onMouseDown={this.props.nextTutorialStep}>
+        <div className="dialogButton" style={{float: 'right', marginTop: 10}} onMouseDown={this.props.nextTutorialStep}>
           <p>Next</p>
         </div>
         <div style={{clear: 'both'}}/>
@@ -62,15 +62,15 @@ class ThirdStep extends Component {
     return (
       <div className="dialogContent">
         <p className="tutorialTitle">{"Send your card."}</p>
-        <div>
+        <div class="tutorialVideoContainer">
           <video className="tutorialVideo" autoPlay loop playsInline>
             <source src={"./videos/share.mp4"} type={"video/mp4"} />
           </video>
         </div>
-        <div className="dialogButton" style={{float: 'left'}} onMouseDown={this.props.prevTutorialStep}>
+        <div className="dialogButton" style={{float: 'left', marginTop: 10}} onMouseDown={this.props.prevTutorialStep}>
           <p>Prev</p>
         </div>
-        <div className="dialogButton" style={{float: 'right'}} onMouseDown={this.props.finishTutorial}>
+        <div className="dialogButton" style={{float: 'right', marginTop: 10}} onMouseDown={this.props.finishTutorial}>
           <p>Finish</p>
         </div>
         <div style={{clear: 'both'}}/>

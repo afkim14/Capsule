@@ -39,6 +39,7 @@ class LinkInputDialog extends Component {
           open={this.props.open}
           TransitionComponent={Transition}
           onClose={this.props.close}
+          fullWidth={true}
           aria-labelledby="alert-dialog-slide-title"
           aria-describedby="alert-dialog-slide-description"
           PaperProps={{
@@ -58,7 +59,9 @@ class LinkInputDialog extends Component {
                 value={this.state.currLink}
                 onChange={(e) => {this.setState({currLink: e.target.value})}}
               />
-              <input className="inputSubmitButton" type="submit" value="Submit"/>
+              <div className="dialogButton" style={{margin: "0px auto", marginTop: 10}} onMouseDown={(e) => {this.props.currLinkTool === "link" ? this.handleSubmitLink(e) : this.handleSubmitVideo(e)}}>
+                <p>Submit</p>
+              </div>
             </form>
           </div>
         </Dialog>

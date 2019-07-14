@@ -12,7 +12,8 @@ const STICKERS = [
       {name: "ToTheRescue", url: "./stickers/penguin_set/to-the-rescue-01.png"},
     ]
   },
-]
+];
+const BULLET_TOOLS = ["bulletpoint"];
 const ALIGN_TOOLS = ["align-left", "align-center", "align-right", "align-justify"];
 const FILE_TOOLS = ["image"];
 const LINK_TOOLS = ["video", "link"];
@@ -149,10 +150,7 @@ class CustomTextTools extends Component {
 
   handleHighlightColorChange = (color, e) => {
     e.preventDefault();
-    this.setState({currHighlightColor: color, currHoverHighlightColor: color});
-    if (this.getCurrentHighlightColor().label != color.label) {
-      this.props.handleHighlightColorChange(color);
-    }
+    this.props.handleHighlightColorChange(color);
   }
 
   handleFontToolChange = (font, e) => {
@@ -175,7 +173,13 @@ class CustomTextTools extends Component {
     return (
       <div className="customTextToolMenu">
         <div className="dropdown">
-          <button style={{backgroundColor: this.getCurrentHighlightColor().value, color: this.getCurrentTextColor().value}} onMouseDown={(e) => {this.showCustomTextOptions(e)}} className="dropbtn">T</button>
+          {
+            this.state.currHover ? (
+              <button style={{backgroundColor: this.getCurrentHighlightColor().value, color: "#32936e"}} onMouseEnter={() => {this.setState({currHover: true})}} onMouseLeave={() => {this.setState({currHover: false})}} onMouseDown={(e) => {this.showCustomTextOptions(e)}} className="dropbtn">T</button>
+            ) : (
+              <button style={{backgroundColor: this.getCurrentHighlightColor().value, color: this.getCurrentTextColor().value}} onMouseEnter={() => {this.setState({currHover: true})}} onMouseLeave={() => {this.setState({currHover: false})}} onMouseDown={(e) => {this.showCustomTextOptions(e)}} className="dropbtn">T</button>
+            )
+          }
           <div id="customTextDropdown" className="dropdown-content">
             <div className="customTextPreviewContainer" style={{backgroundColor: this.state.currHoverHighlightColor.value}}>
               <span className="customTextPreviewText" style={{color: this.state.currHoverTextColor.value, fontFamily: this.state.currHoverFont.value, fontSize: this.state.currHoverTextSize.value }}>{this.getCurrentPreviewText()}</span>
@@ -206,7 +210,7 @@ class CustomTextTools extends Component {
                   this.props.props.textColors.map((c, i) => {
                     return (
                       c.label === this.state.currTextColor.label ? (
-                        <div key={i} className="colorBox" style={{backgroundColor: c.value}} onMouseDown={(e) => {this.handleTextColorChange(c, e)}}></div>
+                        <div key={i} className="colorBox" style={{backgroundColor: c.value, border: "2px solid #39b287", width: 16, height: 16}} onMouseDown={(e) => {this.handleTextColorChange(c, e)}}></div>
                       ) : (
                         <div key={i} className="colorBox" style={{backgroundColor: c.value}} onMouseEnter={() => {this.setState({currHoverTextColor: c})}} onMouseLeave={() => {this.setState({currHoverTextColor: this.state.currTextColor})}} onMouseDown={(e) => {this.handleTextColorChange(c, e)}}></div>
                       )
@@ -220,9 +224,9 @@ class CustomTextTools extends Component {
                   this.props.props.highlightColors.map((c, i) => {
                     return (
                       c.label === this.state.currHighlightColor.label ? (
-                        <div key={i} className="colorBox" style={{backgroundColor: c.value}} onMouseDown={(e) => {this.handleHighlightColorChange(c, e)}}></div>
+                        <div key={i} className="colorBox" style={{backgroundColor: c.value, width: '100%', border: "2px solid #39b287", height: 16}} onMouseDown={(e) => {this.handleHighlightColorChange(c, e)}}></div>
                       ) : (
-                        <div key={i} className="colorBox" style={{backgroundColor: c.value}} onMouseEnter={() => {this.setState({currHoverHighlightColor: c})}} onMouseLeave={() => {this.setState({currHoverHighlightColor: this.state.currHighlightColor})}} onMouseDown={(e) => {this.handleHighlightColorChange(c, e)}}></div>
+                        <div key={i} className="colorBox" style={{backgroundColor: c.value, width: '100%'}} onMouseEnter={() => {this.setState({currHoverHighlightColor: c})}} onMouseLeave={() => {this.setState({currHoverHighlightColor: this.state.currHighlightColor})}} onMouseDown={(e) => {this.handleHighlightColorChange(c, e)}}></div>
                       )
                     )
                   })
@@ -259,23 +263,47 @@ class CardBackgroundTools extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      colorClicked: false,
       currBGColor: this.props.props.currBGColor,
+      currOriginalBGColor: null
     };
+  }
+
+  showBGOptions = (e) => {
+    this.setState({currOriginalBGColor: this.state.currBGColor, colorClicked: false});
+    this.props.showBGOptions(e);
+  }
+
+  handleBGHover = (color, e) => {
+    if (!this.state.colorClicked) {
+      this.props.handleBGChange(color, e);
+    }
+  }
+
+  handleBGChange = (color, e) => {
+    this.setState({colorClicked: true});
+    this.props.handleBGChange(color, e);
   }
 
   render() {
     return (
       <div className="bgToolMenu">
-        <img alt={'background color'} className="toolMenuIcon bgDropBtn" src={"./images/bg-icon-dark-01.png"} onMouseDown={(e) => {this.props.showBGOptions(e)}} />
+        {
+          this.state.currHover ? (
+            <img alt={'background color'} className="toolMenuIcon bgDropBtn" src={"./images/bg-icon-dark-01.png"} onMouseEnter={() => {this.setState({currHover: true})}} onMouseLeave={() => {this.setState({currHover: false})}} onMouseDown={(e) => {this.showBGOptions(e)}} />
+          ) : (
+            <img alt={'background color'} className="toolMenuIcon bgDropBtn" src={"./images/bg-icon-light-01.png"} onMouseEnter={() => {this.setState({currHover: true})}} onMouseLeave={() => {this.setState({currHover: false})}} onMouseDown={(e) => {this.showBGOptions(e)}} />
+          )
+        }
         <div id="bgDropdown" className="bg-dropdown-content">
           <p className="bgHeader">{"Card Background"}</p>
           {
             this.props.props.backgroundColors.map((c, i) => {
               return (
-                this.props.props.currBGColor.label === c.label ? (
-                  <div key={i} className="bgColorContainerSelected" style={{backgroundColor: c.value}}></div>
+                this.props.props.currBGColor.value === c.value ? (
+                  <div key={i} className="bgColorContainerSelected" style={{backgroundColor: c.value}} onMouseEnter={(e) => {this.handleBGHover(c, e)}} onMouseLeave={(e) => {this.handleBGHover(this.state.currOriginalBGColor, e)}} onMouseDown={(e) => {this.handleBGChange(c, e)}}></div>
                 ) : (
-                  <div key={i} className="bgColorContainer" style={{backgroundColor: c.value}} onMouseDown={(e) => {this.props.handleBGChange(c, e)}}></div>
+                  <div key={i} className="bgColorContainer" style={{backgroundColor: c.value}} onMouseEnter={(e) => {this.handleBGHover(c, e)}} onMouseLeave={(e) => {this.handleBGHover(this.state.currOriginalBGColor, e)}} onMouseDown={(e) => {this.handleBGChange(c, e)}}></div>
                 )
               )
             })
@@ -336,6 +364,36 @@ class StickerTools extends Component {
   }
 }
 
+class BullletTools extends Component {
+  constructor(props) {
+    super(props);
+    this.state={};
+  }
+
+  handleBulletToolToggle = (tool, e) => {
+    e.preventDefault();
+    this.props.handleBulletToolToggle(tool);
+  }
+
+  render() {
+    return (
+      <div className="bulletToolMenu">
+        {
+          BULLET_TOOLS.map((b, i) => {
+            return (
+              this.state.currHover ? (
+                <img alt={b} key={i} className="toolMenuIcon" src={"./images/" + b + "-icon-dark-01.png"} onMouseEnter={() => {this.setState({currHover: true})}} onMouseLeave={() => {this.setState({currHover: false})}} onMouseDown={(e) => {this.handleBulletToolToggle(b, e)}} />
+              ) : (
+                <img alt={b} key={i} className="toolMenuIcon" src={"./images/" + b + "-icon-light-01.png"} onMouseEnter={() => {this.setState({currHover: true})}} onMouseLeave={() => {this.setState({currHover: false})}} onMouseDown={(e) => {this.handleBulletToolToggle(b, e)}} />
+              )
+            )
+          })
+        }
+      </div>
+    )
+  }
+}
+
 class AlignTools extends Component {
   constructor(props) {
     super(props);
@@ -344,13 +402,13 @@ class AlignTools extends Component {
 
   handleAlignToolToggle = (tool, e) => {
     e.preventDefault();
+    this.setState({currHoverTool: null});
     this.props.handleAlignToolToggle(tool);
   }
 
   getCurrentAlignment = () => {
     let currAlignment = this.props.props.defaultAlignment;
-
-    let editorState = this.props.props.editorState;
+    let editorState = this.props.props.titleOnFocus ? this.props.props.titleEditorState : this.props.props.editorState;
     let selectionState = editorState.getSelection();
     let anchorKey = selectionState.getAnchorKey();
     let currContent = editorState.getCurrentContent();
@@ -360,20 +418,17 @@ class AlignTools extends Component {
       currAlignment = currContentBlock.getType();
     }
     return currAlignment;
-
-    // let start = selectionState.getStartOffset();
-    // let end = selectionState.getEndOffset();
-    // let selectedText = currContentBlock.getText().slice(start, end);
   }
 
   render() {
+    const currAlignment = this.getCurrentAlignment();
     return (
         <div className="alignToolMenu">
           <div className="alignToolMenuWeb">
             {
               ALIGN_TOOLS.map((t, i) => {
                 return (
-                  this.getCurrentAlignment() === t ? (
+                  currAlignment === t ? (
                     <img alt={t} key={i} className="toolMenuIcon" src={"./images/" + t + "-icon-dark-01.png"} onMouseDown={(e) => {this.handleAlignToolToggle(t, e)}} />
                   ) : (
                     this.state.currHoverTool === t ? (
@@ -391,7 +446,7 @@ class AlignTools extends Component {
             {
               ALIGN_TOOLS.map((t, i) => {
                 return (
-                  this.getCurrentAlignment() === t &&
+                  currAlignment === t &&
                   <img alt={t} key={i} className="toolMenuIcon alignDropBtn" src={"./images/" + t + "-icon-dark-01.png"} onMouseDown={(e) => {this.props.showAlignOptions(e)}} />
                 )
               })
@@ -556,6 +611,10 @@ class ToolMenu extends Component {
           <div className="emojiContainer">
             {this.props.children}
           </div>
+          <BullletTools
+            props={this.props}
+            handleBulletToolToggle={this.props.handleBulletToolToggle}
+          />
           <AlignTools
             props={this.props}
             showAlignOptions={this.showAlignOptions}
@@ -591,7 +650,9 @@ window.onclick = function(event) {
       !event.target.matches('.colorsContainer') &&
       !event.target.matches('.textColorsContainer') &&
       !event.target.matches('.highlightColorsContainer') &&
-      !event.target.matches('.colorsHeader')
+      !event.target.matches('.colorsHeader') &&
+      !event.target.matches('bgColorContainer') &&
+      !event.target.matches('bgColorContainerSelected')
     ) {
     var dropdowns = document.getElementsByClassName("dropdown-content");
     var i;

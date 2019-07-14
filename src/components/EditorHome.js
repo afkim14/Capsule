@@ -19,7 +19,8 @@ import createVideoPlugin from 'draft-js-video-plugin';
 import createResizeablePlugin from 'draft-js-resizeable-plugin';
 import createUnderlinePlugin from "../plugins/underlinePlugin";
 import createEmojiPlugin from 'draft-js-emoji-plugin';
-import createSingleLinePlugin from 'draft-js-single-line-plugin'
+import createSingleLinePlugin from 'draft-js-single-line-plugin';
+import createAutoListPlugin from 'draft-js-autolist-plugin';
 import linkPlugin from '../plugins/linkPlugin';
 import Sticky from 'react-sticky-el';
 import 'draft-js/dist/Draft.css';
@@ -54,6 +55,7 @@ const imagePlugin = createImagePlugin({ decorator });
 const underlinePlugin = createUnderlinePlugin();
 const emojiPlugin = createEmojiPlugin();
 const videoPlugin = createVideoPlugin();
+const autoListPlugin = createAutoListPlugin()
 const { types } = videoPlugin;
 const { EmojiSuggestions, EmojiSelect } = emojiPlugin;
 const singleLinePlugin = createSingleLinePlugin();
@@ -67,24 +69,27 @@ const plugins = [
   underlinePlugin,
   emojiPlugin,
   linkPlugin,
-  videoPlugin
+  videoPlugin,
+  autoListPlugin
 ];
+
+let keyHistory = [{shift: false, value: " "}, {shift: false, value: " "}];
 
 class EditorHome extends Component {
   constructor(props) {
     super(props);
     window.scrollTo(0, 0);
-    let currBGColor = HIGHLIGHT_COLORS[2];
+    let mainBGColor = BACKGROUND_COLORS[0];
     this.state = {
       titleOnFocus: false,
       bodyPlaceholder: placeholders[Math.floor(Math.random() * placeholders.length)],
       defaultAlignment: "align-left",
       defaultFont: FONTS[0],
       currFont: FONTS[0],
-      currBGColor: currBGColor.value,
+      currBGColor: mainBGColor,
       defaultTextColor: TEXT_COLORS[0],
-      defaultHighlightColor: currBGColor,
-      secondaryHighlightColor: HIGHLIGHT_COLORS[2],
+      defaultHighlightColor: mainBGColor,
+      secondaryHighlightColor: HIGHLIGHT_COLORS[0],
       defaultTextSize: TEXT_SIZES[0],
       showToolbar: true,
       titleEditorState: EditorState.createEmpty(),
@@ -107,7 +112,7 @@ class EditorHome extends Component {
 
   componentDidMount() {
     document.addEventListener("keydown", this.handleKeyDown);
-    document.getElementsByTagName("html")[0].setAttribute("style", "background-color: " + this.state.currBGColor + ";");
+    document.getElementsByTagName("html")[0].setAttribute("style", "background-color: " + this.state.currBGColor.value + ";");
     autosize(document.querySelectorAll('textarea'));
   }
 
@@ -134,7 +139,7 @@ class EditorHome extends Component {
         title: rawTitleContentState,
         data: rawDraftContentState,
         password: pw,
-        bgColor: this.state.currBGColor,
+        bgColor: this.state.currBGColor.value,
         font: this.state.currFont.value
       }
 
@@ -181,10 +186,13 @@ class EditorHome extends Component {
   }
 
   myKeyBindingFn = (e) => {
+    keyHistory[0] = {shift: keyHistory[1].shift, value: keyHistory[1].value};
+    keyHistory[1].shift = e.shiftKey;
+    keyHistory[1].value = e.keyCode;
     if (e.keyCode === 83 /* `S` key */ && KeyBindingUtil.hasCommandModifier(e)) {
       return 'myeditor-save';
     } else if (e.keyCode === 72 /* `H` key */ && KeyBindingUtil.hasCommandModifier(e)) {
-      let highlightStyle = this.state.secondaryHighlightColor.style;;
+      let highlightStyle = this.state.secondaryHighlightColor.style;
       let filteredHighlightStyle = HIGHLIGHT_COLORS.filter(c => { return this.state.editorState.getCurrentInlineStyle().has(c.style) });
       if (filteredHighlightStyle.length > 0) {
         return filteredHighlightStyle[0].style;
@@ -198,6 +206,28 @@ class EditorHome extends Component {
       return 'align-center';
     } else if (e.keyCode === 51 /* `3` key */ && KeyBindingUtil.hasCommandModifier(e)) {
       return 'align-right';
+    } else if (e.keyCode === 32) {
+      if (keyHistory[0].value === 189 || (keyHistory[0].shift && keyHistory[0].value === 56)) {
+        let editorState = this.state.editorState;
+        let selectionState = editorState.getSelection();
+        let anchorKey = selectionState.getAnchorKey();
+        let currContent = editorState.getCurrentContent();
+        let currContentBlock = currContent.getBlockForKey(anchorKey);
+        let currContentBlockType = currContentBlock.getType();
+        let currContentBlockDepth = currContentBlock.getDepth();
+        let newSelection = new SelectionState({
+          anchorKey: anchorKey,
+          anchorOffset: 0,
+          focusKey: anchorKey,
+          focusOffset: currContentBlock.getLength()
+        });
+        var start = newSelection.getStartOffset();
+        var end = newSelection.getEndOffset();
+        var selectedText = currContentBlock.getText().slice(start, end);
+        if (currContentBlockType != "unordered-list-item" && currContentBlockDepth == 0 && selectedText === "-" || selectedText ==="*") {
+          return 'list'
+        }
+      }
     }
     return getDefaultKeyBinding(e);
   }
@@ -213,6 +243,31 @@ class EditorHome extends Component {
       return 'handled';
     } else if (command.includes('align')) {
       this.handleAlignToggleChange(command);
+      return 'handled';
+    } else if (command.includes('list')) {
+      let editorState = this.state.editorState;
+      let selectionState = editorState.getSelection();
+      let anchorKey = selectionState.getAnchorKey();
+      let currContent = editorState.getCurrentContent();
+      var currentContentBlock = currContent.getBlockForKey(anchorKey);
+      let newSelection = new SelectionState({
+        anchorKey: anchorKey,
+        anchorOffset: 0,
+        focusKey: anchorKey,
+        focusOffset: currentContentBlock.getLength()
+      });
+      let nextContentState = Modifier.replaceText(currContent, newSelection, "");
+      let nextEditorState = EditorState.push(
+        this.state.editorState,
+        nextContentState
+      );
+
+      let newEditorState = RichUtils.toggleBlockType(
+        nextEditorState,
+        'unordered-list-item'
+      );
+
+      this.onChange(EditorState.moveFocusToEnd(newEditorState));
       return 'handled';
     }
 
@@ -329,10 +384,17 @@ class EditorHome extends Component {
     this.handleCustomTextChange(highlightColorStyleMap, color);
   }
 
+  handleBulletToolToggle = (tool) => {
+    this.onChange(RichUtils.toggleBlockType(
+      this.state.editorState,
+      'unordered-list-item'
+    ));
+  }
+
   handleBGChange = (color, e) => {
     e.preventDefault();
     document.getElementsByTagName("html")[0].setAttribute("style", "background-color: " + color.value + ";");
-    this.setState({currBGColor: color.value, defaultHighlightColor: color});
+    this.setState({currBGColor: color, defaultHighlightColor: color});
   }
 
   handleFontTool = (font) => {
@@ -349,10 +411,9 @@ class EditorHome extends Component {
   }
 
   handleAlignToggleChange = (alignTool) => {
-    this.onChange(RichUtils.toggleBlockType(
-      this.state.editorState,
-      alignTool
-    ));
+    let editorState = this.state.titleOnFocus ? this.state.titleEditorState : this.state.editorState;
+    let nextEditorState = RichUtils.toggleBlockType(editorState, alignTool);
+    this.state.titleOnFocus ? this.onTitleChange(nextEditorState) : this.onChange(nextEditorState);
   }
 
   handleImageTool = (file) => {
@@ -471,13 +532,13 @@ class EditorHome extends Component {
           currLinkTool={this.state.currLinkTool}
         />
         <div className="navbar">
-          <button className="newCardButton" style={{backgroundColor: this.state.currBGColor}} onMouseDown={(e) => {this.openNewCardDialog(e)}}>New Card</button>
-          <button className="tutorialButton" style={{backgroundColor: this.state.currBGColor}} onMouseDown={(e) => {this.openTutorialDialog(e)}}>Tutorial</button>
-          <button className="shareButton" style={{backgroundColor: this.state.currBGColor}} onMouseDown={(e) => {this.shareCard(e)}}>Share</button>
+          <button className="newCardButton" style={{backgroundColor: this.state.currBGColor.value}} onMouseDown={(e) => {this.openNewCardDialog(e)}}>New Card</button>
+          <button className="tutorialButton" style={{backgroundColor: this.state.currBGColor.value}} onMouseDown={(e) => {this.openTutorialDialog(e)}}>Tutorial</button>
+          <button className="shareButton" style={{backgroundColor: this.state.currBGColor.value}} onMouseDown={(e) => {this.shareCard(e)}}>Share</button>
         </div>
         <div style={{clear: 'both'}}/>
         <Sticky style={{position: 'absolute', zIndex: 10}}>
-          <div style={{paddingTop:20, paddingBottom: 20, backgroundColor: this.state.currBGColor}}>
+          <div style={{paddingTop:20, paddingBottom: 20, backgroundColor: this.state.currBGColor.value}}>
             <ToolMenu
               show={this.state.showToolbar}
               titleOnFocus={this.state.titleOnFocus}
@@ -491,6 +552,7 @@ class EditorHome extends Component {
               handleHighlightColorChange={this.handleHighlightColorChange}
               handleTextSizeChange={this.handleTextSizeChange}
               handleStickerTool={this.handleStickerTool}
+              handleBulletToolToggle={this.handleBulletToolToggle}
               openLinkInputDialog={this.openLinkInputDialog}
               defaultAlignment={this.state.defaultAlignment}
               fonts={FONTS}

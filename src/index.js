@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
+import TemplatesHome from './components/TemplatesHome';
 import ViewerHome from './components/ViewerHome';
 import NotFoundPage from './components/NotFoundPage';
 import { Route, Switch, Link, BrowserRouter as Router } from 'react-router-dom'
@@ -11,7 +12,8 @@ const routing = (
   <Router>
     <div>
       <Switch>
-        <Route exact path="/" component={App} />
+        <Route exact path="/" component={TemplatesHome} />
+        <Route path="/editor" component={App} />
         <Route path="/cards" component={ViewerHome} />
         <Route component={NotFoundPage} />
       </Switch>

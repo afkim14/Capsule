@@ -18,15 +18,15 @@ html {
 
 .dialogButton {
   border-radius: 5px;
-  border: 2px solid #39b287;
-  color: #39b287;
+  border: 2px solid #cecece;
+  color: #cecece;
   outline: none;
   cursor: pointer;
   width: 100px;
   height: 40px;
   text-align: center;
 
-  transition: background-color 0.3s ease, color 0.3s ease, border-radius 0.3s ease;
+  transition: background-color 0.3s ease, color 0.1s ease, border-radius 0.3s ease;
 }
 
 .dialogButton p {
@@ -37,8 +37,7 @@ html {
 .dialogButton:hover {
   border-radius: 20px;
   border: 2px solid #39b287;
-  background-color: #39b287;
-  color: #3e3e3e;
+  color: #39b287;
 }
 
 .dialogButtonSelected {
@@ -75,7 +74,6 @@ html {
 
 .alignToolMenu {
   float: left;
-  margin-left: 10px;
 }
 
 .alignToolMenuMobile {
@@ -112,22 +110,22 @@ html {
 
 .align-right div {
   text-align: right;
-  margin-bottom: 20px;
+  /* margin-bottom: 20px; */
 }
 
 .align-center div {
   text-align: center;
-  margin-bottom: 20px;
+  /* margin-bottom: 20px; */
 }
 
 .align-left div {
   text-align: left;
-  margin-bottom: 20px;
+  /* margin-bottom: 20px; */
 }
 
 .align-justify div {
   text-align: justify;
-  margin-bottom: 20px;
+  /* margin-bottom: 20px; */
 }
 
 .bgToolMenu {
@@ -174,8 +172,13 @@ html {
   margin-bottom: 0px;
 }
 
+.bulletToolMenu {
+  float: left;
+  margin-left: 10px;
+}
+
 .container {
-  width: 60%;
+  width: 50%;
   margin: 0px auto;
   text-align: left;
 }
@@ -189,7 +192,7 @@ html {
   padding: 3px;
 
   font-size: 18px;
-  line-height: 150%;
+  line-height: 180%;
   z-index: inherit;
 }
 
@@ -207,9 +210,9 @@ html {
 }
 
 .colorBox:hover {
-  border: 1px solid #39b287;
-  width: 18px;
-  height: 18px;
+  border: 2px solid #39b287;
+  width: 16px;
+  height: 16px;
 }
 
 .colorsContainer {
@@ -250,15 +253,15 @@ html {
 
 .declineButton {
   border-radius: 5px;
-  border: 2px solid #cc5252;
-  color: #cc5252;
+  border: 2px solid #cecece;
+  color: #cecece;
   outline: none;
   cursor: pointer;
   width: 100px;
   height: 40px;
   text-align: center;
 
-  transition: background-color 0.3s ease, color 0.3s ease, border-radius 0.3s ease;
+  transition: background-color 0.3s ease, color 0.1s ease, border-radius 0.3s ease;
 }
 
 .declineButton p {
@@ -269,8 +272,7 @@ html {
 .declineButton:hover {
   border-radius: 20px;
   border: 2px solid #cc5252;
-  background-color: #cc5252;
-  color: #cecece;
+  color: #cc5252;
 }
 
 /* Dropdown Button */
@@ -717,6 +719,17 @@ html {
   border-radius: 10px;
 }
 
+.logo {
+  font-size: 30px;
+  color: #cecece;
+  font-weight: bold;
+  margin-bottom: 0px;
+}
+
+.logoSubtext {
+  color: #cecece;
+}
+
 .navbar {
   float: left;
   margin-top: 40px;
@@ -727,8 +740,8 @@ html {
   width: 100px;
   height: 40px;
   border-radius: 5px;
-  border: 2px solid #39b287;
-  color: #39b287;
+  border: 2px solid #cecece;
+  color: #cecece;
   font-weight: bold;
   cursor: pointer;
   margin-right: 10px;
@@ -739,9 +752,9 @@ html {
 
 .newCardButton:hover {
   border-radius: 20px;
-  border: 0px solid #39b287;
+  border: 2px solid #39b287;
   background-color: #39b287;
-  color: #3e3e3e;
+  color: #39b287;
 }
 
 .notificationText {
@@ -769,10 +782,15 @@ html {
 .formInput {
   padding: 10px;
   outline: none;
-  border: 2px solid #39b287;
-  color: #39b287;
+  border: 2px solid #cecece;
+  color: #cecece;
   background-color: #3e3e3e;
   font-size: 18px;
+  width: 80%;
+}
+
+.formInput:focus {
+  border: 2px solid #39b287;
 }
 
 .inputSubmitButton {
@@ -803,8 +821,8 @@ html {
   width: 100px;
   height: 40px;
   border-radius: 5px;
-  border: 2px solid #4aa7bc;
-  color: #4aa7bc;
+  border: 2px solid #cecece;
+  color: #cecece;
   font-weight: bold;
   cursor: pointer;
   outline: none;
@@ -814,9 +832,9 @@ html {
 
 .shareButton:hover {
   border-radius: 20px;
-  border: 0px solid #4aa7bc;
-  background-color: #4aa7bc;
-  color: #3e3e3e;
+  border: 2px solid #39b287;
+  background-color: #39b287;
+  color: #39b287;
 }
 
 .sizeBox {
@@ -875,6 +893,35 @@ html {
   background-color: #3e3e3e;
 }
 
+.templatesContainer {
+
+}
+
+.templateBox {
+  width: 45%;
+  float: left;
+}
+
+.templateTitle {
+  font-size: 25px;
+  margin-bottom: 0px;
+  color: #cecece;
+}
+
+.templateDescription {
+  color: #cecece;
+  margin-top: 5px;
+}
+
+.templateImageBox {
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: 80%;
+  height: 200px;
+  border: 6px solid #333333;
+  box-shadow: 10px 10px #333333;
+}
+
 .textToolMenu {
   float: left;
 }
@@ -921,8 +968,8 @@ html {
   width: 100px;
   height: 40px;
   border-radius: 5px;
-  border: 2px solid #ad793b;
-  color: #ad793b;
+  border: 2px solid #cecece;
+  color: #cecece;
   font-weight: bold;
   cursor: pointer;
   outline: none;
@@ -933,9 +980,9 @@ html {
 
 .tutorialButton:hover {
   border-radius: 20px;
-  border: 0px solid #ad793b;
-  background-color: #ad793b;
-  color: #3e3e3e;
+  border: 2px solid #39b287;
+  background-color: #39b287;
+  color: #39b287;
 }
 
 .tutorialTitle {
@@ -946,12 +993,16 @@ html {
   margin-top: 15px;
 }
 
+.tutorialVideoContainer {
+  overflow:hidden;
+  display:block;
+  height: 285px;
+}
+
 .tutorialVideo {
-  width: 100%;
-  margin: 0px auto;
+  width: 80%;
   margin-top: 10px;
   margin-bottom: 10px;
-  display: block;
 }
 
 .tutorialText {

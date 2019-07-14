@@ -122,18 +122,19 @@ class ViewerHome extends Component {
       return (
         <div className="container">
           <div className="navbar">
-            <Link to="/">
+            <Link to="/editor">
               <button style={{backgroundColor: this.state.currBGColor}} className="newCardButton mainBGColor">New Card</button>
             </Link>
             <button className="tutorialButton mainBGColor" style={{backgroundColor: this.state.currBGColor}}  onMouseDown={() => {this.printCard()}}>Print</button>
             <button className="shareButton mainBGColor" style={{backgroundColor: this.state.currBGColor}}  onMouseDown={() => {this.shareCard()}}>Share</button>
           </div>
           <div style={{clear: 'both'}}/>
-          <div className="titleTextArea" style={{fontFamily: this.state.currFont}}>
+          <div className="titleTextArea mainFGColor" style={{fontFamily: this.state.currFont}}>
             <Editor
               editorState={this.state.titleEditorState}
               onChange={this.onTitleChange}
               readOnly={true}
+              blockStyleFn={Utils.getBlockStyle}
               customStyleMap={{...textColorStyleMap }}
             />
           </div>

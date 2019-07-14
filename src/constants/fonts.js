@@ -1,9 +1,9 @@
 import Utils from './utils';
 
 export const FONTS = [
-  {label: "Open Sans", style: "Opensans", value: '\'Open Sans\', serif'},
-  {label: "DM Serif", style: "DMSerif", value: '\'DM Serif Display\', serif'},
-  {label: "EB Garamond", style: "EBGaramond", value: '\'EB Garamond\', serif'},
+  {label: "Literata", style: "Literata", value: '\'Literata\', serif'},
+  {label: "Muli", style: "Muli", value: '\'Muli\', serif'},
+  {label: "Indie Flower", style: "IndieFlower", value: '\'Indie Flower\', serif'},
 ];
 
 export const fontStyleMap = Utils.arrToStyleMapObject(FONTS, 'fontFamily');
