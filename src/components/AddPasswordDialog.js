@@ -7,6 +7,7 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Slide from '@material-ui/core/Slide';
+import ReactLoading from 'react-loading';
 
 const password = require('secure-random-password');
 const Transition = React.forwardRef(function Transition(props, ref) {
@@ -18,6 +19,7 @@ class AddPasswordDialog extends Component {
     super(props);
     this.state = {
       currPassword: "",
+      sharing: false,
     }
   }
 
@@ -31,8 +33,8 @@ class AddPasswordDialog extends Component {
 
   confirmPassword = (e) => {
     e.preventDefault();
-    this.props.close();
-    this.props.openShareDialog(this.state.currPassword);
+    this.setState({sharing: true});
+    this.props.shareCard(this.state.currPassword);
   }
 
   closeDialog = () => {
@@ -56,28 +58,39 @@ class AddPasswordDialog extends Component {
         }}
       >
         <div className="dialogContent">
-          <p className="tutorialTitle" style={{marginBottom: 10}}>{"Protect your card."}</p>
-          <p className="dialogHeader">Password</p>
-          <form onSubmit={(e) => {this.confirmPassword(e)}}>
-            <input
-              className="formInput"
-              value={this.state.currPassword}
-              onChange={(e) => {this.setState({currPassword: e.target.value})}}
-              spellCheck="false"
-              type="text"
-              placeholder="Password"
-            />
-            <div className="dialogButton" style={{width: 170, marginTop: 15, marginRight: 10, float: 'left'}} onMouseDown={(e) => this.generatePassword(e)}>
-              <p>Generate Password</p>
-            </div>
-            {
-              this.state.currPassword === "" ? (
-                <input disabled className="inputSubmitButtonInactive" style={{marginTop: 15, float: 'left'}} type="submit" value="Confirm"/>
-              ) : (
-                <input className="inputSubmitButton" style={{marginTop: 15, float: 'left'}} type="submit" value="Confirm"/>
-              )
-            }
-          </form>
+          {
+            this.state.sharing ? (
+              <div style={{width: "10%", margin: "0px auto", display: 'block'}}>
+                <ReactLoading type={"spinningBubbles"} color="#cecece" height={'100%'} width={'100%'} />
+              </div>
+            ) : (
+              <div>
+                <p className="tutorialTitle" style={{marginBottom: 10}}>{"Protect your card."}</p>
+                <p className="dialogHeader">Password</p>
+                <form onSubmit={(e) => {this.confirmPassword(e)}}>
+                  <input
+                    className="formInput"
+                    value={this.state.currPassword}
+                    onChange={(e) => {this.setState({currPassword: e.target.value})}}
+                    spellCheck="false"
+                    autoFocus
+                    type="text"
+                    placeholder="Password"
+                  />
+                  <div className="dialogButton" style={{width: 170, marginTop: 15, marginRight: 10, float: 'left'}} onMouseDown={(e) => this.generatePassword(e)}>
+                    <p>Generate Password</p>
+                  </div>
+                  {
+                    this.state.currPassword === "" ? (
+                      <input disabled className="inputSubmitButtonInactive" style={{marginTop: 15, float: 'left'}} type="submit" value="Confirm"/>
+                    ) : (
+                      <input className="inputSubmitButton" style={{marginTop: 15, float: 'left'}} type="submit" value="Confirm"/>
+                    )
+                  }
+                </form>
+              </div>
+            )
+          }
         </div>
       </Dialog>
     )

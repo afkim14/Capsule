@@ -46,3 +46,15 @@ export const NoContentToShareMsg = () => (
     <p className="notificationText">Please fill out recipient and body of letter.</p>
   </div>
 )
+
+export const ErrorSendingFeedback = () => (
+  <div>
+    <p className="notificationText">We couldn't send your feedback. Please try again.</p>
+  </div>
+)
+
+export const IncorrectHexColor = () => (
+  <div>
+    <p className="notificationText">Please provide a valid hexcolor (ex. #EB2F39).</p>
+  </div>
+)

@@ -18,22 +18,29 @@ class TemplatesHome extends Component {
 
   render() {
     return (
-      <div className="container" style={{width: "60%"}}>
+      <div className="container">
         <TutorialDialog
           open={this.state.openTutorialDialog}
           close={() => {this.setState({openTutorialDialog: false})}}
         />
-        <p className="logo">Capsule</p>
-        <p className="logoSubtext">This is an application to write about things.</p>
+        <Link style={{textDecoration: 'none'}} to="/">
+          <p className="logo">Capsule</p>
+        </Link>
+        <p className="logoSubtext">Send a meaningful message to anyone at any time.</p>
         <div className="homeButtonContainer">
           <Link to="/editor">
-            <div className="dialogButton" style={{float: 'left', marginTop: 10}}>
+            <div className="dialogButton" style={{float: 'left', marginTop: 10, width: 120}}>
               <p>Blank Card</p>
             </div>
           </Link>
-          <div className="dialogButton" style={{float: 'left', marginTop: 10, marginLeft: 10}} onMouseDown={()=>{this.setState({openTutorialDialog: true})}}>
+          <div className="dialogButton" style={{float: 'left', marginTop: 10, marginLeft: 20}} onMouseDown={()=>{this.setState({openTutorialDialog: true})}}>
             <p>Tutorial</p>
           </div>
+          <Link to="/collaborate">
+            <div className="dialogButton" style={{float: 'left', marginTop: 10, marginLeft: 20, width: 120}}>
+              <p>Collaborate</p>
+            </div>
+          </Link>
         </div>
         <div style={{clear: 'both'}} />
         <div className="templatesContainer">

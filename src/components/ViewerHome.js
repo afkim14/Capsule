@@ -70,7 +70,7 @@ class ViewerHome extends Component {
   componentDidMount() {
     // read data from database
     try {
-      firebase.database().ref(this.state.cardKey).once('value', (snapshot) => {
+      firebase.database().ref("/Cards/" + this.state.cardKey).once('value', (snapshot) => {
         const pulledData = snapshot.val();
         if (pulledData) {
           this.setState({cardData: pulledData, status: STATE_AUTH});
@@ -132,10 +132,10 @@ class ViewerHome extends Component {
             cardKey={this.state.cardKey}
             password={this.state.password}
           />
+          <Link style={{textDecoration: 'none'}} to="/">
+            <p className="logo">Capsule</p>
+          </Link>
           <div className="navbar">
-            <Link to="/">
-              <button className="newCardButton" style={{backgroundColor: this.state.currBGColor.value}}>Home</button>
-            </Link>
             <Link to="/editor">
               <button style={{backgroundColor: this.state.currBGColor.value}} className="newCardButton mainBGColor">New Card</button>
             </Link>

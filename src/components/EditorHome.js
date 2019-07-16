@@ -75,13 +75,13 @@ const plugins = [
 
 const STATE_LOADING = 'loading';
 const STATE_LOADED = 'loaded';
+const mainBGColor = BACKGROUND_COLORS[0];
 let keyHistory = [{shift: false, value: " "}, {shift: false, value: " "}];
 
 class EditorHome extends Component {
   constructor(props) {
     super(props);
     window.scrollTo(0, 0);
-    let mainBGColor = BACKGROUND_COLORS[0];
     this.state = {
       status: STATE_LOADING,
       titleOnFocus: false,
@@ -120,7 +120,7 @@ class EditorHome extends Component {
     if (cardKey != "editor") {
       if (TemplateIDs.filter(t => {return t.id === cardKey}).length === 0) { this.setState({status: STATE_LOADED}); }
       try {
-        firebase.database().ref(cardKey).once('value', (snapshot) => {
+        firebase.database().ref("/Cards/" + cardKey).once('value', (snapshot) => {
           const pulledData = snapshot.val();
           if (pulledData) {
             const titleContentState = convertFromRaw( JSON.parse( pulledData['title'] ) )
@@ -151,10 +151,18 @@ class EditorHome extends Component {
   newCard = () => {
     const titleEditorState = EditorState.push(this.state.titleEditorState, ContentState.createFromText(''));
     const editorState = EditorState.push(this.state.editorState, ContentState.createFromText(''));
-    this.setState({ openNewCardDialog: false, titleEditorState, editorState });
+    document.getElementsByTagName("html")[0].setAttribute("style", "background-color: " + mainBGColor.value + ";");
+    this.setState({
+      openNewCardDialog: false,
+      titleEditorState,
+      editorState,
+      currBGColor: mainBGColor,
+      defaultHighlightColor: mainBGColor,
+      currFont: this.state.defaultFont,
+    });
   }
 
-  shareCard = (e) => {
+  openPasswordDialog = (e) => {
     e.preventDefault();
     const titleContent = this.state.editorState.getCurrentContent();
     const isTitleEmpty = !titleContent.hasText();
@@ -167,7 +175,7 @@ class EditorHome extends Component {
     }
   }
 
-  openShareDialog = (password) => {
+  shareCard = (password) => {
     const rawTitleContentState = JSON.stringify( convertToRaw(this.state.titleEditorState.getCurrentContent()) );
     const rawDraftContentState = JSON.stringify( convertToRaw(this.state.editorState.getCurrentContent()) );
     const newCard = {
@@ -178,10 +186,10 @@ class EditorHome extends Component {
       font: this.state.currFont
     }
 
-    firebase.app().database().ref('/').push({
+    firebase.app().database().ref('/Cards/').push({
       ...newCard
     }).then((data) => {
-      this.setState({openShareDialog: true, cardKey: data.getKey(), password: password});
+      this.setState({openAddPasswordDialog: false, openShareDialog: true, cardKey: data.getKey(), password: password});
     }).catch((error) => {
       toast.error(<ErrorSharingMsg />);
     });
@@ -553,7 +561,7 @@ class EditorHome extends Component {
           <AddPasswordDialog
             open={this.state.openAddPasswordDialog}
             close={() => {this.setState({openAddPasswordDialog: false})}}
-            openShareDialog={this.openShareDialog}
+            shareCard={this.shareCard}
           />
           <ShareDialog
             open={this.state.openShareDialog}
@@ -568,13 +576,13 @@ class EditorHome extends Component {
             handleVideoTool={this.handleVideoTool}
             currLinkTool={this.state.currLinkTool}
           />
+          <Link style={{textDecoration: 'none'}} to="/">
+            <p className="logo">Capsule</p>
+          </Link>
           <div className="navbar">
-            <Link to="/">
-              <button className="newCardButton" style={{backgroundColor: this.state.currBGColor.value}}>Home</button>
-            </Link>
             <button className="newCardButton" style={{backgroundColor: this.state.currBGColor.value}} onMouseDown={(e) => {this.openNewCardDialog(e)}}>New Card</button>
             <button className="tutorialButton" style={{backgroundColor: this.state.currBGColor.value}} onMouseDown={(e) => {this.openTutorialDialog(e)}}>Tutorial</button>
-            <button className="shareButton" style={{backgroundColor: this.state.currBGColor.value}} onMouseDown={(e) => {this.shareCard(e)}}>Share</button>
+            <button className="shareButton" style={{backgroundColor: this.state.currBGColor.value}} onMouseDown={(e) => {this.openPasswordDialog(e)}}>Share</button>
           </div>
           <div style={{clear: 'both'}}/>
           <Sticky style={{position: 'absolute', zIndex: 10}}>

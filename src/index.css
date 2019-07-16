@@ -16,6 +16,26 @@ html {
   background-color: #3e3e3e;
 }
 
+p {
+  font-family: 'Quicksand', sans-serif;
+}
+
+button {
+  font-family: 'Quicksand', sans-serif;
+}
+
+a {
+  font-family: 'Quicksand', sans-serif;
+}
+
+input {
+  font-family: 'Quicksand', sans-serif;
+}
+
+textarea {
+  font-family: 'Quicksand', sans-serif;
+}
+
 .dialogButton {
   border-radius: 5px;
   border: 2px solid #cecece;
@@ -65,6 +85,11 @@ html {
   font-size: 20px;
   margin-top: 5px;
   margin-bottom: 5px;
+}
+
+.dialogText {
+  color: #cecece;
+  line-height: 180%;
 }
 
 .mainBGColor {
@@ -184,7 +209,7 @@ html {
 }
 
 .container {
-  width: 50%;
+  width: 55%;
   margin: 0px auto;
   text-align: left;
 }
@@ -660,6 +685,26 @@ html {
   margin-left: -2px;
 }
 
+.emailFormInput {
+  padding: 10px;
+  outline: none;
+  border: 2px solid #333333;
+  color: #cecece;
+  background-color: #3e3e3e;
+  font-size: 18px;
+  width: 100%;
+  margin-top: 20px;
+
+  -webkit-transition: border-color 0.1s ease;
+  -moz-transition: border-color 0.1s ease;
+  -o-transition: border-color 0.1s ease;
+  transition: border-color 0.1s ease;
+}
+
+.emailFormInput:focus {
+  border: 2px solid #39b287;
+}
+
 .fileToolMenu {
   float: left;
   margin-left: 10px;
@@ -695,6 +740,52 @@ html {
 
 .fontBox:hover {
   background-color: #3e3e3e;
+}
+
+.feedbackContainer {
+
+}
+
+.feedbackColorContainer {
+  width: 100%;
+  height: 20px;
+}
+
+.feedbackDivider {
+  height: 2px;
+  background-color: #333333;
+  margin-top: 20px;
+}
+
+.feedbackSender {
+  color: #898989;
+  font-style: italic;
+}
+
+.feedbackContent {
+  color: #cecece;
+}
+
+.generalFeedbackTextArea {
+  background-color: #3e3e3e;
+  border: 2px solid #333333;
+  width: 100%;
+  height: 100px;
+  outline: none;
+  color: #cecece;
+  font-size: 18px;
+  padding: 10px;
+  margin-top: 20px;
+  resize: none;
+
+  -webkit-transition: border-color 0.3s ease;
+  -moz-transition: border-color 0.3s ease;
+  -o-transition: border-color 0.3s ease;
+  transition: border-color 0.3s ease;
+}
+
+.generalFeedbackTextArea:focus {
+  border: 2px solid #39b287;
 }
 
 .highlightColorsContainer {
@@ -762,10 +853,10 @@ html {
   border-radius: 5px;
   border: 2px solid #cecece;
   color: #cecece;
-  font-weight: bold;
   cursor: pointer;
   margin-right: 10px;
   outline: none;
+  font-size: 15px;
 
   -webkit-transition: background-color 0.3s ease, color 0.1s ease, border-radius 0.3s ease;
   -moz-transition: background-color 0.3s ease, color 0.1s ease, border-radius 0.3s ease;
@@ -851,15 +942,20 @@ html {
   font-size: 15px;
 }
 
+.inputExtraInfo {
+  color: #6b6b6b;
+  font-style: italic;
+}
+
 .shareButton {
   width: 100px;
   height: 40px;
   border-radius: 5px;
   border: 2px solid #cecece;
   color: #cecece;
-  font-weight: bold;
   cursor: pointer;
   outline: none;
+  font-size: 15px;
 
   -webkit-transition: background-color 0.3s ease, color 0.1s ease, border-radius 0.3s ease;
   -moz-transition: background-color 0.3s ease, color 0.1s ease, border-radius 0.3s ease;
@@ -1020,11 +1116,10 @@ html {
   border-radius: 5px;
   border: 2px solid #cecece;
   color: #cecece;
-  font-weight: bold;
   cursor: pointer;
   outline: none;
   margin-right: 10px;
-
+  font-size: 15px;
 
   -webkit-transition: background-color 0.3s ease, color 0.1s ease, border-radius 0.3s ease;
   -moz-transition: background-color 0.3s ease, color 0.1s ease, border-radius 0.3s ease;
