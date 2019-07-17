@@ -3,7 +3,7 @@ import ToolMenu from './ToolMenu';
 import { EditorState, RichUtils, AtomicBlockUtils, Modifier, ContentState, SelectionState, getDefaultKeyBinding, KeyBindingUtil, convertFromRaw, convertToRaw } from 'draft-js';
 import Editor, { composeDecorators } from 'draft-js-plugins-editor';
 import Utils from '../constants/utils';
-import placeholders from '../constants/placeholders';
+import { TITLE_PLACEHOLDERS, BODY_PLACEHOLDERS } from '../constants/placeholders';
 import { textColorStyleMap, highlightColorStyleMap, TEXT_COLORS, HIGHLIGHT_COLORS, BACKGROUND_COLORS } from '../constants/colors';
 import { FONTS, fontStyleMap } from '../constants/fonts';
 import { TEXT_SIZES, textSizeStyleMap } from '../constants/textSizes';
@@ -59,7 +59,10 @@ const decorator = composeDecorators(
 );
 const imagePlugin = createImagePlugin({ decorator });
 const underlinePlugin = createUnderlinePlugin();
-const emojiPlugin = createEmojiPlugin();
+const selectButtonEmojis = ['😝', '😊', '🤔', '🥺', '🤣', '😳'];
+const emojiPlugin = createEmojiPlugin({
+  selectButtonContent: selectButtonEmojis[Math.floor(Math.random() * selectButtonEmojis.length)]
+});
 const videoPlugin = createVideoPlugin();
 const { types } = videoPlugin;
 const { EmojiSuggestions, EmojiSelect } = emojiPlugin;
@@ -89,7 +92,8 @@ class EditorHome extends Component {
     this.state = {
       status: STATE_LOADING,
       titleOnFocus: false,
-      bodyPlaceholder: placeholders[Math.floor(Math.random() * placeholders.length)],
+      titlePlaceholder: TITLE_PLACEHOLDERS[Math.floor(Math.random() * TITLE_PLACEHOLDERS.length)],
+      bodyPlaceholder: BODY_PLACEHOLDERS[Math.floor(Math.random() * BODY_PLACEHOLDERS.length)],
       defaultAlignment: "align-left",
       defaultFont: FONTS[0],
       currFont: FONTS[0],
@@ -182,6 +186,9 @@ class EditorHome extends Component {
   }
 
   shareCard = (password, callback) => {
+    // this.setState({openAddPasswordDialog: false, openShareDialog: true, cardKey: 'test', password: 'password'});
+    // callback();
+
     const rawTitleContentState = JSON.stringify( convertToRaw(this.state.titleEditorState.getCurrentContent()) );
     const rawDraftContentState = JSON.stringify( convertToRaw(this.state.editorState.getCurrentContent()) );
     const newCard = {
@@ -200,6 +207,7 @@ class EditorHome extends Component {
     }).catch((error) => {
       toast.error(<ErrorSharingMsg />);
     });
+
   }
 
   openNewCardDialog = (e) => {
@@ -671,7 +679,7 @@ class EditorHome extends Component {
           </Sticky>
           <div className="titleTextArea mainFGColor" style={{fontFamily: this.state.currFont.value}}>
             <Editor
-              placeholder={"Hey Jude,"}
+              placeholder={this.state.titlePlaceholder}
               editorState={this.state.titleEditorState}
               onChange={this.onTitleChange}
               onBlur={() => {this.setState({titleOnFocus: false})}}

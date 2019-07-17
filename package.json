@@ -28,6 +28,7 @@
     "react-markdown": "^4.1.0",
     "react-router-dom": "^5.0.1",
     "react-scripts": "3.0.1",
+    "react-share": "^3.0.0",
     "react-signature-canvas": "^1.0.2",
     "react-sticky-el": "^1.0.20",
     "react-toastify": "^5.3.1",

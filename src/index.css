@@ -282,6 +282,12 @@ textarea {
   width: 15%;
 }
 
+.copiedMessage {
+  color: #39b287;
+  margin-top: 3px;
+  font-style: italic;
+}
+
 .declineButton {
   border-radius: 5px;
   border: 2px solid #cecece;
@@ -895,6 +901,7 @@ textarea {
   background-color: #39b287;
   line-height: 0px;
   display: inline-block;
+  cursor: pointer;
 }
 
 .formInput {
@@ -972,6 +979,24 @@ textarea {
   border: 2px solid #39b287;
   background-color: #39b287;
   color: #39b287;
+}
+
+.shareSocialMediaButton {
+  cursor: pointer;
+  border: 4px solid #3e3e3e;
+  display: inline-block;
+  border-radius: 50%;
+  margin-right: 10px;
+  margin-bottom: 0px;
+
+  -webkit-transition: border-color 0.3s ease;
+  -moz-transition: border-color 0.3s ease;
+  -o-transition: border-color 0.3s ease;
+  transition: border-color 0.3s ease;
+}
+
+.shareSocialMediaButton:hover {
+  border: 4px solid #333333;
 }
 
 .sizeBox {

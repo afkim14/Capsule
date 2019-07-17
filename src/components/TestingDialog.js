@@ -55,12 +55,7 @@ class ThirdStep extends Component {
     return (
       <div className="dialogContent">
         <p className="tutorialTitle">{"Share your card."}</p>
-        <p className="dialogText">Please send the link of the shared capsule card to Andres through any means of communication. We apologize for not having extensive sharing functionality yet. Below are some forms of communication:</p>
-        <ul className="termsListContainer">
-          <li className="termsListItem">Email: andreskim@u.northwestern.edu</li>
-          <li className="termsListItem">Text: (847) 730-4915</li>
-          <li className="termsListItem">Kakaotalk ID: andresfkim</li>
-        </ul>
+        <p className="dialogText">Please share the capsule card with Andres through Email. Other means of sharing have not been implemented. We apologize for the inconvenience!</p>
         <div className="dialogButton" style={{float: 'left', marginTop: 20}} onMouseDown={this.props.prevTutorialStep}>
           <p>Prev</p>
         </div>
@@ -82,7 +77,7 @@ class FourthStep extends Component {
       <div className="dialogContent">
         <p className="tutorialTitle">{"Final Notes."}</p>
         <div style={{marginTop: 10}} />
-        <span className="dialogText" style={{display: 'block'}}>If you have further content or design suggestions, feel free to check out the <Link className="link" to="/collaborate"><a>Collaborate</a></Link> section of the website where you can submit feedback at any time. Thank you once again!</span>
+        <span className="dialogText" style={{display: 'block'}}>If you have further content or design suggestions, feel free to check out the <Link className="link" to="/collaborate">Collaborate</Link> section of the website where you can submit feedback at any time. Thank you once again!</span>
         <div className="dialogButton" style={{float: 'left', marginTop: 30}} onMouseDown={this.props.prevTutorialStep}>
           <p>Prev</p>
         </div>
