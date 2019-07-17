@@ -15,6 +15,7 @@ const STICKERS = [
 ];
 const BULLET_TOOLS = ["bulletpoint"];
 const ALIGN_TOOLS = ["align-left", "align-center", "align-right", "align-justify"];
+const DRAWING_TOOLS = ["brush"];
 const FILE_TOOLS = ["image"];
 const LINK_TOOLS = ["video", "link"];
 
@@ -470,6 +471,38 @@ class AlignTools extends Component {
   }
 }
 
+class DrawingTools extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+
+    }
+  }
+
+  handleDrawingTool = (tool, e) => {
+    e.preventDefault();
+    this.props.handleDrawingTool(tool);
+  }
+
+  render() {
+    return (
+      <div className="drawingToolMenu">
+        {
+          DRAWING_TOOLS.map((t, i) => {
+            return (
+              this.state.currHoverTool === t ? (
+                <img alt={t} key={i} className="toolMenuIcon" src={"/images/" + t + "-icon-dark-01.png"} onMouseEnter={() => {this.setState({currHoverTool: t})}} onMouseLeave={() => {this.setState({currHoverTool: null})}} onMouseDown={(e) => {this.handleDrawingTool(t, e)}} />
+              ) : (
+                <img alt={t} key={i} className="toolMenuIcon" src={"/images/" + t + "-icon-light-01.png"} onMouseEnter={() => {this.setState({currHoverTool: t})}} onMouseLeave={() => {this.setState({currHoverTool: null})}} onMouseDown={(e) => {this.handleDrawingTool(t, e)}} />
+              )
+            )
+          })
+        }
+      </div>
+    )
+  }
+}
+
 class FileTools extends Component {
   constructor(props) {
     super(props);
@@ -492,7 +525,7 @@ class FileTools extends Component {
                     )
                   }
                 </label>
-                <input id="file-input" type="file" accept="image/x-png,image/gif,image/jpeg" onChange={this.props.fileChangedHandler} />
+                <input id="file-input" type="file" accept="image/x-png,image/gif,image/jpeg" onChange={this.props.fileChangedHandler} onClick={(e) => {e.target.value = ""}} />
               </div>
             )
           })
@@ -611,6 +644,10 @@ class ToolMenu extends Component {
           <div className="emojiContainer">
             {this.props.children}
           </div>
+          <DrawingTools
+            props={this.props}
+            handleDrawingTool={this.props.handleDrawingTool}
+          />
           <BullletTools
             props={this.props}
             handleBulletToolToggle={this.props.handleBulletToolToggle}

@@ -8,12 +8,13 @@ import { textColorStyleMap, highlightColorStyleMap, TEXT_COLORS, HIGHLIGHT_COLOR
 import { FONTS, fontStyleMap } from '../constants/fonts';
 import { TEXT_SIZES, textSizeStyleMap } from '../constants/textSizes';
 import { TemplateIDs } from '../constants/templates';
-import { NoLinkTextMsg, NoLinkMsg, InvalidImageMsg, InvalidVideoMsg, NoVideoMsg, SucessSharingMsg, ErrorSharingMsg, NoContentToShareMsg } from '../constants/notifications';
+import { NoLinkTextMsg, NoLinkMsg, InvalidImageMsg, InvalidVideoMsg, NoVideoMsg, SucessSharingMsg, ErrorSharingMsg, NoContentToShareMsg, ResizeImageMsg } from '../constants/notifications';
 import NewCardDialog from './NewCardDialog';
 import TutorialDialog from './TutorialDialog';
 import AddPasswordDialog from './AddPasswordDialog';
 import ShareDialog from './ShareDialog';
 import LinkInputDialog from './LinkInputDialog';
+import BrushDialog from './BrushDialog';
 import createStyles from 'draft-js-custom-styles';
 import createFocusPlugin from 'draft-js-focus-plugin';
 import createImagePlugin from 'draft-js-image-plugin';
@@ -33,6 +34,9 @@ import 'react-toastify/dist/ReactToastify.css';
 import '../styles/customToastifyStyle.css';
 import { Link} from 'react-router-dom'
 import firebase from 'firebase';
+import SignatureCanvas from 'react-signature-canvas';
+import ReactLoading from 'react-loading';
+
 toast.configure({
   position: "bottom-right",
   autoClose: 5000,
@@ -102,6 +106,8 @@ class EditorHome extends Component {
       openShareDialog: false,
       openLinkInputDialog: false,
       openAddPasswordDialog: false,
+      openBrushDialog: false,
+      firstImageInserted: false,
 
       cardKey: null,
       password: null,
@@ -175,7 +181,7 @@ class EditorHome extends Component {
     }
   }
 
-  shareCard = (password) => {
+  shareCard = (password, callback) => {
     const rawTitleContentState = JSON.stringify( convertToRaw(this.state.titleEditorState.getCurrentContent()) );
     const rawDraftContentState = JSON.stringify( convertToRaw(this.state.editorState.getCurrentContent()) );
     const newCard = {
@@ -189,6 +195,7 @@ class EditorHome extends Component {
     firebase.app().database().ref('/Cards/').push({
       ...newCard
     }).then((data) => {
+      callback();
       this.setState({openAddPasswordDialog: false, openShareDialog: true, cardKey: data.getKey(), password: password});
     }).catch((error) => {
       toast.error(<ErrorSharingMsg />);
@@ -307,7 +314,7 @@ class EditorHome extends Component {
         'unordered-list-item'
       );
 
-      this.onChange(EditorState.moveFocusToEnd(newEditorState));
+      this.onChange(EditorState.forceSelection(newEditorState, newSelection));
       return 'handled';
     }
 
@@ -456,6 +463,19 @@ class EditorHome extends Component {
     this.state.titleOnFocus ? this.onTitleChange(nextEditorState) : this.onChange(nextEditorState);
   }
 
+  handleDrawingTool = (tool) => {
+    this.setState({openBrushDialog: true});
+  }
+
+  handleSubmitDrawing = (base64) => {
+    const newEditorState = this.insertImage(this.state.editorState, base64);
+    this.onChange(newEditorState);
+    if (!this.state.firstImageInserted) {
+      toast.info(<ResizeImageMsg />)
+      this.setState({firstImageInserted: true});
+    }
+  }
+
   handleImageTool = (file) => {
     try {
       let reader = new FileReader();
@@ -463,6 +483,10 @@ class EditorHome extends Component {
       reader.onload = () => {
         const newEditorState = this.insertImage(this.state.editorState, reader.result);
         this.onChange(newEditorState);
+        if (!this.state.firstImageInserted) {
+          toast.info(<ResizeImageMsg />)
+          this.setState({firstImageInserted: true});
+        }
       };
       reader.onerror = function (error) {
         toast.error(<InvalidImageMsg />);
@@ -490,19 +514,23 @@ class EditorHome extends Component {
   handleVideoTool = (link) => {
     this.setState({openLinkInputDialog: false});
     const editorState = this.state.editorState;
+    const selection = editorState.getSelection();
     if (link === null) {
+      this.onChange(EditorState.forceSelection(editorState, selection));
       return;
     }
     if (link === '') {
+      this.onChange(EditorState.forceSelection(editorState, selection));
       toast.error(<NoVideoMsg />);
       return;
     }
     if (!Utils.isVideo(link)) {
+      this.onChange(EditorState.forceSelection(editorState, selection));
       toast.error(<InvalidVideoMsg />);
       return;
     }
     const newEditorState = this.insertVideo(this.state.editorState, link);
-    this.onChange(newEditorState);
+    this.onChange(EditorState.forceSelection(newEditorState, selection));
   }
 
   insertVideo = (editorState, link) => {
@@ -526,22 +554,34 @@ class EditorHome extends Component {
     const content = editorState.getCurrentContent();
 
     if (selection.isCollapsed()) {
+      this.onChange(EditorState.forceSelection(editorState, selection));
       toast.info(<NoLinkTextMsg />);
       return;
     }
 
     if (link === null) {
+      this.onChange(EditorState.forceSelection(editorState, selection));
       return;
     }
+
     if (link === '') {
-      this.onChange(RichUtils.toggleLink(editorState, selection, null));
+      let newEditorState = RichUtils.toggleLink(editorState, selection, null);
+      this.onChange(EditorState.forceSelection(newEditorState, selection));
       toast.error(<NoLinkMsg />);
       return 'handled';
     }
     const contentWithEntity = content.createEntity('LINK', 'MUTABLE', { url: link });
-    const newEditorState = EditorState.push(editorState, contentWithEntity, 'create-entity');
+    let newEditorState = EditorState.push(editorState, contentWithEntity, 'create-entity');
     const entityKey = contentWithEntity.getLastCreatedEntityKey();
-    this.onChange(RichUtils.toggleLink(newEditorState, selection, entityKey))
+    newEditorState = RichUtils.toggleLink(newEditorState, selection, entityKey);
+    this.onChange(EditorState.forceSelection(newEditorState, selection));
+  }
+
+  closeDialogKeepSelection = (result) => {
+    const editorState = this.state.editorState;
+    const selection = editorState.getSelection();
+    this.onChange(EditorState.forceSelection(editorState, selection));
+    result();
   }
 
   render() {
@@ -571,10 +611,17 @@ class EditorHome extends Component {
           />
           <LinkInputDialog
             open={this.state.openLinkInputDialog}
-            close={() => {this.setState({openLinkInputDialog: false})}}
+            close={() => {this.closeDialogKeepSelection(() => {this.setState({openLinkInputDialog: false})})}}
             handleLinkTool={this.handleLinkTool}
             handleVideoTool={this.handleVideoTool}
             currLinkTool={this.state.currLinkTool}
+          />
+          <BrushDialog
+            open={this.state.openBrushDialog}
+            close={() => {this.setState({openBrushDialog: false})}}
+            handleSubmit={this.handleSubmitDrawing}
+            handleCancel={()=>{this.setState({openBrushDialog: false})}}
+            bgColor={this.state.currBGColor}
           />
           <Link style={{textDecoration: 'none'}} to="/">
             <p className="logo">Capsule</p>
@@ -601,6 +648,7 @@ class EditorHome extends Component {
                 handleTextSizeChange={this.handleTextSizeChange}
                 handleStickerTool={this.handleStickerTool}
                 handleBulletToolToggle={this.handleBulletToolToggle}
+                handleDrawingTool={this.handleDrawingTool}
                 openLinkInputDialog={this.openLinkInputDialog}
                 defaultAlignment={this.state.defaultAlignment}
                 fonts={FONTS}
@@ -654,7 +702,9 @@ class EditorHome extends Component {
       return (
         <div className="container" style={{textAlign: 'center'}}>
           <div className="warningContainer">
-            <img className="centerIcons" src={"../images/letter-icon-01.png"} />
+            <div style={{width: "10%", margin: "0px auto", display: 'block'}}>
+              <ReactLoading type={"bubbles"} color="#39b287" height={'100%'} width={'100%'} />
+            </div>
             <p className="warningMessage mainFGColor mainBGColor" style={{color: "#39b287", fontWeight: 'bold'}}>Prepare to write a beautiful letter!</p>
           </div>
         </div>

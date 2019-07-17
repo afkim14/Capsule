@@ -58,3 +58,9 @@ export const IncorrectHexColor = () => (
     <p className="notificationText">Please provide a valid hexcolor (ex. #EB2F39).</p>
   </div>
 )
+
+export const ResizeImageMsg = () => (
+  <div>
+    <p className="notificationText">You can resize a sticker or image by manually dragging the edges.</p>
+  </div>
+)

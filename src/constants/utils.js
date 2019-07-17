@@ -40,7 +40,7 @@ class Utils {
   }
 
   static getBaseURL() {
-    return "localhost:3000";
+    return "projectcapsule.me";
   }
 }
 

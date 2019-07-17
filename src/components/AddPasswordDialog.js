@@ -34,10 +34,11 @@ class AddPasswordDialog extends Component {
   confirmPassword = (e) => {
     e.preventDefault();
     this.setState({sharing: true});
-    this.props.shareCard(this.state.currPassword);
+    this.props.shareCard(this.state.currPassword, () => {this.setState({sharing: false, currPassword: ""})});
   }
 
   closeDialog = () => {
+    this.setState({sharing: false, currPassword: ""});
     this.props.close();
   }
 
@@ -60,8 +61,11 @@ class AddPasswordDialog extends Component {
         <div className="dialogContent">
           {
             this.state.sharing ? (
-              <div style={{width: "10%", margin: "0px auto", display: 'block'}}>
-                <ReactLoading type={"spinningBubbles"} color="#cecece" height={'100%'} width={'100%'} />
+              <div>
+                <div style={{width: "10%", margin: "0px auto", display: 'block'}}>
+                  <ReactLoading type={"bubbles"} color="#39b287" height={'100%'} width={'100%'} />
+                </div>
+                <p className="warningMessage" style={{textAlign: 'center', color: "#39b287"}}>Preparing your card.</p>
               </div>
             ) : (
               <div>

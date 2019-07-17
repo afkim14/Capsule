@@ -19,7 +19,8 @@ import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import 'draft-js/dist/Draft.css';
 import 'draft-js-image-plugin/lib/plugin.css';
-import { Link} from 'react-router-dom'
+import { Link} from 'react-router-dom';
+import ReactLoading from 'react-loading';
 
 const resizeablePlugin = createResizeablePlugin();
 const decorator = composeDecorators(
@@ -196,7 +197,7 @@ class ViewerHome extends Component {
             <img className="centerIcons" src={"../images/sad-icon-01.png"} />
             <p className="warningMessage mainFGColor mainBGColor" style={{color: "#39b287", fontWeight: 'bold'}}>Card could not be found.</p>
             <p className="warningMessage mainFGColor mainBGColor">Please check the card link. It should look something like this:</p>
-            <a className="link" style={{cursor: 'text'}}>https://appname.com/cards/-LjKneE4dVD</a>
+            <a className="link" style={{cursor: 'text'}}>projectcapsule.me/cards/-LjKneE4dVD</a>
             <Link style={{textDecoration: 'none'}} to={"/"}>
               <div className="dialogButton" style={{margin: '0px auto', marginTop: 30}}>
                 <p>Go Home</p>
@@ -209,7 +210,9 @@ class ViewerHome extends Component {
       return (
         <div className="container" style={{textAlign: 'center'}}>
           <div className="warningContainer">
-            <img className="centerIcons" src={"../images/letter-icon-01.png"} />
+            <div style={{width: "10%", margin: "0px auto", display: 'block'}}>
+              <ReactLoading type={"bubbles"} color="#39b287" height={'100%'} width={'100%'} />
+            </div>
             <p className="warningMessage mainFGColor mainBGColor" style={{color: "#39b287", fontWeight: 'bold'}}>Loading a beautiful card!</p>
           </div>
         </div>
