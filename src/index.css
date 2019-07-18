@@ -851,6 +851,10 @@ textarea {
   color: #cecece;
 }
 
+.mobileMessageContainer {
+  visibility: hidden;
+}
+
 .navbar {
   float: left;
   margin-top: 40px;
@@ -1296,5 +1300,14 @@ textarea {
 
   .draftJsEmojiPlugin__emojiSelectPopover__1J1s0 {
     max-width: 100px;
+  }
+
+  .mobileMessageContainer {
+    visibility: visible;
+  }
+
+  .desktopContainer {
+    visibility: hidden;
+    display: none;
   }
 }

@@ -595,115 +595,124 @@ class EditorHome extends Component {
   render() {
     if (this.state.status === STATE_LOADED) {
       return (
-        <div className="container">
-          <NewCardDialog
-            open={this.state.openNewCardDialog}
-            close={() => {this.setState({openNewCardDialog: false})}}
-            handleCancelNewCard={() => {this.setState({openNewCardDialog: false})}}
-            handleAcceptNewCard={() => {this.newCard()}}
-          />
-          <TutorialDialog
-            open={this.state.openTutorialDialog}
-            close={() => {this.setState({openTutorialDialog: false})}}
-          />
-          <AddPasswordDialog
-            open={this.state.openAddPasswordDialog}
-            close={() => {this.setState({openAddPasswordDialog: false})}}
-            shareCard={this.shareCard}
-          />
-          <ShareDialog
-            open={this.state.openShareDialog}
-            close={() => {this.setState({openShareDialog: false})}}
-            cardKey={this.state.cardKey}
-            password={this.state.password}
-          />
-          <LinkInputDialog
-            open={this.state.openLinkInputDialog}
-            close={() => {this.closeDialogKeepSelection(() => {this.setState({openLinkInputDialog: false})})}}
-            handleLinkTool={this.handleLinkTool}
-            handleVideoTool={this.handleVideoTool}
-            currLinkTool={this.state.currLinkTool}
-          />
-          <BrushDialog
-            open={this.state.openBrushDialog}
-            close={() => {this.setState({openBrushDialog: false})}}
-            handleSubmit={this.handleSubmitDrawing}
-            handleCancel={()=>{this.setState({openBrushDialog: false})}}
-            bgColor={this.state.currBGColor}
-          />
-          <Link style={{textDecoration: 'none'}} to="/">
-            <p className="logo">Capsule</p>
-          </Link>
-          <div className="navbar">
-            <button className="newCardButton" style={{backgroundColor: this.state.currBGColor.value}} onMouseDown={(e) => {this.openNewCardDialog(e)}}>New Card</button>
-            <button className="tutorialButton" style={{backgroundColor: this.state.currBGColor.value}} onMouseDown={(e) => {this.openTutorialDialog(e)}}>Tutorial</button>
-            <button className="shareButton" style={{backgroundColor: this.state.currBGColor.value}} onMouseDown={(e) => {this.openPasswordDialog(e)}}>Share</button>
-          </div>
-          <div style={{clear: 'both'}}/>
-          <Sticky style={{position: 'absolute', zIndex: 10}}>
-            <div style={{paddingTop:20, paddingBottom: 20, backgroundColor: this.state.currBGColor.value}}>
-              <ToolMenu
-                show={this.state.showToolbar}
-                titleOnFocus={this.state.titleOnFocus}
-                titleEditorState={this.state.titleEditorState}
-                editorState={this.state.editorState}
-                handleTextToggleChange={this.handleTextToggleChange}
-                handleAlignToggleChange={this.handleAlignToggleChange}
-                handleImageTool={this.handleImageTool}
-                handleTextColorChange={this.handleTextColorChange}
-                handleFontTool={this.handleFontTool}
-                handleHighlightColorChange={this.handleHighlightColorChange}
-                handleTextSizeChange={this.handleTextSizeChange}
-                handleStickerTool={this.handleStickerTool}
-                handleBulletToolToggle={this.handleBulletToolToggle}
-                handleDrawingTool={this.handleDrawingTool}
-                openLinkInputDialog={this.openLinkInputDialog}
-                defaultAlignment={this.state.defaultAlignment}
-                fonts={FONTS}
-                currFont={this.state.currFont}
-                currBGColor={this.state.currBGColor}
-                backgroundColors={BACKGROUND_COLORS}
-                handleBGChange={this.handleBGChange}
-                defaultFont={this.state.defaultFont}
-                textColors={TEXT_COLORS}
-                defaultTextColor={this.state.defaultTextColor}
-                highlightColors={HIGHLIGHT_COLORS}
-                defaultHighlightColor={this.state.defaultHighlightColor}
-                textSizes={TEXT_SIZES}
-                defaultTextSize={this.state.defaultTextSize}
-              >
-                <EmojiSelect />
-              </ToolMenu>
-              <div style={{clear: 'both'}}/>
+        <div>
+          <div className="mobileMessageContainer">
+            <div className="warningContainer" style={{textAlign: 'center'}}>
+              <img className="centerIcons" src={"/images/404-icon-01.png"} />
+              <p className="warningMessage mainFGColor mainBGColor" style={{color: "#39b287", fontWeight: 'bold'}}>We apologize for the inconveniece.</p>
+              <p className="warningMessage">We are still working on a mobile version. Please access the website on a laptop or computer.</p>
             </div>
-          </Sticky>
-          <div className="titleTextArea mainFGColor" style={{fontFamily: this.state.currFont.value}}>
-            <Editor
-              placeholder={this.state.titlePlaceholder}
-              editorState={this.state.titleEditorState}
-              onChange={this.onTitleChange}
-              onBlur={() => {this.setState({titleOnFocus: false})}}
-              onFocus={() => {this.setState({titleOnFocus: true})}}
-              blockStyleFn={Utils.getBlockStyle}
-              customStyleMap={{...textColorStyleMap }}
-              plugins={titlePlugins}
-            />
           </div>
-          <div id="editor" className="contentTextArea mainFGColor" style={{fontFamily: this.state.currFont.value, fontSize: this.state.defaultTextSize.value}}>
-            <Editor
-              placeholder={this.state.bodyPlaceholder}
-              editorState={this.state.editorState}
-              handleKeyCommand={this.handleKeyCommand}
-              keyBindingFn={this.myKeyBindingFn}
-              onChange={this.onChange}
-              blockStyleFn={Utils.getBlockStyle}
-              ref="editor"
-              plugins={plugins}
-              customStyleMap={{...textColorStyleMap, ...highlightColorStyleMap, ...fontStyleMap, ...textSizeStyleMap }}
+          <div className="container desktopContainer">
+            <NewCardDialog
+              open={this.state.openNewCardDialog}
+              close={() => {this.setState({openNewCardDialog: false})}}
+              handleCancelNewCard={() => {this.setState({openNewCardDialog: false})}}
+              handleAcceptNewCard={() => {this.newCard()}}
             />
-            <EmojiSuggestions />
+            <TutorialDialog
+              open={this.state.openTutorialDialog}
+              close={() => {this.setState({openTutorialDialog: false})}}
+            />
+            <AddPasswordDialog
+              open={this.state.openAddPasswordDialog}
+              close={() => {this.setState({openAddPasswordDialog: false})}}
+              shareCard={this.shareCard}
+            />
+            <ShareDialog
+              open={this.state.openShareDialog}
+              close={() => {this.setState({openShareDialog: false})}}
+              cardKey={this.state.cardKey}
+              password={this.state.password}
+            />
+            <LinkInputDialog
+              open={this.state.openLinkInputDialog}
+              close={() => {this.closeDialogKeepSelection(() => {this.setState({openLinkInputDialog: false})})}}
+              handleLinkTool={this.handleLinkTool}
+              handleVideoTool={this.handleVideoTool}
+              currLinkTool={this.state.currLinkTool}
+            />
+            <BrushDialog
+              open={this.state.openBrushDialog}
+              close={() => {this.setState({openBrushDialog: false})}}
+              handleSubmit={this.handleSubmitDrawing}
+              handleCancel={()=>{this.setState({openBrushDialog: false})}}
+              bgColor={this.state.currBGColor}
+            />
+            <Link style={{textDecoration: 'none'}} to="/">
+              <p className="logo">Capsule</p>
+            </Link>
+            <div className="navbar">
+              <button className="newCardButton" style={{backgroundColor: this.state.currBGColor.value}} onMouseDown={(e) => {this.openNewCardDialog(e)}}>New Card</button>
+              <button className="tutorialButton" style={{backgroundColor: this.state.currBGColor.value}} onMouseDown={(e) => {this.openTutorialDialog(e)}}>Tutorial</button>
+              <button className="shareButton" style={{backgroundColor: this.state.currBGColor.value}} onMouseDown={(e) => {this.openPasswordDialog(e)}}>Share</button>
+            </div>
+            <div style={{clear: 'both'}}/>
+            <Sticky style={{position: 'absolute', zIndex: 10}}>
+              <div style={{paddingTop:20, paddingBottom: 20, backgroundColor: this.state.currBGColor.value}}>
+                <ToolMenu
+                  show={this.state.showToolbar}
+                  titleOnFocus={this.state.titleOnFocus}
+                  titleEditorState={this.state.titleEditorState}
+                  editorState={this.state.editorState}
+                  handleTextToggleChange={this.handleTextToggleChange}
+                  handleAlignToggleChange={this.handleAlignToggleChange}
+                  handleImageTool={this.handleImageTool}
+                  handleTextColorChange={this.handleTextColorChange}
+                  handleFontTool={this.handleFontTool}
+                  handleHighlightColorChange={this.handleHighlightColorChange}
+                  handleTextSizeChange={this.handleTextSizeChange}
+                  handleStickerTool={this.handleStickerTool}
+                  handleBulletToolToggle={this.handleBulletToolToggle}
+                  handleDrawingTool={this.handleDrawingTool}
+                  openLinkInputDialog={this.openLinkInputDialog}
+                  defaultAlignment={this.state.defaultAlignment}
+                  fonts={FONTS}
+                  currFont={this.state.currFont}
+                  currBGColor={this.state.currBGColor}
+                  backgroundColors={BACKGROUND_COLORS}
+                  handleBGChange={this.handleBGChange}
+                  defaultFont={this.state.defaultFont}
+                  textColors={TEXT_COLORS}
+                  defaultTextColor={this.state.defaultTextColor}
+                  highlightColors={HIGHLIGHT_COLORS}
+                  defaultHighlightColor={this.state.defaultHighlightColor}
+                  textSizes={TEXT_SIZES}
+                  defaultTextSize={this.state.defaultTextSize}
+                >
+                  <EmojiSelect />
+                </ToolMenu>
+                <div style={{clear: 'both'}}/>
+              </div>
+            </Sticky>
+            <div className="titleTextArea mainFGColor" style={{fontFamily: this.state.currFont.value}}>
+              <Editor
+                placeholder={this.state.titlePlaceholder}
+                editorState={this.state.titleEditorState}
+                onChange={this.onTitleChange}
+                onBlur={() => {this.setState({titleOnFocus: false})}}
+                onFocus={() => {this.setState({titleOnFocus: true})}}
+                blockStyleFn={Utils.getBlockStyle}
+                customStyleMap={{...textColorStyleMap }}
+                plugins={titlePlugins}
+              />
+            </div>
+            <div id="editor" className="contentTextArea mainFGColor" style={{fontFamily: this.state.currFont.value, fontSize: this.state.defaultTextSize.value}}>
+              <Editor
+                placeholder={this.state.bodyPlaceholder}
+                editorState={this.state.editorState}
+                handleKeyCommand={this.handleKeyCommand}
+                keyBindingFn={this.myKeyBindingFn}
+                onChange={this.onChange}
+                blockStyleFn={Utils.getBlockStyle}
+                ref="editor"
+                plugins={plugins}
+                customStyleMap={{...textColorStyleMap, ...highlightColorStyleMap, ...fontStyleMap, ...textSizeStyleMap }}
+              />
+              <EmojiSuggestions />
+            </div>
+            {/*<ReactMarkdown source={this.state.body} />*/}
           </div>
-          {/*<ReactMarkdown source={this.state.body} />*/}
         </div>
       )
     } else {
