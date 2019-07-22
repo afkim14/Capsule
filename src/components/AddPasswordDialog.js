@@ -9,10 +9,13 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import Slide from '@material-ui/core/Slide';
 import ReactLoading from 'react-loading';
 
-const password = require('secure-random-password');
+// const password = require('secure-random-password');
+const srs = require('secure-random-string');
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
+const maxPasswordLength = 10;
+const minPasswordLength = 5;
 
 class AddPasswordDialog extends Component {
   constructor(props) {
@@ -25,14 +28,15 @@ class AddPasswordDialog extends Component {
 
   generatePassword = (e) => {
     e.preventDefault();
-    const maxPasswordLength = 20;
-    const minPasswordLength = 10;
-    const pw = password.randomPassword({length: Math.floor(Math.random() * (maxPasswordLength - minPasswordLength) + minPasswordLength)});
+    const pw = srs({length: Math.floor(Math.random() * (maxPasswordLength - minPasswordLength) + minPasswordLength), alphanumeric: true});
     this.setState({currPassword: pw});
   }
 
   confirmPassword = (e) => {
     e.preventDefault();
+    if (this.state.currPassword.length < minPasswordLength || this.state.currPassword.length > maxPasswordLength) {
+      return;
+    }
     this.setState({sharing: true});
     this.props.shareCard(this.state.currPassword, () => {this.setState({sharing: false, currPassword: ""})});
   }
@@ -70,7 +74,7 @@ class AddPasswordDialog extends Component {
             ) : (
               <div>
                 <p className="tutorialTitle" style={{marginBottom: 10}}>{"Protect your card."}</p>
-                <p className="dialogHeader">Password</p>
+                <p className="dialogText">This password will be embedded with the link.</p>
                 <form onSubmit={(e) => {this.confirmPassword(e)}}>
                   <input
                     className="formInput"
@@ -81,6 +85,13 @@ class AddPasswordDialog extends Component {
                     type="text"
                     placeholder="Password"
                   />
+                  {
+                    ((this.state.currPassword.length < minPasswordLength || this.state.currPassword.length > maxPasswordLength) && this.state.currPassword !== "") ? (
+                      <p className="passwordIncorrectMsg" style={{height: 5}}>{"Please keep passwords to " + minPasswordLength + "-" + maxPasswordLength + " characters in length."}</p>
+                    ) : (
+                      this.state.currPassword !== "" && <p className="passwordIncorrectMsg" style={{height: 5, color: "#39b287"}}>{"Valid password!"}</p>
+                    )
+                  }
                   <div className="dialogButton" style={{width: 170, marginTop: 15, marginRight: 10, float: 'left'}} onMouseDown={(e) => this.generatePassword(e)}>
                     <p>Generate Password</p>
                   </div>

@@ -50,20 +50,11 @@ class ShareDialog extends Component {
           }}
         >
           <div className="dialogContent">
-            <p className="tutorialTitle" style={{marginBottom: 10}}>{"Share your card."}</p>
-            <p className="dialogHeader">Link</p>
-            <CopyToClipboard text={BASE_URL + this.props.cardKey} onCopy={() => this.setState({urlCopied: true, pwCopied: false})}>
-              <div className="linkContainer">
-                <p className="link" style={{color: "#3e3e3e"}}>{BASE_URL + this.props.cardKey}</p>
-              </div>
-            </CopyToClipboard>
-            {
-              this.state.urlCopied ? (
-                <p className="copiedMessage">URL copied.</p>
-              ) : (
-                <p className="copiedMessage" style={{color: "#777777"}}>Click to copy.</p>
-              )
-            }
+            <p className="tutorialTitle" style={{marginBottom: 10}}>{"Send your card."}</p>
+            <div className="linkContainer" onMouseDown={() => {Utils.openInNewTab(BASE_URL + this.props.cardKey + "/" + this.props.password)}}>
+              <p className="link" style={{color: "#3e3e3e"}}>{BASE_URL + this.props.cardKey + "/" + this.props.password}</p>
+            </div>
+            {/*
             <p className="dialogHeader">Password</p>
             <CopyToClipboard text={this.props.password} onCopy={() => this.setState({pwCopied: true, urlCopied: false})}>
             <div className="passwordContainer">
@@ -77,6 +68,7 @@ class ShareDialog extends Component {
                 <p className="copiedMessage" style={{color: "#777777"}}>Click to copy.</p>
               )
             }
+            */}
             <div style={{clear: 'both'}}/>
             {/*
             <FacebookShareButton
@@ -91,16 +83,17 @@ class ShareDialog extends Component {
             */}
             <div style={{height: 2, backgroundColor: "#333333", marginTop: 20, marginBottom: 20}} />
             <EmailShareButton
-              style={{outline: 'none', margin: "0px auto", display: 'block', width: '20%'}}
-              subject={"A New Capsule Has Arrived!"}
-              body={"Hey, I wrote you a Capsule! The password is: " + this.props.password + ".\n\n"}
-              url={BASE_URL + this.props.cardKey}
+              style={{outline: 'none', margin: "0px auto", display: 'inline-block', float: 'left'}}
+              subject={"[Capsule] A New Capsule Has Arrived!"}
+              body={"Hey, I wrote you a Capsule! Here's the link: \n\n"}
+              url={BASE_URL + this.props.cardKey + "/" + this.props.password}
+              openWindow
             >
               <div className="shareSocialMediaButton">
                 <EmailIcon size={40} round={true} />
               </div>
             </EmailShareButton>
-            <p style={{textAlign: 'center', color: "#cecece", fontSize: 16}}>andreskim2018@u.northwestern.edu</p>
+            <p style={{float: 'left', color: "#cecece", fontSize: 16, marginLeft: 5}}>andreskim2018@u.northwestern.edu</p>
           </div>
         </Dialog>
       </div>

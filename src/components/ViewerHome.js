@@ -4,10 +4,12 @@ import Editor, { composeDecorators } from 'draft-js-plugins-editor';
 import Utils from '../constants/utils';
 import PasswordDialog from './PasswordDialog';
 import ShareDialog from './ShareDialog';
+import TutorialDialog from './TutorialDialog';
 import { textColorStyleMap, highlightColorStyleMap } from '../constants/colors';
-import { fontStyleMap } from '../constants/fonts';
+import { FONTS, fontStyleMap } from '../constants/fonts';
 import { textSizeStyleMap } from '../constants/textSizes';
 import firebase from '../firebaseConfig';
+import createAlignmentPlugin from 'draft-js-alignment-plugin';
 import createFocusPlugin from 'draft-js-focus-plugin';
 import createResizeablePlugin from 'draft-js-resizeable-plugin';
 import createImagePlugin from 'draft-js-image-plugin';
@@ -16,15 +18,17 @@ import createUnderlinePlugin from "../plugins/underlinePlugin";
 import createEmojiPlugin from 'draft-js-emoji-plugin';
 import linkPlugin from '../plugins/linkPlugin';
 import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
 import 'draft-js/dist/Draft.css';
 import 'draft-js-image-plugin/lib/plugin.css';
 import { Link} from 'react-router-dom';
 import ReactLoading from 'react-loading';
+import Fade from 'react-reveal/Fade';
 
 const resizeablePlugin = createResizeablePlugin();
+const alignmentPlugin = createAlignmentPlugin();
 const decorator = composeDecorators(
   resizeablePlugin.decorator,
+  alignmentPlugin.decorator,
 );
 const imagePlugin = createImagePlugin({ decorator });
 const underlinePlugin = createUnderlinePlugin();
@@ -38,12 +42,14 @@ const plugins = [
   underlinePlugin,
   emojiPlugin,
   linkPlugin,
-  videoPlugin
+  videoPlugin,
+  alignmentPlugin,
 ];
 
 const STATE_LOADING = 'loading';
 const STATE_AUTH = 'authentication';
 const STATE_FAILED = 'failed';
+const STATE_COVER = 'cover';
 const STATE_LOADED = 'loaded';
 const INCORRECT_CARDID = 'incorrectID';
 
@@ -58,10 +64,13 @@ class ViewerHome extends Component {
       openPasswordDialog: true,
       cardData: {},
       currBGColor: null,
-      currFont: null,
+      currFont: FONTS[0],
       openShareDialog: false,
-      cardKey: window.location.pathname.split("/").slice(-1)[0],
+      openTutorialDialog: false,
+      cardKey: null,
       password: null,
+      currStamp: null,
+      cardImageURL: '/images/card-01.png'
     }
 
     this.onTitleChange = (titleEditorState) => this.setState({titleEditorState});
@@ -70,18 +79,53 @@ class ViewerHome extends Component {
 
   componentDidMount() {
     // read data from database
-    try {
-      firebase.database().ref("/Cards/" + this.state.cardKey).once('value', (snapshot) => {
-        const pulledData = snapshot.val();
-        if (pulledData) {
-          this.setState({cardData: pulledData, status: STATE_AUTH});
-        } else {
-          this.setState({status: INCORRECT_CARDID});
-        }
-      });
-    } catch (err) {
-      this.setState({status: INCORRECT_CARDID})
-      console.log(err);
+    this.checkURLValidity();
+  }
+
+  openTutorialDialog = (e) => {
+    e.preventDefault();
+    this.setState({openTutorialDialog: true});
+  }
+
+  checkURLValidity = () => {
+    if ((window.location.pathname.match(/\//g)||[]).length > 2) {
+      let tokens = window.location.pathname.split("/");
+      let possiblePassword = tokens[tokens.length-1];
+      let possibleKey = tokens[tokens.length-2];
+      try {
+        firebase.database().ref("/Cards/" + possibleKey).once('value', (snapshot) => {
+          const pulledData = snapshot.val();
+          if (pulledData) {
+            if (pulledData['password'] === possiblePassword) {
+              this.setState({cardData: pulledData, cardKey: possibleKey});
+              this.handleCorrectPassword();
+            } else {
+              this.setState({status: INCORRECT_CARDID});
+            }
+          } else {
+            this.setState({status: INCORRECT_CARDID});
+          }
+        });
+      } catch (err) {
+        this.setState({status: INCORRECT_CARDID})
+        console.log(err);
+      }
+    } else {
+      let tokens = window.location.pathname.split("/");
+      let possibleKey = tokens[tokens.length-1];
+      try {
+        firebase.database().ref("/Cards/" + possibleKey).once('value', (snapshot) => {
+          const pulledData = snapshot.val();
+          if (pulledData) {
+            this.setState({cardData: pulledData, status: STATE_AUTH, cardKey: possibleKey});
+          } else {
+            this.setState({status: INCORRECT_CARDID});
+          }
+        });
+      } catch (err) {
+        this.setState({status: INCORRECT_CARDID})
+        console.log(err);
+      }
     }
   }
 
@@ -93,10 +137,11 @@ class ViewerHome extends Component {
       editorState: EditorState.createWithContent(contentState),
       titleEditorState: EditorState.createWithContent(titleContentState),
       openPasswordDialog: false,
-      status: STATE_LOADED,
+      status: STATE_COVER,
       currBGColor: this.state.cardData['bgColor'],
-      currFont: this.state.cardData['font'],
+      // currFont: this.state.cardData['font'],
       password: this.state.cardData['password'],
+      currStamp: this.state.cardData['stampURL'] ? this.state.cardData['stampURL'] : '/stamps/stamp-2-01.png'
     });
   }
 
@@ -124,7 +169,7 @@ class ViewerHome extends Component {
   }
 
   render() {
-    if (this.state.status == STATE_LOADED) {
+    if (this.state.status === STATE_LOADED) {
       return (
         <div className="container">
           <ShareDialog
@@ -133,15 +178,19 @@ class ViewerHome extends Component {
             cardKey={this.state.cardKey}
             password={this.state.password}
           />
+          <TutorialDialog
+            open={this.state.openTutorialDialog}
+            close={() => {this.setState({openTutorialDialog: false})}}
+          />
           <Link style={{textDecoration: 'none'}} to="/">
             <p className="logo">Capsule</p>
           </Link>
-          <div className="navbar">
+          <div className="navbar" style={{marginBottom: 20}}>
             <Link to="/editor">
               <button style={{backgroundColor: this.state.currBGColor.value}} className="newCardButton mainBGColor">New Card</button>
             </Link>
-            {/*<button className="tutorialButton mainBGColor" style={{backgroundColor: this.state.currBGColor.value}}  onMouseDown={() => {this.saveCard()}}>Save</button>*/}
-            <button className="shareButton mainBGColor" style={{backgroundColor: this.state.currBGColor.value}}  onMouseDown={() => {this.shareCard()}}>Share</button>
+            <button className="tutorialButton" style={{backgroundColor: this.state.currBGColor.value}} onMouseDown={(e) => {this.openTutorialDialog(e)}}>Tutorial</button>
+            <button className="shareButton mainBGColor" style={{backgroundColor: this.state.currBGColor.value}}  onMouseDown={() => {this.shareCard()}}>Send</button>
           </div>
           <div style={{clear: 'both'}}/>
           <div className="titleTextArea mainFGColor" style={{fontFamily: this.state.currFont.value}}>
@@ -150,7 +199,7 @@ class ViewerHome extends Component {
               onChange={this.onTitleChange}
               readOnly={true}
               blockStyleFn={Utils.getBlockStyle}
-              customStyleMap={{...textColorStyleMap }}
+              customStyleMap={{...textColorStyleMap, ...fontStyleMap }}
             />
           </div>
           <div id="editor" className="contentTextArea mainFGColor" style={{fontFamily: this.state.currFont.value}}>
@@ -166,7 +215,7 @@ class ViewerHome extends Component {
           </div>
         </div>
       )
-    } else if (this.state.status == STATE_AUTH) {
+    } else if (this.state.status === STATE_AUTH) {
       return (
         <PasswordDialog
           open={this.state.openPasswordDialog}
@@ -175,11 +224,26 @@ class ViewerHome extends Component {
           handleCorrectPassword={this.handleCorrectPassword}
         />
       )
-    } else if (this.state.status == STATE_FAILED) {
+    } else if (this.state.status === STATE_COVER) {
+      return (
+          <div className="cardImageContainer"
+            style={{backgroundImage: `url(${this.state.cardImageURL})`}}
+          >
+            <div className="openCardContainer"
+              onMouseEnter={() => {this.setState({cardImageURL: '/images/card-open-01.png'})}}
+              onMouseLeave={() => {this.setState({cardImageURL: '/images/card-01.png'})}}
+              onMouseDown={() => {this.setState({status: STATE_LOADED})}}
+            />
+            <img src={"/images/card-open-01.png"} style={{visibility: 'hidden', display: 'none'}}/>
+            <img className="stampAnimation" src={this.state.currStamp}/>
+            {/*<p className="warningMessage mainFGColor mainBGColor stampAnimationText" style={{color: "#39b287", fontWeight: 'bold'}}>Click stamp to open Capsule.</p>*/}
+          </div>
+      )
+    } else if (this.state.status === STATE_FAILED) {
       return (
         <div className="container" style={{textAlign: 'center'}}>
           <div className="warningContainer">
-            <img className="centerIcons" src={"../images/password-icon-01.png"} />
+            <img className="centerIcons" src={"/images/password-icon-01.png"} />
             <p className="warningMessage mainFGColor mainBGColor" style={{color: "#39b287", fontWeight: 'bold'}}>Forgot the password?</p>
             <p className="warningMessage">Please check with the person who sent you the letter.</p>
             <Link style={{textDecoration: 'none'}} to={"/"}>
@@ -190,14 +254,14 @@ class ViewerHome extends Component {
           </div>
         </div>
       )
-    } else if (this.state.status == INCORRECT_CARDID) {
+    } else if (this.state.status === INCORRECT_CARDID) {
       return (
         <div className="container" style={{textAlign: 'center'}}>
           <div className="warningContainer">
-            <img className="centerIcons" src={"../images/sad-icon-01.png"} />
+            <img className="centerIcons" src={"/images/sad-icon-01.png"} />
             <p className="warningMessage mainFGColor mainBGColor" style={{color: "#39b287", fontWeight: 'bold'}}>Card could not be found.</p>
             <p className="warningMessage mainFGColor mainBGColor">Please check the card link. It should look something like this:</p>
-            <a className="link" style={{cursor: 'text'}}>projectcapsule.me/cards/-LjKneE4dVD</a>
+            <a className="link" style={{cursor: 'text'}}>projectcapsule.me/cards/-LjKneE4dVD/s3932jfd</a>
             <Link style={{textDecoration: 'none'}} to={"/"}>
               <div className="dialogButton" style={{margin: '0px auto', marginTop: 30}}>
                 <p>Go Home</p>
@@ -206,7 +270,7 @@ class ViewerHome extends Component {
           </div>
         </div>
       )
-    } else if (this.state.status == STATE_LOADING) {
+    } else if (this.state.status === STATE_LOADING) {
       return (
         <div className="container" style={{textAlign: 'center'}}>
           <div className="warningContainer">

@@ -6,19 +6,35 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Slide from '@material-ui/core/Slide';
+import ReactPlayer from 'react-player'
+import ReactLoading from 'react-loading';
+
+const hiddenDivStyle = {
+  display: 'none',
+  visibility: 'hidden'
+}
 
 class FirstStep extends Component {
   constructor(props) {
     super(props);
+    this.state = {
+      videoLoaded: false
+    }
   }
   render() {
     return (
       <div className="dialogContent">
         <p className="tutorialTitle">{"Write and style."}</p>
         <div className="tutorialVideoContainer">
-          <video className="tutorialVideo" autoPlay loop playsInline>
-            <source src={"/videos/text-styling.mp4"} type={"video/mp4"} />
-          </video>
+          <div style={this.state.videoLoaded ? {} : {display: 'none', visibility: 'hidden'}}>
+            <ReactPlayer url='/videos/text-styling.mp4' loop playing controls={false} width={"100%"} onReady={() => {this.setState({videoLoaded: true})}} />
+          </div>
+          <div>
+            <div style={{width: "10%", margin: "0px auto", display: 'block', marginTop: 100}}>
+              <ReactLoading type={"bubbles"} color="#39b287" height={'100%'} width={'100%'} />
+            </div>
+            <p className="warningMessage" style={{textAlign: 'center', color: "#39b287"}}>Loading video.</p>
+          </div>
         </div>
         <div className="dialogButton" style={{float: 'right', marginTop: 10}} onMouseDown={this.props.nextTutorialStep}>
           <p>Next</p>
@@ -32,15 +48,24 @@ class FirstStep extends Component {
 class SecondStep extends Component {
   constructor(props) {
     super(props);
+    this.state = {
+      videoLoaded: false
+    }
   }
   render() {
     return (
       <div className="dialogContent">
         <p className="tutorialTitle">{"Show memorable photos and videos."}</p>
         <div className="tutorialVideoContainer">
-          <video className="tutorialVideo" autoPlay loop playsInline>
-            <source src={"/videos/insert-image.mp4"} type={"video/mp4"} />
-          </video>
+          <div style={this.state.videoLoaded ? {} : {display: 'none', visibility: 'hidden'}}>
+            <ReactPlayer url='/videos/insert-image.mp4' loop playing controls={false} width={"100%"} onReady={() => {this.setState({videoLoaded: true})}} />
+          </div>
+          <div>
+            <div style={{width: "10%", margin: "0px auto", display: 'block', marginTop: 100}}>
+              <ReactLoading type={"bubbles"} color="#39b287" height={'100%'} width={'100%'} />
+            </div>
+            <p className="warningMessage" style={{textAlign: 'center', color: "#39b287"}}>Loading video.</p>
+          </div>
         </div>
         <div className="dialogButton" style={{float: 'left', marginTop: 10}} onMouseDown={this.props.prevTutorialStep}>
           <p>Prev</p>
@@ -57,15 +82,25 @@ class SecondStep extends Component {
 class ThirdStep extends Component {
   constructor(props) {
     super(props);
+    this.state = {
+      videoLoaded: false
+    }
   }
+
   render() {
     return (
       <div className="dialogContent">
         <p className="tutorialTitle">{"Send your card."}</p>
         <div className="tutorialVideoContainer">
-          <video className="tutorialVideo" autoPlay loop playsInline>
-            <source src={"/videos/share.mp4"} type={"video/mp4"} />
-          </video>
+          <div style={this.state.videoLoaded ? {} : {display: 'none', visibility: 'hidden'}}>
+            <ReactPlayer url='/videos/share.mp4' loop playing controls={false} width={"90%"} onReady={() => {this.setState({videoLoaded: true})}} />
+          </div>
+          <div>
+            <div style={{width: "10%", margin: "0px auto", display: 'block', marginTop: 100}}>
+              <ReactLoading type={"bubbles"} color="#39b287" height={'100%'} width={'100%'} />
+            </div>
+            <p className="warningMessage" style={{textAlign: 'center', color: "#39b287"}}>Loading video.</p>
+          </div>
         </div>
         <div className="dialogButton" style={{float: 'left', marginTop: 10}} onMouseDown={this.props.prevTutorialStep}>
           <p>Prev</p>

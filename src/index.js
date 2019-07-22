@@ -8,6 +8,7 @@ import NotFoundPage from './components/NotFoundPage';
 import CollaborateHome from './components/CollaborateHome';
 import FeedbackHome from './components/FeedbackHome';
 import TestingHome from './components/TestingHome';
+import PatchNotesHome from './components/PatchNotesHome';
 import { Route, Switch, Link, BrowserRouter as Router } from 'react-router-dom'
 import * as serviceWorker from './serviceWorker';
 
@@ -21,6 +22,7 @@ const routing = (
         <Route path="/collaborate" component={CollaborateHome} />
         <Route path="/feedback" component={FeedbackHome} />
         <Route path="/testing" component={TestingHome} />
+        <Route path="/patchnotes" component={PatchNotesHome} />
         <Route component={NotFoundPage} />
       </Switch>
     </div>

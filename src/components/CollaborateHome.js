@@ -4,6 +4,8 @@ import firebase from 'firebase';
 import {ErrorSendingFeedback, IncorrectHexColor} from '../constants/notifications';
 import { ToastContainer, toast, Slide, Zoom, Flip, Bounce } from 'react-toastify';
 import {GENERAL, CARDCOLOR, TEXTCOLOR, STICKERS, FONT, FeedbackOptions} from '../constants/feedback';
+import autosize from 'autosize';
+
 toast.configure({
   position: "bottom-right",
   autoClose: 5000,
@@ -28,6 +30,7 @@ class CollaborateHome extends Component {
   }
 
   componentDidMount() {
+    autosize(document.querySelectorAll('textarea'));
     firebase.database().ref("/Constants/").once('value', (snapshot) => {
       const pulledData = snapshot.val();
       if (pulledData) {
@@ -74,17 +77,17 @@ class CollaborateHome extends Component {
 
   render() {
     return (
-      <div className="container">
+      <div className="container nonEditorContainer">
         <Link style={{textDecoration: 'none'}} to="/">
           <p className="logo">Capsule</p>
         </Link>
         <div style={{clear: 'both'}}/>
-        <p className="logo">Collaborate</p>
-        <p className="logoSubtext" style={{lineHeight: "180%"}}>Help Capsule improve by providing feedback and suggestions. Suggestions can range from new styling options to overall criticism of Capsule. Styling options can range from new card background colors, sticker sets, fonts, and more!</p>
+        <p className="sectionHeader">Collaborate</p>
+        <p className="logoSubtext" style={{lineHeight: "180%", fontSize: 18}}>Help Capsule improve by providing feedback and suggestions. Suggestions can range from new styling options to overall criticism of Capsule. Styling options can range from new card background colors, sticker sets, fonts, and more!</p>
         {
           this.state.feedbackSubmitted ? (
             <div style={{textAlign: 'center'}}>
-              <img className="centerIcons" style={{marginTop: 50}} src={"../images/feedback-01.png"} />
+              <img className="centerIcons" style={{marginTop: 50}} src={"/images/feedback-01.png"} />
               <p className="warningMessage mainFGColor mainBGColor" style={{color: "#39b287", fontWeight: 'bold'}}>Thank you for your feedback.</p>
               <p className="warningMessage">There are currently {this.state.queueLength} suggestions in the queue.</p>
             </div>
@@ -167,14 +170,14 @@ class CollaborateHome extends Component {
                 this.state.currSender !== "" && this.state.currText !== "" ? (
                   <div
                     className="dialogButton"
-                    style={{display: 'block', margin: "0px auto", marginTop: 10}}
+                    style={{marginTop: 20, marginBottom: 40}}
                     onMouseDown={this.handleSubmitFeedback}>
                     <p>Submit</p>
                   </div>
                 ) : (
                   <div
                     className="dialogButton"
-                    style={{display: 'block', margin: "0px auto", marginTop: 10, border: "2px solid #333333", pointerEvents: 'none'}}>
+                    style={{marginTop: 20, marginBottom: 40, border: "2px solid #333333", pointerEvents: 'none'}}>
                     <p style={{color: "#333333"}}>Submit</p>
                   </div>
                 )

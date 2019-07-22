@@ -40,7 +40,7 @@ class Utils {
   }
 
   static getBaseURL() {
-    return "projectcapsule.me";
+    return "https://projectcapsule.me";
   }
 }
 

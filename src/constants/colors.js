@@ -14,9 +14,9 @@ export const HIGHLIGHT_COLORS = [
 
 export const BACKGROUND_COLORS = [
   {label: 'Grey', value: "#3e3e3e"},
-  {label: 'Red', value: "#a3243d"},
-  {label: 'Purple', value: "#5e269e"},
-  {label: 'Brown', value: "#7f644c"}
+  {label: 'Red', value: "#352d2d"},
+  {label: 'Purple', value: "#38313d"},
+  {label: 'Blue', value: "#2e3738"}
 ];
 
 function textColorsToObject(arr) {

@@ -12,6 +12,15 @@ const STICKERS = [
       {name: "ToTheRescue", url: "/stickers/penguin_set/to-the-rescue-01.png"},
     ]
   },
+  {
+    setName: 'Kami',
+    stickers: [
+      {name: "GiveMeFood", url: "/stickers/kami_set/food-please-01.png"},
+      {name: "Heh", url: "/stickers/kami_set/heh-01.png"},
+      {name: "PrettyPlease", url: "/stickers/kami_set/pretty-please-01.png"},
+      {name: "ZZZ", url: "/stickers/kami_set/zzz-01.png"},
+    ]
+  },
 ];
 const BULLET_TOOLS = ["bulletpoint"];
 const ALIGN_TOOLS = ["align-left", "align-center", "align-right", "align-justify"];
@@ -72,24 +81,21 @@ class CustomTextTools extends Component {
 
   getCurrentFont = () => {
     // Apply only to some text (selection)
-    // let currFont = this.props.props.defaultFont;
-    // let filteredFont = this.props.props.fonts.filter(f => { return this.props.props.editorState.getCurrentInlineStyle().has(f.style) });
-    // if (filteredFont.length > 0) { currFont = filteredFont[0]; }
-    // return currFont;
+    let currFont = this.props.props.defaultFont;
+    let currentEditorState = this.props.props.titleOnFocus ? this.props.props.titleEditorState : this.props.props.editorState;
+    let filteredFont = this.props.props.fonts.filter(f => { return currentEditorState.getCurrentInlineStyle().has(f.style) });
+    if (filteredFont.length > 0) { currFont = filteredFont[0]; }
+    return currFont;
 
     // Apply globally
-    return this.props.props.currFont;
+    // return this.props.props.currFont;
   }
 
   getCurrentTextColor = () => {
     let currTextColor = this.props.props.defaultTextColor;
-    if (this.props.props.titleOnFocus) {
-      let filteredTextColor = this.props.props.textColors.filter(c => { return this.props.props.titleEditorState.getCurrentInlineStyle().has(c.style) });
-      if (filteredTextColor.length > 0) { currTextColor = filteredTextColor[0]; }
-    } else {
-      let filteredTextColor = this.props.props.textColors.filter(c => { return this.props.props.editorState.getCurrentInlineStyle().has(c.style) });
-      if (filteredTextColor.length > 0) { currTextColor = filteredTextColor[0]; }
-    }
+    let currentEditorState = this.props.props.titleOnFocus ? this.props.props.titleEditorState : this.props.props.editorState;
+    let filteredTextColor = this.props.props.textColors.filter(c => { return currentEditorState.getCurrentInlineStyle().has(c.style) });
+    if (filteredTextColor.length > 0) { currTextColor = filteredTextColor[0]; }
     return currTextColor;
   }
 
@@ -110,7 +116,7 @@ class CustomTextTools extends Component {
   getCurrentPreviewText= () => {
     let currMaxTextSize = this.state.currHoverTextSize.maxPreviewLength;
     let previewText = "Preview";
-    let editorState = this.props.props.editorState;
+    let editorState = this.props.props.titleOnFocus ? this.props.props.titleEditorState : this.props.props.editorState;
     let selectionState = editorState.getSelection();
     let anchorKey = selectionState.getAnchorKey();
     let currContent = editorState.getCurrentContent();

@@ -16,7 +16,7 @@ class FirstStep extends Component {
     return (
       <div className="dialogContent">
         <p className="tutorialTitle">{"Welcome to Capsule."}</p>
-        <p className="dialogText">Thank you for taking your time to test this application. Please feel free to be critical and pin points features that are counterintuitive, uncomfortable, or even useless. No hurt feelings!</p>
+        <p className="dialogText">Thank you for taking the time to test this application. Please feel free to be critical and pinpoint features that are counterintuitive, uncomfortable, or even useless. No hurt feelings!</p>
         <div className="dialogButton" style={{float: 'right', marginTop: 10}} onMouseDown={this.props.nextTutorialStep}>
           <p>Next</p>
         </div>
@@ -34,7 +34,7 @@ class SecondStep extends Component {
     return (
       <div className="dialogContent">
         <p className="tutorialTitle">{"Your task."}</p>
-        <p className="dialogText">Your goal is to write a capsule card to the developer of the application delineating what you like, dislike, or wish Capsule would offer. Feel free to keep it short!</p>
+        <p className="dialogText">Your goal is to write a Capsule card to the developer of the application delineating what you like, dislike, or wish Capsule would offer. Feel free to keep it short!</p>
         <div className="dialogButton" style={{float: 'left', marginTop: 10}} onMouseDown={this.props.prevTutorialStep}>
           <p>Prev</p>
         </div>

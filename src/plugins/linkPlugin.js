@@ -25,7 +25,7 @@ export const Link = props => {
 	return (
 		<a
 			className="link"
-			onClick={() => {Utils.openInNewTab(url)}}
+			onClick={() => {Utils.openInNewTab(url.includes('https://') ? url : "https://" + url)}}
 			rel="noopener noreferrer"
 			target="_blank"
 			aria-label={url}

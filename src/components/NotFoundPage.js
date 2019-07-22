@@ -11,7 +11,7 @@ class NotFoundPage extends Component {
     return (
       <div className="container" style={{textAlign: 'center'}}>
         <div className="warningContainer">
-          <img className="centerIcons" src={"../images/404-icon-01.png"} />
+          <img className="centerIcons" src={"/images/404-icon-01.png"} />
           <p className="warningMessage mainFGColor mainBGColor" style={{color: "#39b287", fontWeight: 'bold'}}>Oops! This page does not exist.</p>
           <p className="warningMessage">We can help by redirecting you home.</p>
           <Link style={{textDecoration: 'none'}} to={"/"}>

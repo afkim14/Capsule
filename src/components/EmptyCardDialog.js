@@ -11,7 +11,7 @@ const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
 
-class NewCardDialog extends Component {
+class EmptyCardDialog extends Component {
   constructor(props) {
     super(props);
     this.state = {}
@@ -43,10 +43,10 @@ class NewCardDialog extends Component {
             </DialogContent>
           </div>
           <DialogActions>
-            <div className="declineButton" onMouseDown={this.props.handleCancelNewCard}>
+            <div className="declineButton" onMouseDown={this.props.handleCancel}>
               <p>No</p>
             </div>
-            <div className="dialogButton" onMouseDown={this.props.handleAcceptNewCard}>
+            <div className="dialogButton" onMouseDown={this.props.handleAccept}>
               <p>Yes</p>
             </div>
           </DialogActions>
@@ -56,4 +56,4 @@ class NewCardDialog extends Component {
   }
 }
 
-export default NewCardDialog;
+export default EmptyCardDialog;

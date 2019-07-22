@@ -9,15 +9,18 @@ import { FONTS, fontStyleMap } from '../constants/fonts';
 import { TEXT_SIZES, textSizeStyleMap } from '../constants/textSizes';
 import { TemplateIDs } from '../constants/templates';
 import { NoLinkTextMsg, NoLinkMsg, InvalidImageMsg, InvalidVideoMsg, NoVideoMsg, SucessSharingMsg, ErrorSharingMsg, NoContentToShareMsg, ResizeImageMsg } from '../constants/notifications';
-import NewCardDialog from './NewCardDialog';
+import EmptyCardDialog from './EmptyCardDialog';
 import TutorialDialog from './TutorialDialog';
 import AddPasswordDialog from './AddPasswordDialog';
 import ShareDialog from './ShareDialog';
 import LinkInputDialog from './LinkInputDialog';
 import BrushDialog from './BrushDialog';
+import AddStampDialog from './AddStampDialog';
+import PreviewDialog from './PreviewDialog';
 import createStyles from 'draft-js-custom-styles';
 import createFocusPlugin from 'draft-js-focus-plugin';
 import createImagePlugin from 'draft-js-image-plugin';
+import createAlignmentPlugin from 'draft-js-alignment-plugin';
 import createVideoPlugin from 'draft-js-video-plugin';
 import createResizeablePlugin from 'draft-js-resizeable-plugin';
 import createUnderlinePlugin from "../plugins/underlinePlugin";
@@ -27,12 +30,14 @@ import linkPlugin from '../plugins/linkPlugin';
 import Sticky from 'react-sticky-el';
 import 'draft-js/dist/Draft.css';
 import 'draft-js-image-plugin/lib/plugin.css';
+import 'draft-js-alignment-plugin/lib/plugin.css';
 import autosize from 'autosize';
 import $ from 'jquery';
 import { ToastContainer, toast, Slide, Zoom, Flip, Bounce } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import '../styles/customToastifyStyle.css';
-import { Link} from 'react-router-dom'
+import '../styles/customAlignmentStyle.css';
+import { Link, Redirect } from 'react-router-dom'
 import firebase from 'firebase';
 import SignatureCanvas from 'react-signature-canvas';
 import ReactLoading from 'react-loading';
@@ -53,9 +58,12 @@ const password = require('secure-random-password');
 // const { styles, customStyleFn, exporter } = createStyles(['font-size', 'color', 'text-transform'], 'CUSTOM_', fontStyleMap);
 const resizeablePlugin = createResizeablePlugin();
 const focusPlugin = createFocusPlugin();
+const alignmentPlugin = createAlignmentPlugin();
+const { AlignmentTool } = alignmentPlugin;
 const decorator = composeDecorators(
   resizeablePlugin.decorator,
-  focusPlugin.decorator
+  focusPlugin.decorator,
+  alignmentPlugin.decorator,
 );
 const imagePlugin = createImagePlugin({ decorator });
 const underlinePlugin = createUnderlinePlugin();
@@ -68,11 +76,12 @@ const { types } = videoPlugin;
 const { EmojiSuggestions, EmojiSelect } = emojiPlugin;
 const singleLinePlugin = createSingleLinePlugin();
 const titlePlugins = [
-  singleLinePlugin
+  // singleLinePlugin
 ];
 const plugins = [
   resizeablePlugin,
   focusPlugin,
+  alignmentPlugin,
   imagePlugin,
   underlinePlugin,
   emojiPlugin,
@@ -82,6 +91,7 @@ const plugins = [
 
 const STATE_LOADING = 'loading';
 const STATE_LOADED = 'loaded';
+const STATE_REDIRECTHOME = 'redirectHome';
 const mainBGColor = BACKGROUND_COLORS[0];
 let keyHistory = [{shift: false, value: " "}, {shift: false, value: " "}];
 
@@ -94,6 +104,7 @@ class EditorHome extends Component {
       titleOnFocus: false,
       titlePlaceholder: TITLE_PLACEHOLDERS[Math.floor(Math.random() * TITLE_PLACEHOLDERS.length)],
       bodyPlaceholder: BODY_PLACEHOLDERS[Math.floor(Math.random() * BODY_PLACEHOLDERS.length)],
+      bodyOnFocus: false,
       defaultAlignment: "align-left",
       defaultFont: FONTS[0],
       currFont: FONTS[0],
@@ -105,12 +116,16 @@ class EditorHome extends Component {
       showToolbar: true,
       titleEditorState: EditorState.createEmpty(),
       editorState: EditorState.createEmpty(),
-      openNewCardDialog: false,
+      emptyCardCallback: null,
+      openEmptyCardDialog: false,
       openTutorialDialog: false,
       openShareDialog: false,
       openLinkInputDialog: false,
       openAddPasswordDialog: false,
       openBrushDialog: false,
+      openAddStampDialog: false,
+      openPreviewDialog: false,
+      currSelectedStamp: null,
       firstImageInserted: false,
 
       cardKey: null,
@@ -124,7 +139,6 @@ class EditorHome extends Component {
   }
 
   componentDidMount() {
-    document.addEventListener("keydown", this.handleKeyDown);
     autosize(document.querySelectorAll('textarea'));
     let cardKey = window.location.pathname.split("/").slice(-1)[0];
     if (cardKey != "editor") {
@@ -141,7 +155,6 @@ class EditorHome extends Component {
               titleEditorState: EditorState.createWithContent(titleContentState),
               currBGColor: pulledData['bgColor'],
               defaultHighlightColor: pulledData['bgColor'],
-              currFont: pulledData['font'],
               status: STATE_LOADED
             });
           } else {
@@ -158,31 +171,41 @@ class EditorHome extends Component {
     document.getElementsByTagName("html")[0].setAttribute("style", "background-color: " + this.state.currBGColor.value + ";");
   }
 
+  emptyCard = (e) => {
+    e.preventDefault();
+    const titleContent = this.state.titleEditorState.getCurrentContent();
+    const isTitleEmpty = !titleContent.hasText();
+    const content = this.state.editorState.getCurrentContent();
+    const isEditorEmpty = !content.hasText();
+    if (!isEditorEmpty || !isTitleEmpty) {
+      this.setState({openEmptyCardDialog: true, emptyCardCallback: () => {this.newCard()}});
+    }
+  }
+
+  goHome = () => {
+    const titleContent = this.state.titleEditorState.getCurrentContent();
+    const isTitleEmpty = !titleContent.hasText();
+    const content = this.state.editorState.getCurrentContent();
+    const isEditorEmpty = !content.hasText();
+    if (!isEditorEmpty || !isTitleEmpty) {
+      this.setState({openEmptyCardDialog: true, emptyCardCallback: () => {this.setState({status: STATE_REDIRECTHOME, openEmptyCardDialog: false})}});
+    } else {
+      this.setState({status: STATE_REDIRECTHOME});
+    }
+  }
+
   newCard = () => {
     const titleEditorState = EditorState.push(this.state.titleEditorState, ContentState.createFromText(''));
     const editorState = EditorState.push(this.state.editorState, ContentState.createFromText(''));
     document.getElementsByTagName("html")[0].setAttribute("style", "background-color: " + mainBGColor.value + ";");
     this.setState({
-      openNewCardDialog: false,
+      openEmptyCardDialog: false,
       titleEditorState,
       editorState,
       currBGColor: mainBGColor,
       defaultHighlightColor: mainBGColor,
       currFont: this.state.defaultFont,
     });
-  }
-
-  openPasswordDialog = (e) => {
-    e.preventDefault();
-    const titleContent = this.state.editorState.getCurrentContent();
-    const isTitleEmpty = !titleContent.hasText();
-    const content = this.state.editorState.getCurrentContent();
-    const isEditorEmpty = !content.hasText();
-    if (!isEditorEmpty && !isTitleEmpty) {
-      this.setState({openAddPasswordDialog: true});
-    } else {
-      toast.error(<NoContentToShareMsg />);
-    }
   }
 
   shareCard = (password, callback) => {
@@ -196,7 +219,8 @@ class EditorHome extends Component {
       data: rawDraftContentState,
       password: password,
       bgColor: this.state.currBGColor,
-      font: this.state.currFont
+      // font: this.state.currFont,
+      stampURL: this.state.currSelectedStamp.src
     }
 
     firebase.app().database().ref('/Cards/').push({
@@ -207,17 +231,18 @@ class EditorHome extends Component {
     }).catch((error) => {
       toast.error(<ErrorSharingMsg />);
     });
-
   }
 
-  openNewCardDialog = (e) => {
+  openPreview = (e) => {
     e.preventDefault();
-    const titleContent = this.state.titleEditorState.getCurrentContent();
+    const titleContent = this.state.editorState.getCurrentContent();
     const isTitleEmpty = !titleContent.hasText();
     const content = this.state.editorState.getCurrentContent();
     const isEditorEmpty = !content.hasText();
-    if (!isEditorEmpty || !isTitleEmpty) {
-      this.setState({openNewCardDialog: true});
+    if (!isEditorEmpty && !isTitleEmpty) {
+      this.setState({openPreviewDialog: true});
+    } else {
+      toast.error(<NoContentToShareMsg />);
     }
   }
 
@@ -227,17 +252,53 @@ class EditorHome extends Component {
   }
 
   openLinkInputDialog = (tool) => {
+    const editorState = this.state.editorState;
+    const selection = editorState.getSelection();
+    const content = editorState.getCurrentContent();
+    if (selection.isCollapsed() && tool === 'link') {
+      this.onChange(EditorState.forceSelection(editorState, selection));
+      toast.info(<NoLinkTextMsg />);
+      return;
+    }
+
     this.setState({openLinkInputDialog: true, currLinkTool: tool});
   }
 
-  handleKeyDown = (event) => {
-    switch( event.keyCode ) {
-      case 8: // BACKSPACE_KEY
-          this.handleTextDelete();
-          break;
-      default:
-          break;
+  openAddStampDialog = (e) => {
+    const titleContent = this.state.editorState.getCurrentContent();
+    const isTitleEmpty = !titleContent.hasText();
+    const content = this.state.editorState.getCurrentContent();
+    const isEditorEmpty = !content.hasText();
+    if (!isEditorEmpty && !isTitleEmpty) {
+      this.setState({openAddStampDialog: true});
+    } else {
+      toast.error(<NoContentToShareMsg />);
     }
+  }
+
+  confirmStamp = (stamp) => {
+    this.setState({currSelectedStamp: stamp, openAddStampDialog: false, openAddPasswordDialog: true});
+  }
+
+  titleKeyBindingFn = (e) => {
+    if (e.keyCode === 13) {
+      return 'focus-body'
+    }
+    return getDefaultKeyBinding(e);
+  }
+
+  handleTitleKeyCommand = (command, editorState) => {
+    if (command === 'focus-body') {
+      this.focus();
+      return 'handled';
+    }
+
+    const newState = RichUtils.handleKeyCommand(editorState, command);
+    if (newState) {
+      this.onChange(newState);
+      return 'handled';
+    }
+    return 'not-handled';
   }
 
   myKeyBindingFn = (e) => {
@@ -279,11 +340,32 @@ class EditorHome extends Component {
         var start = newSelection.getStartOffset();
         var end = newSelection.getEndOffset();
         var selectedText = currContentBlock.getText().slice(start, end);
-        if (currContentBlockType != "unordered-list-item" && currContentBlockDepth == 0 && selectedText === "-" || selectedText ==="*") {
+        if (currContentBlockType != "unordered-list-item" && currContentBlockDepth == 0 && selectedText[0] === "-" || selectedText[0] ==="*") {
           return 'list'
         }
       }
+    } else if (e.keyCode === 13 /* ENTER */) {
+      let editorState = this.state.editorState;
+      let selectionState = editorState.getSelection();
+      let anchorKey = selectionState.getAnchorKey();
+      let currContent = editorState.getCurrentContent();
+      let currContentBlock = currContent.getBlockForKey(anchorKey);
+      let currContentBlockType = currContentBlock.getType();
+      let currContentBlockDepth = currContentBlock.getDepth();
+      let newSelection = new SelectionState({
+        anchorKey: anchorKey,
+        anchorOffset: 0,
+        focusKey: anchorKey,
+        focusOffset: currContentBlock.getLength()
+      });
+      var start = newSelection.getStartOffset();
+      var end = newSelection.getEndOffset();
+      var selectedText = currContentBlock.getText().slice(start, end);
+      if (selectedText.length === 0 && currContentBlockType === 'unordered-list-item') {
+        return 'remove-bulletpoint'
+      }
     }
+
     return getDefaultKeyBinding(e);
   }
 
@@ -309,7 +391,7 @@ class EditorHome extends Component {
         anchorKey: anchorKey,
         anchorOffset: 0,
         focusKey: anchorKey,
-        focusOffset: currentContentBlock.getLength()
+        focusOffset: 1
       });
       let nextContentState = Modifier.replaceText(currContent, newSelection, "");
       let nextEditorState = EditorState.push(
@@ -322,7 +404,19 @@ class EditorHome extends Component {
         'unordered-list-item'
       );
 
+      newSelection = new SelectionState({
+        anchorKey: anchorKey,
+        anchorOffset: 0,
+        focusKey: anchorKey,
+        focusOffset: 0
+      });
       this.onChange(EditorState.forceSelection(newEditorState, newSelection));
+      return 'handled';
+    } else if (command === "remove-bulletpoint") {
+      this.onChange(RichUtils.toggleBlockType(
+        this.state.editorState,
+        'unstyled'
+      ));
       return 'handled';
     }
 
@@ -332,18 +426,8 @@ class EditorHome extends Component {
       this.onChange(newState);
       return 'handled';
     }
-    return 'not-handled';
-  }
 
-  handleTextDelete = () => {
-    const content = this.state.editorState.getCurrentContent();
-    const isEditorEmpty = !content.hasText();
-    if (isEditorEmpty) {
-      this.onChange(RichUtils.toggleBlockType(
-        this.state.editorState,
-        this.state.defaultAlignment
-      ));
-    }
+    return 'not-handled';
   }
 
   handleTextToggleChange = (textTool) => {
@@ -454,10 +538,10 @@ class EditorHome extends Component {
 
   handleFontTool = (font) => {
     // Apply only to some text (selection)
-    //this.handleCustomTextChange(fontStyleMap, font);
+    this.handleCustomTextChange(fontStyleMap, font);
 
     // Apply globally
-    this.setState({currFont: font});
+    // this.setState({currFont: font});
     //this.handleGlobalTextChange(fontStyleMap, font);
   }
 
@@ -556,17 +640,10 @@ class EditorHome extends Component {
   }
 
   handleLinkTool = (link) => {
-    this.setState({openLinkInputDialog: false});
     const editorState = this.state.editorState;
     const selection = editorState.getSelection();
     const content = editorState.getCurrentContent();
-
-    if (selection.isCollapsed()) {
-      this.onChange(EditorState.forceSelection(editorState, selection));
-      toast.info(<NoLinkTextMsg />);
-      return;
-    }
-
+    this.setState({openLinkInputDialog: false});
     if (link === null) {
       this.onChange(EditorState.forceSelection(editorState, selection));
       return;
@@ -604,15 +681,20 @@ class EditorHome extends Component {
             </div>
           </div>
           <div className="container desktopContainer">
-            <NewCardDialog
-              open={this.state.openNewCardDialog}
-              close={() => {this.setState({openNewCardDialog: false})}}
-              handleCancelNewCard={() => {this.setState({openNewCardDialog: false})}}
-              handleAcceptNewCard={() => {this.newCard()}}
+            <EmptyCardDialog
+              open={this.state.openEmptyCardDialog}
+              close={() => {this.setState({openEmptyCardDialog: false})}}
+              handleCancel={() => {this.setState({openEmptyCardDialog: false})}}
+              handleAccept={() => {this.state.emptyCardCallback()}}
             />
             <TutorialDialog
               open={this.state.openTutorialDialog}
               close={() => {this.setState({openTutorialDialog: false})}}
+            />
+            <AddStampDialog
+              open={this.state.openAddStampDialog}
+              close={() => {this.setState({openAddStampDialog: false})}}
+              confirmStamp={this.confirmStamp}
             />
             <AddPasswordDialog
               open={this.state.openAddPasswordDialog}
@@ -639,13 +721,19 @@ class EditorHome extends Component {
               handleCancel={()=>{this.setState({openBrushDialog: false})}}
               bgColor={this.state.currBGColor}
             />
-            <Link style={{textDecoration: 'none'}} to="/">
-              <p className="logo">Capsule</p>
-            </Link>
+            <PreviewDialog
+              open={this.state.openPreviewDialog}
+              close={() => this.setState({openPreviewDialog: false})}
+              titleEditorState={this.state.titleEditorState}
+              editorState={this.state.editorState}
+              bgColor={this.state.currBGColor}
+            />
+            <p className="logo" style={{cursor: 'pointer'}} onMouseDown={() => {this.goHome()}}>Capsule</p>
             <div className="navbar">
-              <button className="newCardButton" style={{backgroundColor: this.state.currBGColor.value}} onMouseDown={(e) => {this.openNewCardDialog(e)}}>New Card</button>
+              <button className="newCardButton" style={{backgroundColor: this.state.currBGColor.value}} onMouseDown={(e) => {this.emptyCard(e)}}>New Card</button>
               <button className="tutorialButton" style={{backgroundColor: this.state.currBGColor.value}} onMouseDown={(e) => {this.openTutorialDialog(e)}}>Tutorial</button>
-              <button className="shareButton" style={{backgroundColor: this.state.currBGColor.value}} onMouseDown={(e) => {this.openPasswordDialog(e)}}>Share</button>
+              <button className="previewButton" style={{backgroundColor: this.state.currBGColor.value}} onMouseDown={(e) => {this.openPreview(e)}}>Preview</button>
+              <button className="shareButton" style={{backgroundColor: this.state.currBGColor.value}} onMouseDown={(e) => {this.openAddStampDialog(e)}}>Send</button>
             </div>
             <div style={{clear: 'both'}}/>
             <Sticky style={{position: 'absolute', zIndex: 10}}>
@@ -692,8 +780,10 @@ class EditorHome extends Component {
                 onChange={this.onTitleChange}
                 onBlur={() => {this.setState({titleOnFocus: false})}}
                 onFocus={() => {this.setState({titleOnFocus: true})}}
+                keyBindingFn={this.titleKeyBindingFn}
+                handleKeyCommand={this.handleTitleKeyCommand}
                 blockStyleFn={Utils.getBlockStyle}
-                customStyleMap={{...textColorStyleMap }}
+                customStyleMap={{...textColorStyleMap, ...fontStyleMap }}
                 plugins={titlePlugins}
               />
             </div>
@@ -702,18 +792,26 @@ class EditorHome extends Component {
                 placeholder={this.state.bodyPlaceholder}
                 editorState={this.state.editorState}
                 handleKeyCommand={this.handleKeyCommand}
+                onBlur={() => {this.setState({bodyOnFocus: false})}}
+                onFocus={() => {this.setState({bodyOnFocus: true})}}
                 keyBindingFn={this.myKeyBindingFn}
                 onChange={this.onChange}
                 blockStyleFn={Utils.getBlockStyle}
+                handleDrop={() => 'handled'}
                 ref="editor"
                 plugins={plugins}
                 customStyleMap={{...textColorStyleMap, ...highlightColorStyleMap, ...fontStyleMap, ...textSizeStyleMap }}
               />
               <EmojiSuggestions />
             </div>
+            <AlignmentTool />
             {/*<ReactMarkdown source={this.state.body} />*/}
           </div>
         </div>
+      )
+    } else if (this.state.status === STATE_REDIRECTHOME) {
+      return (
+        <Redirect push to="/" />
       )
     } else {
       return (
