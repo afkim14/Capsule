@@ -88,7 +88,7 @@ class FeedbackHome extends Component {
                   <div key={i}>
                     <p className="logo">{s}</p>
                     {
-                      Object.keys(this.state[s]).map((e, i) => {
+                      Object.keys(this.state[s]).reverse().map((e, i) => {
                         return (
                           <div className="feedbackContainer" key={i}>
                             <p className="feedbackSender">{this.state[s][e].sender}</p>
@@ -110,7 +110,7 @@ class FeedbackHome extends Component {
                   <div key={i}>
                     <p className="logo">{s}</p>
                     {
-                      Object.keys(this.state[s]).map((e, i) => {
+                      Object.keys(this.state[s]).reverse().map((e, i) => {
                         return (
                           <div className="feedbackContainer" key={i}>
                             <p className="feedbackSender">{this.state[s][e].sender}</p>
@@ -132,7 +132,7 @@ class FeedbackHome extends Component {
                   <div key={i}>
                     <p className="logo">{s}</p>
                     {
-                      Object.keys(this.state[s]).map((e, i) => {
+                      Object.keys(this.state[s]).reverse().map((e, i) => {
                         return (
                           <div className="feedbackContainer" key={i}>
                             <p className="feedbackSender">{this.state[s][e].sender}</p>

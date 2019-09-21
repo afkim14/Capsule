@@ -1,14 +1,15 @@
 import React, { Component } from 'react';
 import ToolMenu from './ToolMenu';
-import { EditorState, RichUtils, AtomicBlockUtils, Modifier, ContentState, SelectionState, getDefaultKeyBinding, KeyBindingUtil, convertFromRaw, convertToRaw } from 'draft-js';
+import { EditorState, RichUtils, AtomicBlockUtils, Modifier, ContentState, SelectionState, getDefaultKeyBinding, KeyBindingUtil, convertFromRaw, convertToRaw, genKey, ContentBlock } from 'draft-js';
 import Editor, { composeDecorators } from 'draft-js-plugins-editor';
+import { List } from 'immutable'
 import Utils from '../constants/utils';
 import { TITLE_PLACEHOLDERS, BODY_PLACEHOLDERS } from '../constants/placeholders';
 import { textColorStyleMap, highlightColorStyleMap, TEXT_COLORS, HIGHLIGHT_COLORS, BACKGROUND_COLORS } from '../constants/colors';
 import { FONTS, fontStyleMap } from '../constants/fonts';
 import { TEXT_SIZES, textSizeStyleMap } from '../constants/textSizes';
 import { TemplateIDs } from '../constants/templates';
-import { NoLinkTextMsg, NoLinkMsg, InvalidImageMsg, InvalidVideoMsg, NoVideoMsg, SucessSharingMsg, ErrorSharingMsg, NoContentToShareMsg, ResizeImageMsg } from '../constants/notifications';
+import { NoLinkTextMsg, NoLinkMsg, InvalidImageMsg, InvalidVideoMsg, NoVideoMsg, SucessSharingMsg, ErrorSharingMsg, NoContentToShareMsg, ResizeImageMsg, SelectionImageMsg } from '../constants/notifications';
 import EmptyCardDialog from './EmptyCardDialog';
 import TutorialDialog from './TutorialDialog';
 import AddPasswordDialog from './AddPasswordDialog';
@@ -41,6 +42,7 @@ import { Link, Redirect } from 'react-router-dom'
 import firebase from 'firebase';
 import SignatureCanvas from 'react-signature-canvas';
 import ReactLoading from 'react-loading';
+import ScrollToTop from './ScrollToTop';
 
 toast.configure({
   position: "bottom-right",
@@ -95,6 +97,26 @@ const STATE_REDIRECTHOME = 'redirectHome';
 const mainBGColor = BACKGROUND_COLORS[0];
 let keyHistory = [{shift: false, value: " "}, {shift: false, value: " "}];
 
+const addEmptyBlock = (editorState) => {
+  const newBlock = new ContentBlock({
+    key: genKey(),
+    type: 'unstyled',
+    text: '',
+    characterList: List()
+  })
+
+  const contentState = editorState.getCurrentContent()
+  const newBlockMap = contentState.getBlockMap().set(newBlock.key, newBlock)
+
+  return [EditorState.push(
+    editorState,
+    ContentState
+      .createFromBlockArray(newBlockMap.toArray())
+      .set('selectionBefore', contentState.getSelectionBefore())
+      .set('selectionAfter', contentState.getSelectionAfter())
+  ), newBlock.key];
+}
+
 class EditorHome extends Component {
   constructor(props) {
     super(props);
@@ -127,6 +149,7 @@ class EditorHome extends Component {
       openPreviewDialog: false,
       currSelectedStamp: null,
       firstImageInserted: false,
+      getStartedMode: false,
 
       cardKey: null,
       password: null,
@@ -141,7 +164,9 @@ class EditorHome extends Component {
   componentDidMount() {
     autosize(document.querySelectorAll('textarea'));
     let cardKey = window.location.pathname.split("/").slice(-1)[0];
-    if (cardKey != "editor") {
+    if (cardKey === "getstarted") {
+      this.setState({openTutorialDialog: true, status: STATE_LOADED});
+    } else if (cardKey != "editor") {
       if (TemplateIDs.filter(t => {return t.id === cardKey}).length === 0) { this.setState({status: STATE_LOADED}); }
       try {
         firebase.database().ref("/Cards/" + cardKey).once('value', (snapshot) => {
@@ -257,7 +282,7 @@ class EditorHome extends Component {
     const content = editorState.getCurrentContent();
     if (selection.isCollapsed() && tool === 'link') {
       this.onChange(EditorState.forceSelection(editorState, selection));
-      toast.info(<NoLinkTextMsg />);
+      toast.error(<NoLinkTextMsg />);
       return;
     }
 
@@ -282,7 +307,15 @@ class EditorHome extends Component {
 
   titleKeyBindingFn = (e) => {
     if (e.keyCode === 13) {
-      return 'focus-body'
+      return 'focus-body';
+    } else if (e.keyCode === 72 /* `H` key */ && KeyBindingUtil.hasCommandModifier(e)) {
+      return 'no-action';
+    } else if (e.keyCode === 66 /* `B` key */ && KeyBindingUtil.hasCommandModifier(e)) {
+      return 'no-action';
+    } else if (e.keyCode === 85 /* `U` key */ && KeyBindingUtil.hasCommandModifier(e)) {
+      return 'no-action';
+    } else if (e.keyCode === 73 /* `I` key */ && KeyBindingUtil.hasCommandModifier(e)) {
+      return 'no-action';
     }
     return getDefaultKeyBinding(e);
   }
@@ -290,6 +323,8 @@ class EditorHome extends Component {
   handleTitleKeyCommand = (command, editorState) => {
     if (command === 'focus-body') {
       this.focus();
+      return 'handled';
+    } else if (command === 'no-action') {
       return 'handled';
     }
 
@@ -343,6 +378,26 @@ class EditorHome extends Component {
         if (currContentBlockType != "unordered-list-item" && currContentBlockDepth == 0 && selectedText[0] === "-" || selectedText[0] ==="*") {
           return 'list'
         }
+      } else if (keyHistory[0].shift && keyHistory[0].value === 51) {
+        let editorState = this.state.editorState;
+        let selectionState = editorState.getSelection();
+        let anchorKey = selectionState.getAnchorKey();
+        let currContent = editorState.getCurrentContent();
+        let currContentBlock = currContent.getBlockForKey(anchorKey);
+        let currContentBlockType = currContentBlock.getType();
+        let currContentBlockDepth = currContentBlock.getDepth();
+        let newSelection = new SelectionState({
+          anchorKey: anchorKey,
+          anchorOffset: 0,
+          focusKey: anchorKey,
+          focusOffset: currContentBlock.getLength()
+        });
+        var start = newSelection.getStartOffset();
+        var end = newSelection.getEndOffset();
+        var selectedText = currContentBlock.getText().slice(start, end);
+        if (currContentBlockType != "unordered-list-item" && currContentBlockDepth == 0 && selectedText[0] === "#") {
+          return 'header'
+        }
       }
     } else if (e.keyCode === 13 /* ENTER */) {
       let editorState = this.state.editorState;
@@ -364,13 +419,17 @@ class EditorHome extends Component {
       if (selectedText.length === 0 && currContentBlockType === 'unordered-list-item') {
         return 'remove-bulletpoint'
       }
+
+      var newEditorState = EditorState.forceSelection(editorState, newSelection);
+      if (selectedText.length > 0 && newEditorState.getCurrentInlineStyle().has(TEXT_SIZES[1].style)) {
+        return 'remove-header'
+      }
     }
 
     return getDefaultKeyBinding(e);
   }
 
   handleKeyCommand = (command, editorState) => {
-    // console.log(command);
     // CUSTOM
     if (command.includes('highlight')) {
       this.onChange(RichUtils.toggleInlineStyle(editorState, command));
@@ -410,13 +469,130 @@ class EditorHome extends Component {
         focusKey: anchorKey,
         focusOffset: 0
       });
-      this.onChange(EditorState.forceSelection(newEditorState, newSelection));
+      newEditorState = EditorState.forceSelection(newEditorState, newSelection);
+
+      let currentStyle = newEditorState.getCurrentInlineStyle();
+      let styles = ['BOLD', 'UNDERLINE'];
+      styles.forEach(style => {
+        if (currentStyle.has(style)) {
+          newEditorState = RichUtils.toggleInlineStyle(newEditorState, style);
+        }
+      });
+      if (currentStyle.has(TEXT_SIZES[1].style)) {
+        newEditorState = RichUtils.toggleInlineStyle(newEditorState, TEXT_SIZES[1].style);
+      }
+
+      this.onChange(newEditorState);
+
       return 'handled';
     } else if (command === "remove-bulletpoint") {
       this.onChange(RichUtils.toggleBlockType(
         this.state.editorState,
         'unstyled'
       ));
+      return 'handled';
+    } else if (command === "header") {
+      let editorState = this.state.editorState;
+      let selectionState = editorState.getSelection();
+      let anchorKey = selectionState.getAnchorKey();
+      let currContent = editorState.getCurrentContent();
+      var currentContentBlock = currContent.getBlockForKey(anchorKey);
+      let newSelection = new SelectionState({
+        anchorKey: anchorKey,
+        anchorOffset: 0,
+        focusKey: anchorKey,
+        focusOffset: 1
+      });
+
+      let nextContentState = Modifier.replaceText(currContent, newSelection, "");
+      let nextEditorState = EditorState.push(
+        this.state.editorState,
+        nextContentState
+      );
+
+      newSelection = new SelectionState({
+        anchorKey: anchorKey,
+        anchorOffset: 0,
+        focusKey: anchorKey,
+        focusOffset: currentContentBlock.getLength()-1
+      });
+
+      nextEditorState = EditorState.forceSelection(nextEditorState, newSelection);
+      let currentStyle = nextEditorState.getCurrentInlineStyle();
+      let styles = ['BOLD', 'UNDERLINE', 'ITALIC'];
+      styles.forEach(style => {
+        if (currentStyle.has(style)) {
+          nextEditorState = RichUtils.toggleInlineStyle(nextEditorState, style);
+        }
+      });
+      Object.keys(textSizeStyleMap).forEach(style => {
+        if (currentStyle.has(style)) {
+          nextEditorState = RichUtils.toggleInlineStyle(nextEditorState, style);
+        }
+      });
+
+      let newEditorState = RichUtils.toggleInlineStyle(
+        nextEditorState,
+        TEXT_SIZES[1].style
+      );
+      newEditorState = RichUtils.toggleInlineStyle(
+        newEditorState,
+        'BOLD'
+      );
+
+      if (newSelection.isCollapsed()) {
+        this.onChange(newEditorState);
+      } else {
+        newSelection = new SelectionState({
+          anchorKey: anchorKey,
+          anchorOffset: 0,
+          focusKey: anchorKey,
+          focusOffset: 0
+        });
+        this.onChange(EditorState.forceSelection(newEditorState, newSelection));
+      }
+      return 'handled';
+    } else if (command === 'remove-header') {
+      const selection = editorState.getSelection();
+      let contentState = editorState.getCurrentContent();
+      contentState = Modifier.splitBlock(contentState, selection);
+      const currentBlock = contentState.getBlockForKey(selection.getEndKey());
+      const nextBlock = contentState
+        .getBlockMap()
+        .toSeq()
+        .skipUntil(function(v) {
+          return v === currentBlock;
+        })
+        .rest()
+        .first();
+      const nextBlockKey = nextBlock.getKey();
+      let newSelection = new SelectionState({
+        anchorKey: nextBlockKey,
+        anchorOffset: 0,
+        focusKey: nextBlockKey,
+        focusOffset: 0
+      });
+
+      let nextEditorState = EditorState.push(editorState, contentState, 'split-block');
+      nextEditorState = EditorState.forceSelection(nextEditorState, newSelection);
+
+      let currentStyle = nextEditorState.getCurrentInlineStyle();
+      let styles = ['BOLD'];
+      styles.forEach(style => {
+        if (currentStyle.has(style)) {
+          nextEditorState = RichUtils.toggleInlineStyle(nextEditorState, style);
+        }
+      });
+      Object.keys(textSizeStyleMap).forEach(style => {
+        if (currentStyle.has(style)) {
+          nextEditorState = RichUtils.toggleInlineStyle(nextEditorState, style);
+        }
+      });
+      nextEditorState = RichUtils.toggleInlineStyle(
+        nextEditorState,
+        TEXT_SIZES[0].style
+      );
+      this.onChange(nextEditorState);
       return 'handled';
     }
 
@@ -466,7 +642,9 @@ class EditorHome extends Component {
         style.style
       );
     }
+
     this.state.titleOnFocus ? this.onTitleChange(nextEditorState) : this.onChange(nextEditorState);
+    return nextEditorState;
   }
 
   handleGlobalTextChange = (styleMap, style) => {
@@ -560,6 +738,16 @@ class EditorHome extends Component {
   }
 
   handleSubmitDrawing = (base64) => {
+    let editorState = this.state.editorState;
+    let selectionState = editorState.getSelection();
+    let anchorKey = selectionState.getAnchorKey();
+    let currContent = editorState.getCurrentContent();
+    var currentContentBlock = currContent.getBlockForKey(anchorKey);
+    if (currentContentBlock.getType() === 'atomic') {
+      toast.error(<SelectionImageMsg />);
+      return;
+    }
+
     const newEditorState = this.insertImage(this.state.editorState, base64);
     this.onChange(newEditorState);
     if (!this.state.firstImageInserted) {
@@ -569,15 +757,27 @@ class EditorHome extends Component {
   }
 
   handleImageTool = (file) => {
+    let editorState = this.state.editorState;
+    let selectionState = editorState.getSelection();
+    let anchorKey = selectionState.getAnchorKey();
+    let currContent = editorState.getCurrentContent();
+    var currentContentBlock = currContent.getBlockForKey(anchorKey);
+    if (currentContentBlock.getType() === 'atomic') {
+      toast.error(<SelectionImageMsg />);
+      return;
+    }
+
     try {
       let reader = new FileReader();
       reader.readAsDataURL(file);
       reader.onload = () => {
-        const newEditorState = this.insertImage(this.state.editorState, reader.result);
-        this.onChange(newEditorState);
-        if (!this.state.firstImageInserted) {
-          toast.info(<ResizeImageMsg />)
-          this.setState({firstImageInserted: true});
+        const newEditorState = this.insertImage(editorState, reader.result);
+        if (newEditorState) {
+          this.onChange(newEditorState);
+          if (!this.state.firstImageInserted) {
+            toast.info(<ResizeImageMsg />)
+            this.setState({firstImageInserted: true});
+          }
         }
       };
       reader.onerror = function (error) {
@@ -729,14 +929,11 @@ class EditorHome extends Component {
               bgColor={this.state.currBGColor}
             />
             <p className="logo" style={{cursor: 'pointer'}} onMouseDown={() => {this.goHome()}}>Capsule</p>
-            <div className="navbar">
-              <button className="newCardButton" style={{backgroundColor: this.state.currBGColor.value}} onMouseDown={(e) => {this.emptyCard(e)}}>New Card</button>
-              <button className="tutorialButton" style={{backgroundColor: this.state.currBGColor.value}} onMouseDown={(e) => {this.openTutorialDialog(e)}}>Tutorial</button>
-              <button className="previewButton" style={{backgroundColor: this.state.currBGColor.value}} onMouseDown={(e) => {this.openPreview(e)}}>Preview</button>
-              <button className="shareButton" style={{backgroundColor: this.state.currBGColor.value}} onMouseDown={(e) => {this.openAddStampDialog(e)}}>Send</button>
-            </div>
-            <div style={{clear: 'both'}}/>
-            <Sticky style={{position: 'absolute', zIndex: 10}}>
+            <button className="shareButton" style={{backgroundColor: this.state.currBGColor.value, float: 'right', marginTop: 30}} onMouseDown={(e) => {this.openAddStampDialog(e)}}>Send</button>
+            <button className="previewButton" style={{backgroundColor: this.state.currBGColor.value, float: 'right' , marginTop: 30}} onMouseDown={(e) => {this.openPreview(e)}}>Preview</button>
+            <button className="tutorialButton" style={{backgroundColor: this.state.currBGColor.value, float: 'right' , marginTop: 30}} onMouseDown={(e) => {this.openTutorialDialog(e)}}>Tutorial</button>
+            <div style={{marginTop: 10}}></div>
+            <Sticky className="stickyHeader">
               <div style={{paddingTop:20, paddingBottom: 20, backgroundColor: this.state.currBGColor.value}}>
                 <ToolMenu
                   show={this.state.showToolbar}
@@ -782,6 +979,7 @@ class EditorHome extends Component {
                 onFocus={() => {this.setState({titleOnFocus: true})}}
                 keyBindingFn={this.titleKeyBindingFn}
                 handleKeyCommand={this.handleTitleKeyCommand}
+                handleDrop={() => 'handled'}
                 blockStyleFn={Utils.getBlockStyle}
                 customStyleMap={{...textColorStyleMap, ...fontStyleMap }}
                 plugins={titlePlugins}
@@ -805,7 +1003,7 @@ class EditorHome extends Component {
               <EmojiSuggestions />
             </div>
             <AlignmentTool />
-            {/*<ReactMarkdown source={this.state.body} />*/}
+            <ScrollToTop />
           </div>
         </div>
       )

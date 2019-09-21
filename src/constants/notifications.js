@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 export const NoLinkTextMsg = () => (
   <div>
-    <p className="notificationText">Please <span style={{backgroundColor: "#cecece", padding: 5, display: 'inline-block', color: '#218693'}}>highlight</span> a word for the link.</p>
+    <p className="notificationText">Please <span style={{backgroundColor: "#cecece", padding: 5, display: 'inline-block', color: '#cc5252'}}>highlight</span> a word for the link.</p>
   </div>
 )
 
@@ -55,12 +55,18 @@ export const ErrorSendingFeedback = () => (
 
 export const IncorrectHexColor = () => (
   <div>
-    <p className="notificationText">Please provide a valid hexcolor (ex. #EB2F39).</p>
+    <p className="notificationText">Please provide a valid hexcolor.</p>
   </div>
 )
 
 export const ResizeImageMsg = () => (
   <div>
     <p className="notificationText">You can resize a sticker or image by manually dragging the edges.</p>
+  </div>
+)
+
+export const SelectionImageMsg = () => (
+  <div>
+    <p className="notificationText">Deselect any image to add another image.</p>
   </div>
 )

@@ -58,7 +58,7 @@ class SecondStep extends Component {
         <p className="tutorialTitle">{"Show memorable photos and videos."}</p>
         <div className="tutorialVideoContainer">
           <div style={this.state.videoLoaded ? {} : {display: 'none', visibility: 'hidden'}}>
-            <ReactPlayer url='/videos/insert-image.mp4' loop playing controls={false} width={"100%"} onReady={() => {this.setState({videoLoaded: true})}} />
+            <ReactPlayer url='/videos/insert-image.mp4' loop playing controls={false} width={"100%"} height={'100%'} onReady={() => {this.setState({videoLoaded: true})}} />
           </div>
           <div>
             <div style={{width: "10%", margin: "0px auto", display: 'block', marginTop: 100}}>

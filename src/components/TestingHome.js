@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Redirect } from 'react-router-dom';
 import TestingDialog from './TestingDialog';
+import SecondTestingDialog from './SecondTestingDialog';
 
 window.mobilecheck = function() {
   var check = false;
@@ -28,7 +29,7 @@ class TestingHome extends Component {
             </div>
           </div>
           <div className="desktopContainer">
-            <TestingDialog
+            <SecondTestingDialog
               open={this.state.openTestingDialog}
               close={() => {this.setState({openTestingDialog: false})}}
             />

@@ -44,7 +44,7 @@ class AddStampDialog extends Component {
         open={this.props.open}
         TransitionComponent={Transition}
         onClose={this.closeDialog}
-        maxWidth={'md'}
+        maxWidth={'sm'}
         aria-labelledby="alert-dialog-slide-title"
         aria-describedby="alert-dialog-slide-description"
         PaperProps={{
@@ -60,9 +60,9 @@ class AddStampDialog extends Component {
             STAMPS.map((s, i) => {
               return (
                 this.state.currStamp === s ? (
-                  <img alt={s.label} key={i} className="stampImageSelected" src={s.src} />
+                  <img alt={s.label} key={i} className="stampImageSelected" style={i === 0 ? {marginLeft: 0} : {}} src={s.src} />
                 ) : (
-                  <img alt={s.label} key={i} className="stampImage" src={s.src} onMouseDown={(e) => {this.handleStampTool(s, e)}} />
+                  <img alt={s.label} key={i} className="stampImage" style={i === 0 ? {marginLeft: 0} : {}} src={s.src} onMouseDown={(e) => {this.handleStampTool(s, e)}} />
                 )
               )
             })
@@ -70,11 +70,11 @@ class AddStampDialog extends Component {
           <div style={{clear: 'both'}}/>
           {
             this.state.currStamp === null ? (
-              <div className="dialogButtonInactive" style={{float: 'right', marginTop: 20}}>
+              <div className="dialogButtonInactive" style={{float: 'left', marginTop: 20}}>
                 <p>Select</p>
               </div>
             ) : (
-              <div className="dialogButton" style={{float: 'right', marginTop: 20}} onMouseDown={(e) => {this.confirmStamp(e)}}>
+              <div className="dialogButton" style={{float: 'left', marginTop: 20}} onMouseDown={(e) => {this.confirmStamp(e)}}>
                 <p>Select</p>
               </div>
             )

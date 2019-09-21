@@ -23,6 +23,8 @@ import 'draft-js-image-plugin/lib/plugin.css';
 import { Link} from 'react-router-dom';
 import ReactLoading from 'react-loading';
 import Fade from 'react-reveal/Fade';
+import Sticky from 'react-sticky-el';
+import ScrollToTop from './ScrollToTop';
 
 const resizeablePlugin = createResizeablePlugin();
 const alignmentPlugin = createAlignmentPlugin();
@@ -178,21 +180,20 @@ class ViewerHome extends Component {
             cardKey={this.state.cardKey}
             password={this.state.password}
           />
+          {/*
           <TutorialDialog
             open={this.state.openTutorialDialog}
             close={() => {this.setState({openTutorialDialog: false})}}
           />
+          */}
           <Link style={{textDecoration: 'none'}} to="/">
             <p className="logo">Capsule</p>
           </Link>
-          <div className="navbar" style={{marginBottom: 20}}>
-            <Link to="/editor">
-              <button style={{backgroundColor: this.state.currBGColor.value}} className="newCardButton mainBGColor">New Card</button>
-            </Link>
-            <button className="tutorialButton" style={{backgroundColor: this.state.currBGColor.value}} onMouseDown={(e) => {this.openTutorialDialog(e)}}>Tutorial</button>
-            <button className="shareButton mainBGColor" style={{backgroundColor: this.state.currBGColor.value}}  onMouseDown={() => {this.shareCard()}}>Send</button>
-          </div>
-          <div style={{clear: 'both'}}/>
+          <button className="shareButton mainBGColor" style={{backgroundColor: this.state.currBGColor.value, float: 'right', marginTop: 30}}  onMouseDown={() => {this.shareCard()}}>Share</button>
+          <Link to="/editor">
+            <button style={{backgroundColor: this.state.currBGColor.value, float: 'right', marginTop: 30}} className="newCardButton mainBGColor">New Card</button>
+          </Link>
+          <div style={{marginTop: 40, clear: 'both'}}></div>
           <div className="titleTextArea mainFGColor" style={{fontFamily: this.state.currFont.value}}>
             <Editor
               editorState={this.state.titleEditorState}
@@ -213,6 +214,7 @@ class ViewerHome extends Component {
               plugins={plugins}
             />
           </div>
+          <ScrollToTop />
         </div>
       )
     } else if (this.state.status === STATE_AUTH) {
@@ -226,6 +228,7 @@ class ViewerHome extends Component {
       )
     } else if (this.state.status === STATE_COVER) {
       return (
+        <Fade left>
           <div className="cardImageContainer"
             style={{backgroundImage: `url(${this.state.cardImageURL})`}}
           >
@@ -238,6 +241,7 @@ class ViewerHome extends Component {
             <img className="stampAnimation" src={this.state.currStamp}/>
             {/*<p className="warningMessage mainFGColor mainBGColor stampAnimationText" style={{color: "#39b287", fontWeight: 'bold'}}>Click stamp to open Capsule.</p>*/}
           </div>
+        </Fade>
       )
     } else if (this.state.status === STATE_FAILED) {
       return (

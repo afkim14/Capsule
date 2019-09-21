@@ -55,6 +55,7 @@ class PreviewDialog extends Component {
     super(props);
     this.state = {
       currFont: FONTS[0],
+      currHoverImage: "/images/close-01.png"
     }
 
     this.onTitleChange = (titleEditorState) => this.setState({titleEditorState});
@@ -78,6 +79,15 @@ class PreviewDialog extends Component {
             },
           }}
         >
+          <div style={{display: 'block'}}>
+            <img
+              src={this.state.currHoverImage}
+              style={{width: '2%', margin: 20, float: 'right', cursor: 'pointer'}}
+              onMouseEnter={() => {this.setState({currHoverImage: "/images/close-dark-01.png"})}}
+              onMouseLeave={() => {this.setState({currHoverImage: "/images/close-01.png"})}}
+              onMouseDown={this.props.close}
+            />
+          </div>
           <div className="dialogContent" style={{width: "50%", margin: "0px auto"}}>
             <div className="titleTextArea mainFGColor" style={{fontFamily: this.state.currFont.value}}>
               <Editor

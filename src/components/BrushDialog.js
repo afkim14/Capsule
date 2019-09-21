@@ -54,7 +54,7 @@ class BrushDialog extends Component {
       >
         <div className="dialogContent">
           <p className="tutorialTitle">{"Draw your sketch."}</p>
-          <div className="textColorsContainer" style={{marginTop: 10}}>
+          <div className="textColorsContainer" style={{marginTop: 10, width: "100%"}}>
             {
               TEXT_COLORS.map((c, i) => {
                 return (

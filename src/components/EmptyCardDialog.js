@@ -43,11 +43,11 @@ class EmptyCardDialog extends Component {
             </DialogContent>
           </div>
           <DialogActions>
-            <div className="declineButton" onMouseDown={this.props.handleCancel}>
-              <p>No</p>
+            <div className="declineButton" onMouseDown={this.props.handleCancel} style={{border: "2px solid #39b287", color: "#39b287"}}>
+              <p>No, Keep</p>
             </div>
-            <div className="dialogButton" onMouseDown={this.props.handleAccept}>
-              <p>Yes</p>
+            <div className="dialogButton" onMouseDown={this.props.handleAccept} style={{border: "2px solid #cc5252", color: "#cc5252"}}>
+              <p>Yes, Delete</p>
             </div>
           </DialogActions>
         </Dialog>

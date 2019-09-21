@@ -11,6 +11,7 @@ import Utils from '../constants/utils'
 import { Link } from 'react-router-dom'
 import {
   FacebookShareButton,
+  FacebookIcon,
   EmailShareButton,
   EmailIcon
 } from 'react-share';
@@ -51,9 +52,23 @@ class ShareDialog extends Component {
         >
           <div className="dialogContent">
             <p className="tutorialTitle" style={{marginBottom: 10}}>{"Send your card."}</p>
-            <div className="linkContainer" onMouseDown={() => {Utils.openInNewTab(BASE_URL + this.props.cardKey + "/" + this.props.password)}}>
-              <p className="link" style={{color: "#3e3e3e"}}>{BASE_URL + this.props.cardKey + "/" + this.props.password}</p>
-            </div>
+            <CopyToClipboard text={BASE_URL + this.props.cardKey + "/" + this.props.password} onCopy={() => this.setState({urlCopied: true, pwCopied: false})}>
+              <div>
+                <div className="linkContainer">
+                  <p className="link" style={{color: "#3e3e3e"}}>{BASE_URL + this.props.cardKey + "/" + this.props.password}</p>
+                </div>
+                <div className="mobileLinkContainer">
+                  <p style={{color: "#3e3e3e", margin: "0px auto", paddingLeft: 3}}>{this.props.cardKey}</p>
+                </div>
+              </div>
+            </CopyToClipboard>
+            {
+              this.state.urlCopied ? (
+                <p className="copiedMessage">URL copied.</p>
+              ) : (
+                <p className="copiedMessage" style={{color: "#777777"}}>Click to copy.</p>
+              )
+            }
             {/*
             <p className="dialogHeader">Password</p>
             <CopyToClipboard text={this.props.password} onCopy={() => this.setState({pwCopied: true, urlCopied: false})}>
@@ -70,20 +85,17 @@ class ShareDialog extends Component {
             }
             */}
             <div style={{clear: 'both'}}/>
-            {/*
+            <div style={{height: 2, backgroundColor: "#333333", marginTop: 20, marginBottom: 20}} />
             <FacebookShareButton
-              style={{outline: 'none'}}
-              quote={"Hey, I wrote you a Capsule! The password is: " + this.props.password + "."}
-              url={BASE_URL + this.props.cardKey}
+              style={{outline: 'none', float: 'left'}}
+              url={BASE_URL + this.props.cardKey + "/" + this.props.password}
             >
-              <div className="dialogButton" style={{float: 'left', marginRight: 10}}>
-                <p className="shareSocialMediaText">Facebook</p>
+              <div className="shareSocialMediaButton">
+                <FacebookIcon size={40} round={true} />
               </div>
             </FacebookShareButton>
-            */}
-            <div style={{height: 2, backgroundColor: "#333333", marginTop: 20, marginBottom: 20}} />
             <EmailShareButton
-              style={{outline: 'none', margin: "0px auto", display: 'inline-block', float: 'left'}}
+              style={{outline: 'none', float: 'left'}}
               subject={"[Capsule] A New Capsule Has Arrived!"}
               body={"Hey, I wrote you a Capsule! Here's the link: \n\n"}
               url={BASE_URL + this.props.cardKey + "/" + this.props.password}
@@ -93,7 +105,6 @@ class ShareDialog extends Component {
                 <EmailIcon size={40} round={true} />
               </div>
             </EmailShareButton>
-            <p style={{float: 'left', color: "#cecece", fontSize: 16, marginLeft: 5}}>andreskim2018@u.northwestern.edu</p>
           </div>
         </Dialog>
       </div>

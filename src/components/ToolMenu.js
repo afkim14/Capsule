@@ -304,6 +304,7 @@ class CardBackgroundTools extends Component {
         }
         <div id="bgDropdown" className="bg-dropdown-content">
           <p className="bgHeader">{"Card Background"}</p>
+          <div style={{marginTop: 10}}/>
           {
             this.props.props.backgroundColors.map((c, i) => {
               return (
@@ -315,6 +316,7 @@ class CardBackgroundTools extends Component {
               )
             })
           }
+          <div style={{marginTop: 10}}/>
         </div>
       </div>
     )
